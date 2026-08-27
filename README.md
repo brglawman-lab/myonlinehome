@@ -33,16 +33,24 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
 
     GET  /api/sightings              public
     GET  /api/custom-species         public
+    GET  /api/recipes                public
+    GET  /api/recipes/deleted        public
     POST /private/api/sightings      behind Cloudflare Access
     DEL  /private/api/sightings/:id  behind Cloudflare Access
     POST /private/api/custom-species behind Cloudflare Access
+    POST /private/api/recipes        behind Cloudflare Access
+    DEL  /private/api/recipes/:id    behind Cloudflare Access
 
 The wildlife tracker is offline-first: the database is the source of truth,
 localStorage is a cache, and writes made with no signal or no login are queued
 and flushed automatically. See `db/SETUP.md` for the Cloudflare steps.
 
-The recipe book still uses `localStorage` for recipes added through its form —
-the `recipes` table exists but the client is not wired up yet.
+The recipe book works the same way. The 51 recipes in
+`public/recipes/index.html` stay in the file as a seed — they render instantly
+and work offline — and the database holds the overlay: recipes added through
+the form, edits to seeded ones, and deletions. The database wins by id.
+Deleting a seeded recipe writes a tombstone row, otherwise the seed would put
+it straight back on the next load.
 
 ## Changes from the original sources
 

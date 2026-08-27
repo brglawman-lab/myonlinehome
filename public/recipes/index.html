@@ -384,6 +384,145 @@ function loadRecipes() {
 function saveRecipesToStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
 let recipes = loadRecipes();
 
+/* ---------------------------------------------------------------------------
+ * Database sync.
+ *
+ * The recipes in DEFAULT_RECIPES above stay in this file: they render instantly
+ * and still work with no network. The database holds the overlay — recipes
+ * added here, edits to seeded ones, and deletions — and wins by id when both
+ * have the same recipe.
+ *
+ *   read   GET  /api/recipes           public
+ *   read   GET  /api/recipes/deleted   public
+ *   write  POST /private/api/recipes   behind the login
+ *
+ * Writes made while signed out or offline are queued and flushed later, so
+ * nothing is lost by typing a recipe in on a train.
+ * ------------------------------------------------------------------------- */
+const RecipeSync = (() => {
+  const LS_QUEUE   = 'chefclaude.pendingRecipes.v1';
+  const API_READ   = '/api/recipes';
+  const API_GONE   = '/api/recipes/deleted';
+  const API_WRITE  = '/private/api/recipes';
+
+  let queue  = [];
+  let status = { online: false, pending: 0, needsSignIn: false };
+
+  function loadQueue() {
+    try { const raw = localStorage.getItem(LS_QUEUE); queue = raw ? JSON.parse(raw) : []; }
+    catch (e) { queue = []; }
+    if (!Array.isArray(queue)) queue = [];
+  }
+
+  function saveQueue() {
+    try { localStorage.setItem(LS_QUEUE, JSON.stringify(queue)); } catch (e) {}
+    status.pending = queue.length;
+    renderPill();
+  }
+
+  function mergeById(base, overlay) {
+    const map = new Map(base.map(r => [r.id, r]));
+    for (const r of overlay) map.set(r.id, r);
+    return [...map.values()];
+  }
+
+  async function pull() {
+    let dbRecipes = null, gone = [];
+    try {
+      const [a, b] = await Promise.all([
+        fetch(API_READ, { cache: 'no-store' }),
+        fetch(API_GONE, { cache: 'no-store' })
+      ]);
+      if (a.ok) { const j = await a.json(); if (Array.isArray(j)) dbRecipes = j; }
+      if (b.ok) { const j = await b.json(); if (Array.isArray(j)) gone = j; }
+    } catch (e) {
+      console.warn('Recipe database unreachable, showing the copy in this file.', e);
+    }
+
+    status.online = dbRecipes !== null;
+    if (dbRecipes === null) return false;
+
+    const goneSet = new Set(gone);
+    let merged = mergeById(DEFAULT_RECIPES, dbRecipes);
+    merged = mergeById(merged, queue);
+    merged = merged.filter(r => !goneSet.has(r.id));
+    recipes = merged;
+    saveRecipesToStorage(recipes);
+    return true;
+  }
+
+  async function flush() {
+    if (!navigator.onLine) { status.online = false; renderPill(); return; }
+    if (queue.length === 0) { status.needsSignIn = false; renderPill(); return; }
+    try {
+      const res = await fetch(API_WRITE, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(queue)
+      });
+      const type = res.headers.get('content-type') || '';
+      if (res.status === 401 || !type.includes('application/json')) {
+        const err = new Error('Not signed in'); err.needsSignIn = true; throw err;
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      await res.json();
+      queue = [];
+      status.needsSignIn = false;
+    } catch (e) {
+      // A write to a login-protected path with no session is bounced to another
+      // domain, which fetch reports as a TypeError rather than a readable reply.
+      const networkLevel = e instanceof TypeError;
+      status.needsSignIn = Boolean(e.needsSignIn) || (navigator.onLine && networkLevel);
+      console.warn('Recipe sync failed, keeping it queued.', e);
+    }
+    saveQueue();
+  }
+
+  function renderPill() {
+    let el = document.getElementById('cc-sync-status');
+    if (status.pending === 0) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'cc-sync-status';
+      el.style.cssText =
+        'position:fixed;bottom:14px;right:14px;z-index:99999;max-width:280px;' +
+        'padding:9px 14px;border-radius:10px;background:rgba(250,248,244,0.97);' +
+        'border:1px solid rgba(45,74,62,0.22);box-shadow:0 3px 14px rgba(0,0,0,0.14);' +
+        "font:400 13px/1.4 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:#2a2a2a";
+      document.body.appendChild(el);
+    }
+    const n = status.pending, word = n === 1 ? 'recipe' : 'recipes';
+    if (status.needsSignIn) {
+      el.innerHTML = '<strong style="color:#c4622d">' + n + ' ' + word + ' saved on this device</strong><br>' +
+        '<a href="/private/" target="_blank" rel="noopener" style="color:#2d4a3e">Sign in</a> to sync ' +
+        (n === 1 ? 'it' : 'them') + ' to the database.';
+    } else if (!navigator.onLine) {
+      el.innerHTML = '<strong>Offline</strong><br>' + n + ' ' + word + ' will sync when you are back online.';
+    } else {
+      el.innerHTML = 'Syncing ' + n + ' ' + word + '…';
+    }
+  }
+
+  async function init() {
+    loadQueue();
+    status.pending = queue.length;
+    const ok = await pull();
+    if (ok && typeof render === 'function') render();
+    await flush();
+    window.addEventListener('online', flush);
+    window.addEventListener('offline', renderPill);
+  }
+
+  function push(recipe) {
+    queue = queue.filter(r => r.id !== recipe.id).concat([recipe]);
+    saveQueue();
+    flush();
+  }
+
+  return { init, push, flush, state: () => ({ ...status }) };
+})();
+
+
 const SECTIONS_ORDER = [
   { id: 'starters',    label: 'Starters' },
   { id: 'fish',        label: 'Seafood' },
@@ -639,6 +778,7 @@ function saveRecipe() {
   };
   recipes.unshift(recipe);
   saveRecipesToStorage(recipes);
+  RecipeSync.push(recipe);
   closeAdd();
   render();
   ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
@@ -1222,5 +1362,9 @@ function foragingCountBarText(q) {
 
 render();
 setupScrollspy();
+
+// First paint uses the copy in this file so the book is readable immediately;
+// the database overlay arrives a moment later and re-renders.
+RecipeSync.init();
 </script>
 </body></html>

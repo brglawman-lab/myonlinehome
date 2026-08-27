@@ -13,6 +13,10 @@ import {
   createSightings,
   deleteSighting,
   createCustomSpecies,
+  listRecipes,
+  listDeletedRecipes,
+  saveRecipes,
+  deleteRecipe,
 } from "./api.js";
 
 export default {
@@ -35,6 +39,14 @@ export default {
         if (method === "GET") return listCustomSpecies(env);
         return json({ error: "Read-only. Write to /private/api/custom-species." }, 405);
       }
+      if (path === "/api/recipes") {
+        if (method === "GET") return listRecipes(env);
+        return json({ error: "Read-only. Write to /private/api/recipes." }, 405);
+      }
+      if (path === "/api/recipes/deleted") {
+        if (method === "GET") return listDeletedRecipes(env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
 
       // ---- writes, behind Cloudflare Access ----
       if (path === "/private/api/sightings") {
@@ -48,6 +60,15 @@ export default {
       }
       if (path === "/private/api/custom-species") {
         if (method === "POST") return createCustomSpecies(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/private/api/recipes") {
+        if (method === "POST") return saveRecipes(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path.startsWith("/private/api/recipes/")) {
+        const id = decodeURIComponent(path.slice("/private/api/recipes/".length));
+        if (method === "DELETE") return deleteRecipe(request, env, id);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

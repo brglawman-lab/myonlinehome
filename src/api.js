@@ -203,3 +203,152 @@ export async function createCustomSpecies(request, env) {
   await env.DB.batch(batch);
   return json({ saved: batch.length });
 }
+
+/* ---------- recipes ----------
+ *
+ * The 51 recipes shipped in the recipe book's HTML stay there as a seed: they
+ * are reference content that renders instantly and still works with no network.
+ * The database holds the overlay — recipes Ben adds, edits to seeded ones, and
+ * deletions. The client merges the two, database winning by id.
+ *
+ * ingredients and steps are stored as JSON strings because D1 is SQLite.
+ */
+
+const parseJsonColumn = (raw, fallback) => {
+  if (raw == null) return fallback;
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+export async function listRecipes(env) {
+  if (!env.DB) return noDb();
+  const { results } = await env.DB.prepare(
+    `SELECT id, section, title, category, serves, time, calories, description,
+            ingredients, steps, notes, image, updated_at
+       FROM recipes
+      WHERE deleted_at IS NULL
+      ORDER BY updated_at DESC`
+  ).all();
+
+  return json(
+    (results || []).map((r) => ({
+      id: r.id,
+      section: r.section,
+      title: r.title,
+      category: r.category,
+      serves: r.serves,
+      time: r.time,
+      calories: r.calories,
+      description: r.description,
+      ingredients: parseJsonColumn(r.ingredients, []),
+      steps: parseJsonColumn(r.steps, []),
+      notes: r.notes,
+      image: r.image,
+      updatedAt: r.updated_at,
+    }))
+  );
+}
+
+/* Ids of recipes deleted from the database. The client needs these so it can
+ * drop a seeded recipe that Ben has since removed — otherwise the seed would
+ * resurrect it on every load. */
+export async function listDeletedRecipes(env) {
+  if (!env.DB) return noDb();
+  const { results } = await env.DB.prepare(
+    `SELECT id FROM recipes WHERE deleted_at IS NOT NULL`
+  ).all();
+  return json((results || []).map((r) => r.id));
+}
+
+export async function saveRecipes(request, env) {
+  if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Body must be JSON" }, 400);
+  }
+
+  const rows = Array.isArray(body) ? body : [body];
+  if (rows.length === 0) return json({ saved: 0, ids: [] });
+  if (rows.length > 100) return json({ error: "Too many recipes in one request" }, 413);
+
+  const stmt = env.DB.prepare(
+    `INSERT INTO recipes
+       (id, section, title, category, serves, time, calories, description,
+        ingredients, steps, notes, image, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       section     = excluded.section,
+       title       = excluded.title,
+       category    = excluded.category,
+       serves      = excluded.serves,
+       time        = excluded.time,
+       calories    = excluded.calories,
+       description = excluded.description,
+       ingredients = excluded.ingredients,
+       steps       = excluded.steps,
+       notes       = excluded.notes,
+       image       = excluded.image,
+       updated_at  = excluded.updated_at,
+       deleted_at  = NULL`
+  );
+
+  const now = new Date().toISOString();
+  const ids = [];
+  const batch = [];
+
+  for (const r of rows) {
+    if (!r || !r.id || !r.title) {
+      return json({ error: "Each recipe needs an id and a title" }, 400);
+    }
+    ids.push(r.id);
+    batch.push(
+      stmt.bind(
+        r.id,
+        r.section ?? "other",
+        r.title,
+        r.category ?? r.section ?? null,
+        r.serves ?? null,
+        r.time ?? null,
+        r.calories ?? null,
+        r.description ?? null,
+        JSON.stringify(Array.isArray(r.ingredients) ? r.ingredients : []),
+        JSON.stringify(Array.isArray(r.steps) ? r.steps : []),
+        r.notes ?? null,
+        r.image ?? null,
+        r.createdAt || now,
+        now
+      )
+    );
+  }
+
+  await env.DB.batch(batch);
+  return json({ saved: ids.length, ids });
+}
+
+export async function deleteRecipe(request, env, id) {
+  if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
+  if (!id) return json({ error: "Missing id" }, 400);
+
+  const now = new Date().toISOString();
+
+  /* A seeded recipe has no database row, so there is nothing to soft-delete.
+   * Insert a tombstone instead, otherwise the seed puts it straight back. */
+  await env.DB.prepare(
+    `INSERT INTO recipes (id, section, title, created_at, updated_at, deleted_at)
+     VALUES (?, 'deleted', '(deleted)', ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET deleted_at = excluded.deleted_at, updated_at = excluded.updated_at`
+  )
+    .bind(id, now, now, now)
+    .run();
+
+  return json({ deleted: 1, id });
+}
