@@ -110,6 +110,7 @@
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-strong); background: white; }
   .form-group textarea { resize: vertical; min-height: 80px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
   .form-hint { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
   .save-btn { width: 100%; padding: 11px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 1rem; transition: opacity 0.15s; }
   .save-btn:hover { opacity: 0.88; }
@@ -177,7 +178,7 @@
     .header-inner { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 8px; }
     .logo { flex: 1; }
     .header-controls { max-width: 100%; }
-    .form-row { grid-template-columns: 1fr; }
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
     .recipe-head { grid-template-columns: 1fr auto; gap: 8px; padding: 12px 4px; }
     .recipe-head .tag-wrap { display: none; }
     .recipe-meta { display: none; }
@@ -285,15 +286,16 @@ transition:background .15s ease,color .15s ease}
         <select id="f-cat"><!-- filled from SECTIONS_ORDER --></select>
       </div>
     </div>
-    <div class="form-row">
+    <div class="form-row three">
       <div class="form-group"><label>Serves</label><input type="text" id="f-serves" placeholder="e.g. 2–3"></div>
       <div class="form-group"><label>Time</label><input type="text" id="f-time" placeholder="e.g. 45 mins"></div>
+      <div class="form-group"><label>Calories</label><input type="number" id="f-calories" min="0" step="10" inputmode="numeric" placeholder="per serving"></div>
     </div>
     <div class="form-group"><label>Short description</label><input type="text" id="f-desc" placeholder="One line summary"></div>
     <div class="form-group">
       <label>Ingredients</label>
       <textarea id="f-ingredients" placeholder="One per line: 250g macaroni&#10;40g butter&#10;500ml milk"></textarea>
-      <div class="form-hint">Format: amount then ingredient, e.g. "250g macaroni"</div>
+      <div class="form-hint">Format: amount then ingredient, e.g. "250g macaroni" or "1 tsp Dijon mustard"</div>
     </div>
     <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
     <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
@@ -791,6 +793,40 @@ function populateCategorySelect() {
 }
 populateCategorySelect();
 
+/* Splits an ingredient line into amount and item. A unit word only joins the
+ * amount when it really is one, so "1 tsp Dijon mustard" splits correctly while
+ * "2 medium carrots" keeps "medium" with the carrots. Anything it cannot read
+ * confidently goes in whole as the item with a blank amount — that still renders,
+ * and re-parses to the same thing the next time the recipe is edited, which is
+ * the property that matters: opening a recipe and saving it must never move text
+ * from one field to the other. */
+const ING_UNITS = ['g','kg','mg','ml','l','litre','litres','tsp','tsps','teaspoon','teaspoons','tbsp','tbsps','tablespoon','tablespoons','cup','cups','pinch','pinches','handful','handfuls','clove','cloves','sprig','sprigs','stalk','stalks','stick','sticks','bunch','bunches','slice','slices','rasher','rashers','can','cans','tin','tins','jar','jars','packet','packets','pack','packs','punnet','punnets','sheet','sheets','strip','strips','fillet','fillets','knob','knobs','splash','splashes','dash','dashes','drizzle','drop','drops','piece','pieces','bulb','bulbs','nest','nests','grind','grinds','glug','glugs'];
+const ING_ADJS = ['thick','thin','small','large','medium','good','generous','heaped','level','rounded','scant','big'];
+const ING_BARE = ['pinch','handful','bunch','dash','splash','drizzle','knob','glug','few','some'];
+const ING_PHRASES = ['to taste','to serve','to cook','to finish','to garnish','optional','generous'];
+const ING_AMOUNT_RE = (() => {
+  const num   = '(?:\\d+/\\d+|\\d+(?:[.,]\\d+)?|[½¼¾⅓⅔⅛⅜⅝⅞]|\\d+\\s*[½¼¾⅓⅔⅛⅜⅝⅞])';
+  const qty   = num + '(?:\\s*[–—-]\\s*' + num + ')?';
+  const unit  = '(?:\\s*(?:(?:' + ING_ADJS.join('|') + ')\\s+)?(?:' + ING_UNITS.join('|') + ')(?=\\s|$))?';
+  return new RegExp(
+    '^(' +
+      '(?:~|approx\\.?\\s*)?' + qty + unit + '(?:\\s*x\\s*' + qty + unit + ')?' +
+      '|(?:a few|few)\\s+(?:' + ING_UNITS.join('|') + ')' +
+      '|(?:(?:' + ING_ADJS.join('|') + ')\\s+)?(?:' + ING_BARE.join('|') + ')' +
+      '|(?:' + ING_PHRASES.join('|') + ')' +
+    ')(?=\\s|$)\\s*', 'i');
+})();
+
+function parseIngredientLine(line) {
+  const text = String(line == null ? '' : line).trim();
+  if (!text) return null;
+  const m = text.match(ING_AMOUNT_RE);
+  if (!m) return { amount: '', item: text };
+  const item = text.slice(m[0].length).trim();
+  if (!item) return { amount: '', item: text };
+  return { amount: m[1].trim().replace(/\s+/g, ' '), item };
+}
+
 let editingId = null;
 
 function openAddModal(id) {
@@ -808,6 +844,7 @@ function openAddModal(id) {
     set('f-cat', r.section || 'starters');
     set('f-serves', r.serves || '');
     set('f-time', r.time || '');
+    set('f-calories', r.calories || '');
     set('f-desc', r.description || '');
     set('f-ingredients', (r.ingredients || []).map(i => ((i.amount ? i.amount + ' ' : '') + i.item)).join('\n'));
     set('f-steps', (r.steps || []).join('\n'));
@@ -816,7 +853,7 @@ function openAddModal(id) {
     editingId = null;
     t.textContent = 'Add a recipe';
     btn.textContent = 'Save recipe';
-    ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(f => set(f, ''));
+    ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes'].forEach(f => set(f, ''));
   }
   document.getElementById('addOverlay').classList.add('open');
 }
@@ -855,12 +892,7 @@ function saveRecipe() {
   const existing = editingId ? recipes.find(r => r.id === editingId) : null;
   const rawIngredients = document.getElementById('f-ingredients').value.trim();
   const rawSteps = document.getElementById('f-steps').value.trim();
-  const ingredients = rawIngredients ? rawIngredients.split('\n').filter(Boolean).map(line => {
-    const parts = line.trim().split(/\s+/);
-    const amount = parts[0] || '';
-    const item = parts.slice(1).join(' ') || line.trim();
-    return { amount, item };
-  }) : [];
+  const ingredients = rawIngredients ? rawIngredients.split('\n').map(parseIngredientLine).filter(Boolean) : [];
   const steps = rawSteps ? rawSteps.split('\n').filter(Boolean) : [];
   const recipe = {
     // Editing keeps the id, so the database row replaces the old one instead of
@@ -876,7 +908,8 @@ function saveRecipe() {
     ingredients, steps,
     notes: document.getElementById('f-notes').value.trim(),
     // Fields the form doesn't cover must survive an edit.
-    calories: existing ? existing.calories : undefined,
+    // The form covers calories now, so a cleared field is a deliberate clear.
+    calories: document.getElementById('f-calories').value.trim() || undefined,
     image: existing ? existing.image : undefined
   };
   if (editingId) {
@@ -890,7 +923,7 @@ function saveRecipe() {
   editingId = null;
   closeAdd();
   render();
-  ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
 }
 
 document.addEventListener('keydown', (e) => {
