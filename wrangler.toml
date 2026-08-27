@@ -17,10 +17,7 @@ not_found_handling = "404-page"
 # Static assets are matched first. Anything with no matching file — /api/…,
 # /private/api/… — falls through to the Worker in src/index.js.
 
-# Uncomment once the D1 database exists (db/SETUP.md step 1) and paste its id.
-# Until then env.DB is undefined and the API answers 503 rather than crashing.
-#
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "myonlinehome"
-# database_id = "PASTE_DATABASE_ID_HERE"
+[[d1_databases]]
+binding = "DB"
+database_name = "myonlinehome"
+database_id = "affffb62-0294-4017-817a-c53635ce9cb2"
