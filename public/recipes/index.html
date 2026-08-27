@@ -278,16 +278,11 @@ transition:background .15s ease,color .15s ease}
 <div class="modal-overlay" id="addOverlay" onclick="closeAdd(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeAdd()">✕</button>
-    <h2 style="margin-bottom:1.25rem;">Add a recipe</h2>
+    <h2 style="margin-bottom:1.25rem;" id="addTitle">Add a recipe</h2>
     <div class="form-row">
       <div class="form-group"><label>Title</label><input type="text" id="f-title" placeholder="e.g. Beef short rib"></div>
       <div class="form-group"><label>Category</label>
-        <select id="f-cat">
-          <option value="pasta">Pasta</option><option value="rice">Rice</option><option value="fish">Seafood</option>
-          <option value="meat">Meat</option><option value="chicken">Chicken</option><option value="tacos">Tacos</option>
-          <option value="veg">Veg</option><option value="soup">Soup</option><option value="sides">Sides</option>
-          <option value="baking">Baking</option><option value="other">Other</option>
-        </select>
+        <select id="f-cat"><!-- filled from SECTIONS_ORDER --></select>
       </div>
     </div>
     <div class="form-row">
@@ -302,7 +297,7 @@ transition:background .15s ease,color .15s ease}
     </div>
     <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
     <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
-    <button class="save-btn" onclick="saveRecipe()">Save recipe</button>
+    <button class="save-btn" id="addSaveBtn" onclick="saveRecipe()">Save recipe</button>
   </div>
 </div>
 
@@ -405,18 +400,25 @@ const RecipeSync = (() => {
   const API_GONE   = '/api/recipes/deleted';
   const API_WRITE  = '/private/api/recipes';
 
-  let queue  = [];
+  let queue  = [];   // recipes waiting to be written
+  let gone   = [];   // ids waiting to be deleted
   let status = { online: false, pending: 0, needsSignIn: false };
 
   function loadQueue() {
-    try { const raw = localStorage.getItem(LS_QUEUE); queue = raw ? JSON.parse(raw) : []; }
-    catch (e) { queue = []; }
+    try {
+      const raw = localStorage.getItem(LS_QUEUE);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(parsed)) { queue = parsed; gone = []; }   // the earlier format
+      else if (parsed && typeof parsed === 'object') { queue = parsed.writes || []; gone = parsed.deletes || []; }
+      else { queue = []; gone = []; }
+    } catch (e) { queue = []; gone = []; }
     if (!Array.isArray(queue)) queue = [];
+    if (!Array.isArray(gone)) gone = [];
   }
 
   function saveQueue() {
-    try { localStorage.setItem(LS_QUEUE, JSON.stringify(queue)); } catch (e) {}
-    status.pending = queue.length;
+    try { localStorage.setItem(LS_QUEUE, JSON.stringify({ writes: queue, deletes: gone })); } catch (e) {}
+    status.pending = queue.length + gone.length;
     renderPill();
   }
 
@@ -445,7 +447,7 @@ const RecipeSync = (() => {
     const goneSet = new Set(gone);
     let merged = mergeById(DEFAULT_RECIPES, dbRecipes);
     merged = mergeById(merged, queue);
-    merged = merged.filter(r => !goneSet.has(r.id));
+    merged = merged.filter(r => !goneSet.has(r.id) && !gone.includes(r.id));
     recipes = merged;
     saveRecipesToStorage(recipes);
     return true;
@@ -453,20 +455,30 @@ const RecipeSync = (() => {
 
   async function flush() {
     if (!navigator.onLine) { status.online = false; renderPill(); return; }
-    if (queue.length === 0) { status.needsSignIn = false; renderPill(); return; }
+    if (queue.length === 0 && gone.length === 0) { status.needsSignIn = false; renderPill(); return; }
     try {
-      const res = await fetch(API_WRITE, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(queue)
-      });
-      const type = res.headers.get('content-type') || '';
-      if (res.status === 401 || !type.includes('application/json')) {
-        const err = new Error('Not signed in'); err.needsSignIn = true; throw err;
+      if (queue.length) {
+        const res = await fetch(API_WRITE, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(queue)
+        });
+        const type = res.headers.get('content-type') || '';
+        if (res.status === 401 || !type.includes('application/json')) {
+          const err = new Error('Not signed in'); err.needsSignIn = true; throw err;
+        }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        await res.json();
+        queue = [];
       }
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      await res.json();
-      queue = [];
+      for (const id of [...gone]) {
+        const res = await fetch(API_WRITE + '/' + encodeURIComponent(id), { method: 'DELETE' });
+        const type = res.headers.get('content-type') || '';
+        if (res.status === 401 || !type.includes('application/json')) {
+          const err = new Error('Not signed in'); err.needsSignIn = true; throw err;
+        }
+        gone = gone.filter(g => g !== id);
+      }
       status.needsSignIn = false;
     } catch (e) {
       // A write to a login-protected path with no session is bounced to another
@@ -491,7 +503,7 @@ const RecipeSync = (() => {
         "font:400 13px/1.4 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:#2a2a2a";
       document.body.appendChild(el);
     }
-    const n = status.pending, word = n === 1 ? 'recipe' : 'recipes';
+    const n = status.pending, word = n === 1 ? 'change' : 'changes';
     if (status.needsSignIn) {
       el.innerHTML = '<strong style="color:#c4622d">' + n + ' ' + word + ' saved on this device</strong><br>' +
         '<a href="/private/" target="_blank" rel="noopener" style="color:#2d4a3e">Sign in</a> to sync ' +
@@ -515,11 +527,23 @@ const RecipeSync = (() => {
 
   function push(recipe) {
     queue = queue.filter(r => r.id !== recipe.id).concat([recipe]);
+    gone = gone.filter(g => g !== recipe.id);
     saveQueue();
     flush();
   }
 
-  return { init, push, flush, state: () => ({ ...status }) };
+  function remove(id) {
+    // A recipe that was only ever queued locally just leaves the write queue.
+    // Anything the server knows about — including a recipe that lives in this
+    // file, which gets a tombstone row — has to be told.
+    const queuedOnly = queue.some(r => r.id === id) && !DEFAULT_RECIPES.some(r => r.id === id);
+    queue = queue.filter(r => r.id !== id);
+    if (!queuedOnly && !gone.includes(id)) gone.push(id);
+    saveQueue();
+    flush();
+  }
+
+  return { init, push, remove, flush, state: () => ({ ...status }) };
 })();
 
 
@@ -649,6 +673,9 @@ function renderRow(r) {
   const noRecipe = !!r.noRecipe;
   const chevronSvg = '<svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
   const openSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2h5v5"/><path d="M14 2L7.5 8.5"/><path d="M13 9.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3.5"/></svg>';
+  const editSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a1.4 1.4 0 0 1 2 2L6 12l-3 1 1-3z"/></svg>';
+  const trashSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11"/><path d="M6 4V2.5h4V4"/><path d="M4 4l.7 9a1 1 0 0 0 1 .9h4.6a1 1 0 0 0 1-.9L12 4"/><path d="M6.5 7v4M9.5 7v4"/></svg>';
+  const isPendingDelete = pendingDelete === r.id;
   const desc = r.description ? escapeHtml(r.description) : '';
   const title = escapeHtml(r.title);
   let expandInner;
@@ -674,6 +701,10 @@ function renderRow(r) {
     + '<div class="recipe-meta">' + meta + '</div>'
     + '<div class="row-actions">'
     + '<button class="icon-btn" title="View full recipe" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')" aria-label="View full recipe">' + openSvg + '</button>'
+    + '<button class="icon-btn" title="Edit recipe" onclick="event.stopPropagation();openAddModal(\'' + r.id + '\')" aria-label="Edit recipe">' + editSvg + '</button>'
+    + (isPendingDelete
+        ? '<button class="icon-btn" style="width:auto;padding:0 8px;color:#c4622d;font-size:12px;font-weight:500;" title="Click again to delete" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Confirm delete">Delete?</button>'
+        : '<button class="icon-btn" title="Delete recipe" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Delete recipe">' + trashSvg + '</button>')
     + '<button class="icon-btn" title="Toggle ingredients" onclick="event.stopPropagation();toggleExpand(\'' + r.id + '\')" aria-label="Toggle ingredients">' + chevronSvg + '</button>'
     + '</div></div>'
     + '<div class="recipe-expand">' + expandInner + '</div>'
@@ -747,7 +778,70 @@ function setupScrollspy() {
   update();
 }
 
-function openAddModal() { document.getElementById('addOverlay').classList.add('open'); }
+/* The category select is built from SECTIONS_ORDER so the two can never drift.
+ * It previously offered Pasta / Rice / Meat / Tacos / Soup / Other — none of
+ * which are real sections, so anything filed under them rendered nowhere. */
+function populateCategorySelect() {
+  const sel = document.getElementById('f-cat');
+  if (!sel) return;
+  sel.innerHTML = SECTIONS_ORDER
+    .map(sec => '<option value="' + sec.id + '">' + escapeHtml(sec.label) + '</option>')
+    .join('');
+}
+populateCategorySelect();
+
+let editingId = null;
+
+function openAddModal(id) {
+  const t = document.getElementById('addTitle');
+  const btn = document.getElementById('addSaveBtn');
+  const set = (f, v) => { const el = document.getElementById(f); if (el) el.value = v; };
+
+  if (id) {
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+    editingId = id;
+    t.textContent = 'Edit recipe';
+    btn.textContent = 'Save changes';
+    set('f-title', r.title || '');
+    set('f-cat', r.section || 'starters');
+    set('f-serves', r.serves || '');
+    set('f-time', r.time || '');
+    set('f-desc', r.description || '');
+    set('f-ingredients', (r.ingredients || []).map(i => ((i.amount ? i.amount + ' ' : '') + i.item)).join('\n'));
+    set('f-steps', (r.steps || []).join('\n'));
+    set('f-notes', r.notes || '');
+  } else {
+    editingId = null;
+    t.textContent = 'Add a recipe';
+    btn.textContent = 'Save recipe';
+    ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(f => set(f, ''));
+  }
+  document.getElementById('addOverlay').classList.add('open');
+}
+
+/* Delete asks twice rather than throwing a browser dialog: the first click turns
+ * the button into "Delete?", the second does it, and it gives up after 4s. */
+let pendingDelete = null;
+let pendingDeleteTimer = null;
+
+function askDelete(id) {
+  if (pendingDelete === id) { confirmDelete(id); return; }
+  pendingDelete = id;
+  clearTimeout(pendingDeleteTimer);
+  pendingDeleteTimer = setTimeout(() => { pendingDelete = null; render(); }, 4000);
+  render();
+}
+
+function confirmDelete(id) {
+  pendingDelete = null;
+  clearTimeout(pendingDeleteTimer);
+  recipes = recipes.filter(r => r.id !== id);
+  saveRecipesToStorage(recipes);
+  expanded.delete(id);
+  RecipeSync.remove(id);
+  render();
+}
 function closeAdd(e) {
   if (!e || e.target === document.getElementById('addOverlay')) {
     document.getElementById('addOverlay').classList.remove('open');
@@ -756,6 +850,7 @@ function closeAdd(e) {
 function saveRecipe() {
   const title = document.getElementById('f-title').value.trim();
   if (!title) { alert('Please enter a title.'); return; }
+  const existing = editingId ? recipes.find(r => r.id === editingId) : null;
   const rawIngredients = document.getElementById('f-ingredients').value.trim();
   const rawSteps = document.getElementById('f-steps').value.trim();
   const ingredients = rawIngredients ? rawIngredients.split('\n').filter(Boolean).map(line => {
@@ -766,7 +861,10 @@ function saveRecipe() {
   }) : [];
   const steps = rawSteps ? rawSteps.split('\n').filter(Boolean) : [];
   const recipe = {
-    id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now(),
+    // Editing keeps the id, so the database row replaces the old one instead of
+    // creating a duplicate — and an edit to a recipe that lives in this file
+    // becomes an overlay row with the same id.
+    id: editingId || (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now()),
     title,
     section: document.getElementById('f-cat').value,
     category: document.getElementById('f-cat').value,
@@ -774,11 +872,20 @@ function saveRecipe() {
     time: document.getElementById('f-time').value.trim() || '—',
     description: document.getElementById('f-desc').value.trim() || '',
     ingredients, steps,
-    notes: document.getElementById('f-notes').value.trim()
+    notes: document.getElementById('f-notes').value.trim(),
+    // Fields the form doesn't cover must survive an edit.
+    calories: existing ? existing.calories : undefined,
+    image: existing ? existing.image : undefined
   };
-  recipes.unshift(recipe);
+  if (editingId) {
+    const i = recipes.findIndex(r => r.id === editingId);
+    if (i >= 0) recipes[i] = recipe; else recipes.unshift(recipe);
+  } else {
+    recipes.unshift(recipe);
+  }
   saveRecipesToStorage(recipes);
   RecipeSync.push(recipe);
+  editingId = null;
   closeAdd();
   render();
   ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
