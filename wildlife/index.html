@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yorkshire Wildlife Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦡</text></svg>" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:6px 12px;border-radius:999px;background:rgba(45,74,62,0.92);color:#f5f0e8;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,0.18);backdrop-filter:blur(4px);
+transition:background .15s ease}
+#mohome-back:hover{background:#2d4a3e}
+@media print{#mohome-back{display:none}}
+</style>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <div class="app-header__title">
+    <span class="app-header__icon" aria-hidden="true">🦌</span>
+    <div>
+      <h1>Yorkshire Wildlife Tracker</h1>
+      <p class="app-header__subtitle">Every wild vertebrate you can spot in Yorkshire &mdash; tracked, mapped, ticked off.</p>
+    </div>
+  </div>
+  <div class="app-header__stats" id="headline-stats" aria-live="polite"></div>
+</header>
+
+<nav class="tabs" id="view-tabs" role="tablist" aria-label="Views">
+  <button class="tab active" data-view="browse" role="tab" aria-selected="true">Browse &amp; log</button>
+  <button class="tab" data-view="map" role="tab" aria-selected="false">Map</button>
+  <button class="tab" data-view="sightings" role="tab" aria-selected="false">My sightings</button>
+  <button class="tab" data-view="data" role="tab" aria-selected="false">Data &amp; sync</button>
+</nav>
+
+<main id="main">
+
+  <!-- ===================== BROWSE VIEW ===================== -->
+  <section class="view" id="view-browse" data-view-panel>
+    <div class="toolbar">
+      <input type="search" id="search-input" placeholder="Search species&hellip;" aria-label="Search species" />
+
+      <label class="toolbar__field">
+        County focus
+        <select id="county-filter">
+          <option value="all">All Yorkshire</option>
+          <option value="West Yorkshire">West Yorkshire</option>
+          <option value="South Yorkshire">South Yorkshire</option>
+          <option value="East Riding of Yorkshire">East Riding of Yorkshire</option>
+          <option value="North Yorkshire">North Yorkshire</option>
+        </select>
+      </label>
+
+      <label class="toolbar__field">
+        Show
+        <select id="seen-filter">
+          <option value="all">All species</option>
+          <option value="seen">Seen only</option>
+          <option value="unseen">Not yet seen</option>
+        </select>
+      </label>
+
+      <label class="toolbar__checkbox">
+        <input type="checkbox" id="rarities-toggle" />
+        Include scarce &amp; vagrant species
+      </label>
+
+      <button class="btn btn--ghost" id="expand-all-btn" type="button">Expand all</button>
+      <button class="btn btn--ghost" id="collapse-all-btn" type="button">Collapse all</button>
+    </div>
+
+    <div class="browse-layout">
+      <div class="tree-panel">
+        <div id="tree-summary" class="tree-summary" aria-live="polite"></div>
+        <div id="taxonomy-tree" class="taxonomy-tree"></div>
+      </div>
+
+      <aside class="detail-panel" id="detail-panel" aria-live="polite">
+        <p class="detail-placeholder">Select a species from the list to see details, log a sighting, and view its map.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== MAP VIEW ===================== -->
+  <section class="view" id="view-map" data-view-panel hidden>
+    <div class="toolbar">
+      <label class="toolbar__field">
+        Species
+        <select id="map-species-select">
+          <option value="">All my sightings</option>
+        </select>
+      </label>
+      <label class="toolbar__field">
+        Find a place
+        <input type="search" id="map-place-search" placeholder="e.g. Ilkley, Fairburn Ings&hellip;" />
+      </label>
+      <button class="btn btn--ghost" id="map-place-search-btn" type="button">Search</button>
+      <span class="toolbar__hint" id="map-hint"></span>
+    </div>
+    <p class="hint" id="map-search-status" aria-live="polite"></p>
+    <div id="big-map" class="big-map"></div>
+    <p class="map-footnote">County shading shows the four Yorkshire ceremonial counties. Pins are your own logged sightings. When a species is selected, the app also tries to load live occurrence data from the <a href="https://nbnatlas.org" target="_blank" rel="noopener">NBN Atlas</a> &mdash; if your browser can't reach it, use the "View on NBN Atlas" link instead.</p>
+  </section>
+
+  <!-- ===================== MY SIGHTINGS VIEW ===================== -->
+  <section class="view" id="view-sightings" data-view-panel hidden>
+    <div class="toolbar">
+      <input type="search" id="sightings-search" placeholder="Search your sightings&hellip;" aria-label="Search sightings" />
+      <label class="toolbar__field">
+        Sort
+        <select id="sightings-sort">
+          <option value="date-desc">Newest first</option>
+          <option value="date-asc">Oldest first</option>
+          <option value="species">Species name</option>
+        </select>
+      </label>
+    </div>
+    <div id="sightings-list" class="sightings-list"></div>
+  </section>
+
+  <!-- ===================== DATA & SYNC VIEW ===================== -->
+  <section class="view" id="view-data" data-view-panel hidden>
+    <div class="data-view">
+      <div class="card">
+        <h2>Ask Claude</h2>
+        <p>Tell Claude about a sighting, or ask a question like &ldquo;what deer haven't I seen yet, and where can I go to see them?&rdquo; Claude keeps this tracker's checklist and sightings data up to date in the background &mdash; updates just show up next time you load this page, no importing needed.</p>
+        <div class="btn-row">
+          <a class="btn" id="ask-claude-link" href="https://claude.ai/" target="_blank" rel="noopener">Continue in Claude &#8599;</a>
+          <button class="btn btn--ghost" id="copy-status-btn" type="button">Copy status for Claude</button>
+        </div>
+        <p class="hint">The link opens Claude &mdash; pick the &ldquo;Yorkshire Wildlife&rdquo; project if it isn't already open. &ldquo;Copy status&rdquo; copies what you have and haven't seen plus your recent sightings, so pasting it into the chat gives Claude full context right away.</p>
+        <textarea id="claude-status-output" rows="4" readonly hidden></textarea>
+      </div>
+
+      <div class="card">
+        <h2>Your sightings file</h2>
+        <p>Sightings are kept in your browser as you log them. To make them permanent (and visible on the live GitHub Pages site for anyone, or on another device), <strong>export</strong> the file and commit it to <code>data/sightings.json</code> in your repository, then push.</p>
+        <div class="btn-row">
+          <button class="btn" id="export-btn" type="button">Export sightings.json</button>
+          <label class="btn btn--ghost file-btn">
+            Import sightings.json
+            <input type="file" id="import-input" accept="application/json" hidden />
+          </label>
+        </div>
+        <p class="hint" id="sync-status"></p>
+      </div>
+
+      <div class="card">
+        <h2>Add a species</h2>
+        <p>Spotted something that isn't in the checklist yet? Add it here &mdash; it's saved alongside your sightings data.</p>
+        <form id="add-species-form">
+          <div class="form-row">
+            <label>Common name <input type="text" name="commonName" required /></label>
+            <label>Class
+              <select name="class" required>
+                <option value="Mammalia">Mammalia (mammal)</option>
+                <option value="Aves">Aves (bird)</option>
+                <option value="Reptilia">Reptilia (reptile)</option>
+                <option value="Amphibia">Amphibia (amphibian)</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>Order <input type="text" name="order" required placeholder="e.g. Carnivora" /></label>
+            <label>Family <input type="text" name="family" required placeholder="e.g. Mustelidae" /></label>
+          </div>
+          <button class="btn" type="submit">Add species</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Checklist source</h2>
+        <p>The 468-species starting checklist covers Yorkshire mammals, birds, reptiles and amphibians, compiled from the Avibase Yorkshire &amp; the Humber checklist, the Yorkshire Naturalists' Union, the Yorkshire Mammal Group and the British Herpetological Society. It's a best-effort comprehensive list, not an official record &mdash; correct anything you spot as wrong directly in <code>data/species.json</code>.</p>
+        <p class="hint">Reset your local data (this device only) if something looks corrupted: <button class="btn btn--danger btn--small" id="reset-btn" type="button">Clear local sightings cache</button></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-overlay" id="log-modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="log-modal-title">
+    <h2 id="log-modal-title">Log a sighting</h2>
+    <form id="log-sighting-form">
+      <input type="hidden" name="speciesId" />
+      <label>Date <input type="date" name="date" required /></label>
+      <label>Time <input type="time" name="time" /></label>
+      <label>Location name <input type="text" name="locationName" placeholder="e.g. Fairburn Ings" required /></label>
+      <label>County
+        <select name="county" required>
+          <option value="West Yorkshire">West Yorkshire</option>
+          <option value="South Yorkshire">South Yorkshire</option>
+          <option value="East Riding of Yorkshire">East Riding of Yorkshire</option>
+          <option value="North Yorkshire">North Yorkshire</option>
+        </select>
+      </label>
+      <label>Coordinates (optional &mdash; click the mini-map, search a place name, or type "lat, lon")
+        <input type="text" name="latlon" id="latlon-input" placeholder="e.g. 53.7186, -1.2757" />
+      </label>
+      <div class="inline-search">
+        <input type="search" id="pick-place-search" placeholder="Find a place&hellip;" aria-label="Find a place to pin on the map" />
+        <button type="button" class="btn btn--ghost btn--small" id="pick-place-search-btn">Search &amp; pin</button>
+      </div>
+      <p class="hint" id="pick-place-status"></p>
+      <div id="log-mini-map" class="mini-map"></div>
+      <label>Notes <textarea name="note" rows="3" placeholder="Behaviour, weather, who you were with&hellip;"></textarea></label>
+      <div class="btn-row">
+        <button type="submit" class="btn">Save sighting</button>
+        <button type="button" class="btn btn--ghost" id="log-cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<template id="tree-species-template">
+  <div class="species-row" tabindex="0" role="button">
+    <span class="species-row__dot" aria-hidden="true"></span>
+    <span class="species-row__name"></span>
+    <span class="species-row__badge"></span>
+  </div>
+</template>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/store.js"></script>
+<script src="js/taxonomy.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

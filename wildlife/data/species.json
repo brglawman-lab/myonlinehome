@@ -1,0 +1,4214 @@
+[
+  {
+    "id": "aves-bar-headed-goose",
+    "commonName": "Bar-headed Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-snow-goose",
+    "commonName": "Snow Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ross-s-goose",
+    "commonName": "Ross's Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-greylag-goose",
+    "commonName": "Greylag Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-greater-white-fronted-goose",
+    "commonName": "Greater White-fronted Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-white-fronted-goose",
+    "commonName": "Lesser White-fronted Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-taiga-bean-goose",
+    "commonName": "Taiga Bean Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-tundra-bean-goose",
+    "commonName": "Tundra Bean Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pink-footed-goose",
+    "commonName": "Pink-footed Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-brant-goose",
+    "commonName": "Brant Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-barnacle-goose",
+    "commonName": "Barnacle Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-canada-goose",
+    "commonName": "Canada Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-breasted-goose",
+    "commonName": "Red-breasted Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-mute-swan",
+    "commonName": "Mute Swan",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-tundra-swan",
+    "commonName": "Tundra Swan",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-whooper-swan",
+    "commonName": "Whooper Swan",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-egyptian-goose",
+    "commonName": "Egyptian Goose",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ruddy-shelduck",
+    "commonName": "Ruddy Shelduck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-shelduck",
+    "commonName": "Common Shelduck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-wood-duck",
+    "commonName": "Wood Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-mandarin-duck",
+    "commonName": "Mandarin Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-garganey",
+    "commonName": "Garganey",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-blue-winged-teal",
+    "commonName": "Blue-winged Teal",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-shoveler",
+    "commonName": "Northern Shoveler",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-gadwall",
+    "commonName": "Gadwall",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-wigeon",
+    "commonName": "Eurasian Wigeon",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-american-wigeon",
+    "commonName": "American Wigeon",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-mallard",
+    "commonName": "Mallard",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-pintail",
+    "commonName": "Northern Pintail",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-green-winged-teal",
+    "commonName": "Green-winged Teal",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-crested-pochard",
+    "commonName": "Red-crested Pochard",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-canvasback",
+    "commonName": "Canvasback",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-pochard",
+    "commonName": "Common Pochard",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-ring-necked-duck",
+    "commonName": "Ring-necked Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ferruginous-duck",
+    "commonName": "Ferruginous Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-tufted-duck",
+    "commonName": "Tufted Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-greater-scaup",
+    "commonName": "Greater Scaup",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-scaup",
+    "commonName": "Lesser Scaup",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-king-eider",
+    "commonName": "King Eider",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-eider",
+    "commonName": "Common Eider",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-harlequin-duck",
+    "commonName": "Harlequin Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-surf-scoter",
+    "commonName": "Surf Scoter",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-velvet-scoter",
+    "commonName": "Velvet Scoter",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-common-scoter",
+    "commonName": "Common Scoter",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-scoter",
+    "commonName": "Black Scoter",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-long-tailed-duck",
+    "commonName": "Long-tailed Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-bufflehead",
+    "commonName": "Bufflehead",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-goldeneye",
+    "commonName": "Common Goldeneye",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-smew",
+    "commonName": "Smew",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-hooded-merganser",
+    "commonName": "Hooded Merganser",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-goosander",
+    "commonName": "Goosander",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-breasted-merganser",
+    "commonName": "Red-breasted Merganser",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ruddy-duck",
+    "commonName": "Ruddy Duck",
+    "class": "Aves",
+    "order": "ANSERIFORMES",
+    "family": "Anatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-grouse",
+    "commonName": "Red Grouse",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-grouse",
+    "commonName": "Black Grouse",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-grey-partridge",
+    "commonName": "Grey Partridge",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-golden-pheasant",
+    "commonName": "Golden Pheasant",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-pheasant",
+    "commonName": "Common Pheasant",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-quail",
+    "commonName": "Common Quail",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-legged-partridge",
+    "commonName": "Red-legged Partridge",
+    "class": "Aves",
+    "order": "GALLIFORMES",
+    "family": "Phasianidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-rock-dove",
+    "commonName": "Rock Dove",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-stock-dove",
+    "commonName": "Stock Dove",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-wood-pigeon",
+    "commonName": "Common Wood-Pigeon",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-turtle-dove",
+    "commonName": "European Turtle Dove",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-oriental-turtle-dove",
+    "commonName": "Oriental Turtle Dove",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-collared-dove",
+    "commonName": "Eurasian Collared Dove",
+    "class": "Aves",
+    "order": "COLUMBIFORMES",
+    "family": "Columbidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-cuckoo",
+    "commonName": "Common Cuckoo",
+    "class": "Aves",
+    "order": "CUCULIFORMES",
+    "family": "Cuculidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-nightjar",
+    "commonName": "European Nightjar",
+    "class": "Aves",
+    "order": "CAPRIMULGIFORMES",
+    "family": "Caprimulgidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-throated-needletail",
+    "commonName": "White-throated Needletail",
+    "class": "Aves",
+    "order": "APODIFORMES",
+    "family": "Apodidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-alpine-swift",
+    "commonName": "Alpine Swift",
+    "class": "Aves",
+    "order": "APODIFORMES",
+    "family": "Apodidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-swift",
+    "commonName": "Common Swift",
+    "class": "Aves",
+    "order": "APODIFORMES",
+    "family": "Apodidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pallid-swift",
+    "commonName": "Pallid Swift",
+    "class": "Aves",
+    "order": "APODIFORMES",
+    "family": "Apodidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-water-rail",
+    "commonName": "Water Rail",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-corn-crake",
+    "commonName": "Corn Crake",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-spotted-crake",
+    "commonName": "Spotted Crake",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-baillon-s-crake",
+    "commonName": "Baillon's Crake",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-moorhen",
+    "commonName": "Common Moorhen",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-coot",
+    "commonName": "Eurasian Coot",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Rallidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-crane",
+    "commonName": "Common Crane",
+    "class": "Aves",
+    "order": "GRUIFORMES",
+    "family": "Gruidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-stone-curlew",
+    "commonName": "Eurasian Stone-curlew",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Burhinidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-winged-stilt",
+    "commonName": "Black-winged Stilt",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Recurvirostridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pied-avocet",
+    "commonName": "Pied Avocet",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Recurvirostridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-oystercatcher",
+    "commonName": "Eurasian Oystercatcher",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Haematopodidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-grey-plover",
+    "commonName": "Grey Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-european-golden-plover",
+    "commonName": "European Golden Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-american-golden-plover",
+    "commonName": "American Golden Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-dotterel",
+    "commonName": "Eurasian Dotterel",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-ringed-plover",
+    "commonName": "Common Ringed Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-ringed-plover",
+    "commonName": "Little Ringed Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-lapwing",
+    "commonName": "Northern Lapwing",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-kentish-plover",
+    "commonName": "Kentish Plover",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Charadriidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-whimbrel",
+    "commonName": "Whimbrel",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-curlew",
+    "commonName": "Eurasian Curlew",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-bar-tailed-godwit",
+    "commonName": "Bar-tailed Godwit",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-black-tailed-godwit",
+    "commonName": "Black-tailed Godwit",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-long-billed-dowitcher",
+    "commonName": "Long-billed Dowitcher",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-jack-snipe",
+    "commonName": "Jack Snipe",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-woodcock",
+    "commonName": "Eurasian Woodcock",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-snipe",
+    "commonName": "Great Snipe",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-common-snipe",
+    "commonName": "Common Snipe",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-wilson-s-phalarope",
+    "commonName": "Wilson's Phalarope",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-phalarope",
+    "commonName": "Red Phalarope",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-necked-phalarope",
+    "commonName": "Red-necked Phalarope",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-sandpiper",
+    "commonName": "Common Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-spotted-sandpiper",
+    "commonName": "Spotted Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-green-sandpiper",
+    "commonName": "Green Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-marsh-sandpiper",
+    "commonName": "Marsh Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-wood-sandpiper",
+    "commonName": "Wood Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-redshank",
+    "commonName": "Common Redshank",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-yellowlegs",
+    "commonName": "Lesser Yellowlegs",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-spotted-redshank",
+    "commonName": "Spotted Redshank",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-greenshank",
+    "commonName": "Common Greenshank",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ruddy-turnstone",
+    "commonName": "Ruddy Turnstone",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-red-knot",
+    "commonName": "Red Knot",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-ruff",
+    "commonName": "Ruff",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-broad-billed-sandpiper",
+    "commonName": "Broad-billed Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-curlew-sandpiper",
+    "commonName": "Curlew Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-temminck-s-stint",
+    "commonName": "Temminck's Stint",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-buff-breasted-sandpiper",
+    "commonName": "Buff-breasted Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-sanderling",
+    "commonName": "Sanderling",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-dunlin",
+    "commonName": "Dunlin",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-purple-sandpiper",
+    "commonName": "Purple Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-baird-s-sandpiper",
+    "commonName": "Baird's Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-stint",
+    "commonName": "Little Stint",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-rumped-sandpiper",
+    "commonName": "White-rumped Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-least-sandpiper",
+    "commonName": "Least Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-pectoral-sandpiper",
+    "commonName": "Pectoral Sandpiper",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Scolopacidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-winged-pratincole",
+    "commonName": "Black-winged Pratincole",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Glareolidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-long-tailed-skua",
+    "commonName": "Long-tailed Skua",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Stercorariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-arctic-skua",
+    "commonName": "Arctic Skua",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Stercorariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pomarine-skua",
+    "commonName": "Pomarine Skua",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Stercorariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-skua",
+    "commonName": "Great Skua",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Stercorariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-atlantic-puffin",
+    "commonName": "Atlantic Puffin",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-black-guillemot",
+    "commonName": "Black Guillemot",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-razorbill",
+    "commonName": "Razorbill",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-auk",
+    "commonName": "Little Auk",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-brunnich-s-guillemot",
+    "commonName": "Brunnich's Guillemot",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-guillemot",
+    "commonName": "Common Guillemot",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Alcidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-gull",
+    "commonName": "Little Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ross-s-gull",
+    "commonName": "Ross's Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-legged-kittiwake",
+    "commonName": "Black-legged Kittiwake",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-sabine-s-gull",
+    "commonName": "Sabine's Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-bonaparte-s-gull",
+    "commonName": "Bonaparte's Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-headed-gull",
+    "commonName": "Black-headed Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-laughing-gull",
+    "commonName": "Laughing Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-franklin-s-gull",
+    "commonName": "Franklin's Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-mediterranean-gull",
+    "commonName": "Mediterranean Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-gull",
+    "commonName": "Common Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ring-billed-gull",
+    "commonName": "Ring-billed Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-caspian-gull",
+    "commonName": "Caspian Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-herring-gull",
+    "commonName": "European Herring Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-yellow-legged-gull",
+    "commonName": "Yellow-legged Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-black-backed-gull",
+    "commonName": "Great Black-backed Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-glaucous-gull",
+    "commonName": "Glaucous Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-black-backed-gull",
+    "commonName": "Lesser Black-backed Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-iceland-gull",
+    "commonName": "Iceland Gull",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sooty-tern",
+    "commonName": "Sooty Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-bridled-tern",
+    "commonName": "Bridled Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-tern",
+    "commonName": "Little Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-gull-billed-tern",
+    "commonName": "Gull-billed Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-caspian-tern",
+    "commonName": "Caspian Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-tern",
+    "commonName": "Black Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-winged-tern",
+    "commonName": "White-winged Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-arctic-tern",
+    "commonName": "Arctic Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-tern",
+    "commonName": "Common Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-roseate-tern",
+    "commonName": "Roseate Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sandwich-tern",
+    "commonName": "Sandwich Tern",
+    "class": "Aves",
+    "order": "CHARADRIIFORMES",
+    "family": "Laridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-grebe",
+    "commonName": "Little Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pied-billed-grebe",
+    "commonName": "Pied-billed Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-horned-grebe",
+    "commonName": "Horned Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-red-necked-grebe",
+    "commonName": "Red-necked Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-crested-grebe",
+    "commonName": "Great Crested Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-necked-grebe",
+    "commonName": "Black-necked Grebe",
+    "class": "Aves",
+    "order": "PODICIPEDIFORMES",
+    "family": "Podicipedidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-throated-loon",
+    "commonName": "Red-throated Loon",
+    "class": "Aves",
+    "order": "GAVIIFORMES",
+    "family": "Gaviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-throated-loon",
+    "commonName": "Black-throated Loon",
+    "class": "Aves",
+    "order": "GAVIIFORMES",
+    "family": "Gaviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pacific-loon",
+    "commonName": "Pacific Loon",
+    "class": "Aves",
+    "order": "GAVIIFORMES",
+    "family": "Gaviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-northern-loon",
+    "commonName": "Great Northern Loon",
+    "class": "Aves",
+    "order": "GAVIIFORMES",
+    "family": "Gaviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-yellow-billed-loon",
+    "commonName": "Yellow-billed Loon",
+    "class": "Aves",
+    "order": "GAVIIFORMES",
+    "family": "Gaviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-black-browed-albatross",
+    "commonName": "Black-browed Albatross",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Diomedeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-storm-petrel",
+    "commonName": "European Storm Petrel",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Hydrobatidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-leach-s-storm-petrel",
+    "commonName": "Leach's Storm Petrel",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Hydrobatidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-northern-fulmar",
+    "commonName": "Northern Fulmar",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-cape-verde-petrel",
+    "commonName": "Cape Verde Petrel",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-soft-plumaged-petrel",
+    "commonName": "Soft-plumaged Petrel",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-cory-s-shearwater",
+    "commonName": "Cory's Shearwater",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-shearwater",
+    "commonName": "Great Shearwater",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sooty-shearwater",
+    "commonName": "Sooty Shearwater",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-manx-shearwater",
+    "commonName": "Manx Shearwater",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-balearic-shearwater",
+    "commonName": "Balearic Shearwater",
+    "class": "Aves",
+    "order": "PROCELLARIIFORMES",
+    "family": "Procellariidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Critically Endangered"
+  },
+  {
+    "id": "aves-black-stork",
+    "commonName": "Black Stork",
+    "class": "Aves",
+    "order": "CICONIIFORMES",
+    "family": "Ciconiidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-stork",
+    "commonName": "White Stork",
+    "class": "Aves",
+    "order": "CICONIIFORMES",
+    "family": "Ciconiidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-gannet",
+    "commonName": "Northern Gannet",
+    "class": "Aves",
+    "order": "SULIFORMES",
+    "family": "Sulidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-brown-booby",
+    "commonName": "Brown Booby",
+    "class": "Aves",
+    "order": "SULIFORMES",
+    "family": "Sulidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-cormorant",
+    "commonName": "Great Cormorant",
+    "class": "Aves",
+    "order": "SULIFORMES",
+    "family": "Phalacrocoracidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-shag",
+    "commonName": "European Shag",
+    "class": "Aves",
+    "order": "SULIFORMES",
+    "family": "Phalacrocoracidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-glossy-ibis",
+    "commonName": "Glossy Ibis",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Threskiornithidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-spoonbill",
+    "commonName": "Eurasian Spoonbill",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Threskiornithidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-bittern",
+    "commonName": "Eurasian Bittern",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-crowned-night-heron",
+    "commonName": "Black-crowned Night Heron",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-blue-heron",
+    "commonName": "Little Blue Heron",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-egret",
+    "commonName": "Little Egret",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-squacco-heron",
+    "commonName": "Squacco Heron",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-western-cattle-egret",
+    "commonName": "Western Cattle Egret",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-egret",
+    "commonName": "Great Egret",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-grey-heron",
+    "commonName": "Grey Heron",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-purple-heron",
+    "commonName": "Purple Heron",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Ardeidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-white-pelican",
+    "commonName": "Great White Pelican",
+    "class": "Aves",
+    "order": "PELECANIFORMES",
+    "family": "Pelecanidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-osprey",
+    "commonName": "Osprey",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Pandionidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-honey-buzzard",
+    "commonName": "European Honey Buzzard",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-short-toed-snake-eagle",
+    "commonName": "Short-toed Snake Eagle",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-golden-eagle",
+    "commonName": "Golden Eagle",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-sparrowhawk",
+    "commonName": "Eurasian Sparrowhawk",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-goshawk",
+    "commonName": "Northern Goshawk",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-western-marsh-harrier",
+    "commonName": "Western Marsh Harrier",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-hen-harrier",
+    "commonName": "Hen Harrier",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-harrier",
+    "commonName": "Northern Harrier",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pallid-harrier",
+    "commonName": "Pallid Harrier",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-montagu-s-harrier",
+    "commonName": "Montagu's Harrier",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-kite",
+    "commonName": "Red Kite",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-kite",
+    "commonName": "Black Kite",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-tailed-eagle",
+    "commonName": "White-tailed Eagle",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rough-legged-buzzard",
+    "commonName": "Rough-legged Buzzard",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-buzzard",
+    "commonName": "Common Buzzard",
+    "class": "Aves",
+    "order": "ACCIPITRIFORMES",
+    "family": "Accipitridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-barn-owl",
+    "commonName": "Barn Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Tytonidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-hawk-owl",
+    "commonName": "Northern Hawk Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Strigidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-owl",
+    "commonName": "Little Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Strigidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-tawny-owl",
+    "commonName": "Tawny Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Strigidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-long-eared-owl",
+    "commonName": "Long-eared Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Strigidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-short-eared-owl",
+    "commonName": "Short-eared Owl",
+    "class": "Aves",
+    "order": "STRIGIFORMES",
+    "family": "Strigidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-hoopoe",
+    "commonName": "Eurasian Hoopoe",
+    "class": "Aves",
+    "order": "BUCEROTIFORMES",
+    "family": "Upupidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-bee-eater",
+    "commonName": "European Bee-eater",
+    "class": "Aves",
+    "order": "CORACIIFORMES",
+    "family": "Meropidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-kingfisher",
+    "commonName": "Common Kingfisher",
+    "class": "Aves",
+    "order": "CORACIIFORMES",
+    "family": "Alcedinidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-wryneck",
+    "commonName": "Eurasian Wryneck",
+    "class": "Aves",
+    "order": "PICIFORMES",
+    "family": "Picidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-spotted-woodpecker",
+    "commonName": "Great Spotted Woodpecker",
+    "class": "Aves",
+    "order": "PICIFORMES",
+    "family": "Picidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-spotted-woodpecker",
+    "commonName": "Lesser Spotted Woodpecker",
+    "class": "Aves",
+    "order": "PICIFORMES",
+    "family": "Picidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-green-woodpecker",
+    "commonName": "European Green Woodpecker",
+    "class": "Aves",
+    "order": "PICIFORMES",
+    "family": "Picidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-kestrel",
+    "commonName": "Lesser Kestrel",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-kestrel",
+    "commonName": "Common Kestrel",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-american-kestrel",
+    "commonName": "American Kestrel",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-footed-falcon",
+    "commonName": "Red-footed Falcon",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Vulnerable"
+  },
+  {
+    "id": "aves-amur-falcon",
+    "commonName": "Amur Falcon",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eleonora-s-falcon",
+    "commonName": "Eleonora's Falcon",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-merlin",
+    "commonName": "Merlin",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-hobby",
+    "commonName": "Eurasian Hobby",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-saker-falcon",
+    "commonName": "Saker Falcon",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Endangered"
+  },
+  {
+    "id": "aves-peregrine-falcon",
+    "commonName": "Peregrine Falcon",
+    "class": "Aves",
+    "order": "FALCONIFORMES",
+    "family": "Falconidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rose-ringed-parakeet",
+    "commonName": "Rose-ringed Parakeet",
+    "class": "Aves",
+    "order": "PSITTACIFORMES",
+    "family": "Psittaculidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-golden-oriole",
+    "commonName": "Eurasian Golden Oriole",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Oriolidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-backed-shrike",
+    "commonName": "Red-backed Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-isabelline-shrike",
+    "commonName": "Isabelline Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-brown-shrike",
+    "commonName": "Brown Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-grey-shrike",
+    "commonName": "Great Grey Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-grey-shrike",
+    "commonName": "Lesser Grey Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-woodchat-shrike",
+    "commonName": "Woodchat Shrike",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Laniidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-eurasian-jay",
+    "commonName": "Eurasian Jay",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-magpie",
+    "commonName": "Eurasian Magpie",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-billed-chough",
+    "commonName": "Red-billed Chough",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-western-jackdaw",
+    "commonName": "Western Jackdaw",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rook",
+    "commonName": "Rook",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-carrion-crow",
+    "commonName": "Carrion Crow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-hooded-crow",
+    "commonName": "Hooded Crow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-raven",
+    "commonName": "Northern Raven",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Corvidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-coal-tit",
+    "commonName": "Coal Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Paridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-marsh-tit",
+    "commonName": "Marsh Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Paridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-willow-tit",
+    "commonName": "Willow Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Paridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-blue-tit",
+    "commonName": "Eurasian Blue Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Paridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-tit",
+    "commonName": "Great Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Paridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-penduline-tit",
+    "commonName": "Eurasian Penduline Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Remizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-woodlark",
+    "commonName": "Woodlark",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Alaudidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-skylark",
+    "commonName": "Eurasian Skylark",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Alaudidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-shore-lark",
+    "commonName": "Shore Lark",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Alaudidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-greater-short-toed-lark",
+    "commonName": "Greater Short-toed Lark",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Alaudidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-bearded-reedling",
+    "commonName": "Bearded Reedling",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Panuridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-booted-warbler",
+    "commonName": "Booted Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eastern-olivaceous-warbler",
+    "commonName": "Eastern Olivaceous Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-icterine-warbler",
+    "commonName": "Icterine Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sedge-warbler",
+    "commonName": "Sedge Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-blyth-s-reed-warbler",
+    "commonName": "Blyth's Reed Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-marsh-warbler",
+    "commonName": "Marsh Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-reed-warbler",
+    "commonName": "Eurasian Reed Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-great-reed-warbler",
+    "commonName": "Great Reed Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Acrocephalidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lanceolated-warbler",
+    "commonName": "Lanceolated Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Locustellidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-savi-s-warbler",
+    "commonName": "Savi's Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Locustellidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-grasshopper-warbler",
+    "commonName": "Common Grasshopper Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Locustellidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sand-martin",
+    "commonName": "Sand Martin",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Hirundinidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-barn-swallow",
+    "commonName": "Barn Swallow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Hirundinidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-house-martin",
+    "commonName": "House Martin",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Hirundinidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-rumped-swallow",
+    "commonName": "Red-rumped Swallow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Hirundinidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-wood-warbler",
+    "commonName": "Wood Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-western-bonelli-s-warbler",
+    "commonName": "Western Bonelli's Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-yellow-browed-warbler",
+    "commonName": "Yellow-browed Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-hume-s-warbler",
+    "commonName": "Hume's Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pallas-s-leaf-warbler",
+    "commonName": "Pallas's Leaf Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-radde-s-warbler",
+    "commonName": "Radde's Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-dusky-warbler",
+    "commonName": "Dusky Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-willow-warbler",
+    "commonName": "Willow Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-chiffchaff",
+    "commonName": "Common Chiffchaff",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-iberian-chiffchaff",
+    "commonName": "Iberian Chiffchaff",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-greenish-warbler",
+    "commonName": "Greenish Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-two-barred-warbler",
+    "commonName": "Two-barred Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-arctic-warbler",
+    "commonName": "Arctic Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Phylloscopidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-cetti-s-warbler",
+    "commonName": "Cetti's Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Cettiidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-long-tailed-tit",
+    "commonName": "Long-tailed Tit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Aegithalidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-blackcap",
+    "commonName": "Eurasian Blackcap",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-garden-warbler",
+    "commonName": "Garden Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-barred-warbler",
+    "commonName": "Barred Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-whitethroat",
+    "commonName": "Lesser Whitethroat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-sardinian-warbler",
+    "commonName": "Sardinian Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eastern-subalpine-warbler",
+    "commonName": "Eastern Subalpine Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-whitethroat",
+    "commonName": "Common Whitethroat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-spectacled-warbler",
+    "commonName": "Spectacled Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-dartford-warbler",
+    "commonName": "Dartford Warbler",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sylviidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-goldcrest",
+    "commonName": "Goldcrest",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Regulidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-firecrest",
+    "commonName": "Common Firecrest",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Regulidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-nuthatch",
+    "commonName": "Eurasian Nuthatch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sittidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-treecreeper",
+    "commonName": "Eurasian Treecreeper",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Certhiidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-wren",
+    "commonName": "Eurasian Wren",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Troglodytidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-throated-dipper",
+    "commonName": "White-throated Dipper",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Cinclidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-starling",
+    "commonName": "Common Starling",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sturnidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rosy-starling",
+    "commonName": "Rosy Starling",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Sturnidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-s-thrush",
+    "commonName": "White's Thrush",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-mistle-thrush",
+    "commonName": "Mistle Thrush",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-song-thrush",
+    "commonName": "Song Thrush",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-redwing",
+    "commonName": "Redwing",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-blackbird",
+    "commonName": "Common Blackbird",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-fieldfare",
+    "commonName": "Fieldfare",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-ring-ouzel",
+    "commonName": "Ring Ouzel",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-throated-thrush",
+    "commonName": "Black-throated Thrush",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Turdidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-spotted-flycatcher",
+    "commonName": "Spotted Flycatcher",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-robin",
+    "commonName": "European Robin",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-nightingale",
+    "commonName": "Common Nightingale",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-bluethroat",
+    "commonName": "Bluethroat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-flanked-bluetail",
+    "commonName": "Red-flanked Bluetail",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-breasted-flycatcher",
+    "commonName": "Red-breasted Flycatcher",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-pied-flycatcher",
+    "commonName": "European Pied Flycatcher",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-collared-flycatcher",
+    "commonName": "Collared Flycatcher",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-redstart",
+    "commonName": "Common Redstart",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-black-redstart",
+    "commonName": "Black Redstart",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rufous-tailed-rock-thrush",
+    "commonName": "Rufous-tailed Rock Thrush",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-whinchat",
+    "commonName": "Whinchat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-stonechat",
+    "commonName": "European Stonechat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-siberian-stonechat",
+    "commonName": "Siberian Stonechat",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-northern-wheatear",
+    "commonName": "Northern Wheatear",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-isabelline-wheatear",
+    "commonName": "Isabelline Wheatear",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-desert-wheatear",
+    "commonName": "Desert Wheatear",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pied-wheatear",
+    "commonName": "Pied Wheatear",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Muscicapidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-bohemian-waxwing",
+    "commonName": "Bohemian Waxwing",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Bombycillidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-dunnock",
+    "commonName": "Dunnock",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Prunellidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-house-sparrow",
+    "commonName": "House Sparrow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Passeridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-tree-sparrow",
+    "commonName": "Eurasian Tree Sparrow",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Passeridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-grey-wagtail",
+    "commonName": "Grey Wagtail",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-western-yellow-wagtail",
+    "commonName": "Western Yellow Wagtail",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-citrine-wagtail",
+    "commonName": "Citrine Wagtail",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-white-wagtail",
+    "commonName": "White Wagtail",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-richard-s-pipit",
+    "commonName": "Richard's Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-tawny-pipit",
+    "commonName": "Tawny Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-olive-backed-pipit",
+    "commonName": "Olive-backed Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-tree-pipit",
+    "commonName": "Tree Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-meadow-pipit",
+    "commonName": "Meadow Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-red-throated-pipit",
+    "commonName": "Red-throated Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rock-pipit",
+    "commonName": "Rock Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-water-pipit",
+    "commonName": "Water Pipit",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Motacillidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-chaffinch",
+    "commonName": "Common Chaffinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-brambling",
+    "commonName": "Brambling",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-greenfinch",
+    "commonName": "European Greenfinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-serin",
+    "commonName": "European Serin",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-european-goldfinch",
+    "commonName": "European Goldfinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-siskin",
+    "commonName": "Eurasian Siskin",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-linnet",
+    "commonName": "Common Linnet",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-twite",
+    "commonName": "Twite",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-common-redpoll",
+    "commonName": "Common Redpoll",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lesser-redpoll",
+    "commonName": "Lesser Redpoll",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-arctic-redpoll",
+    "commonName": "Arctic Redpoll",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-two-barred-crossbill",
+    "commonName": "Two-barred Crossbill",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-crossbill",
+    "commonName": "Common Crossbill",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-parrot-crossbill",
+    "commonName": "Parrot Crossbill",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-common-rosefinch",
+    "commonName": "Common Rosefinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pine-grosbeak",
+    "commonName": "Pine Grosbeak",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-eurasian-bullfinch",
+    "commonName": "Eurasian Bullfinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-hawfinch",
+    "commonName": "Hawfinch",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Fringillidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-lapland-longspur",
+    "commonName": "Lapland Longspur",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Calcariidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-snow-bunting",
+    "commonName": "Snow Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Calcariidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-yellowhammer",
+    "commonName": "Yellowhammer",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-pine-bunting",
+    "commonName": "Pine Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-cirl-bunting",
+    "commonName": "Cirl Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-ortolan-bunting",
+    "commonName": "Ortolan Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-rustic-bunting",
+    "commonName": "Rustic Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-little-bunting",
+    "commonName": "Little Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-yellow-browed-bunting",
+    "commonName": "Yellow-browed Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-reed-bunting",
+    "commonName": "Reed Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "aves-corn-bunting",
+    "commonName": "Corn Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": "Near Threatened"
+  },
+  {
+    "id": "aves-black-headed-bunting",
+    "commonName": "Black-headed Bunting",
+    "class": "Aves",
+    "order": "PASSERIFORMES",
+    "family": "Emberizidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-european-hedgehog",
+    "commonName": "European Hedgehog",
+    "class": "Mammalia",
+    "order": "Eulipotyphla",
+    "family": "Erinaceidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-common-shrew",
+    "commonName": "Common Shrew",
+    "class": "Mammalia",
+    "order": "Eulipotyphla",
+    "family": "Soricidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-pygmy-shrew",
+    "commonName": "Pygmy Shrew",
+    "class": "Mammalia",
+    "order": "Eulipotyphla",
+    "family": "Soricidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-eurasian-water-shrew",
+    "commonName": "Eurasian Water Shrew",
+    "class": "Mammalia",
+    "order": "Eulipotyphla",
+    "family": "Soricidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-european-mole",
+    "commonName": "European Mole",
+    "class": "Mammalia",
+    "order": "Eulipotyphla",
+    "family": "Talpidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-greater-horseshoe-bat",
+    "commonName": "Greater Horseshoe Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Rhinolophidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-lesser-horseshoe-bat",
+    "commonName": "Lesser Horseshoe Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Rhinolophidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-common-pipistrelle",
+    "commonName": "Common Pipistrelle",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-soprano-pipistrelle",
+    "commonName": "Soprano Pipistrelle",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-nathusius-pipistrelle",
+    "commonName": "Nathusius' Pipistrelle",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-brown-long-eared-bat",
+    "commonName": "Brown Long-eared Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-grey-long-eared-bat",
+    "commonName": "Grey Long-eared Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-daubenton-s-bat",
+    "commonName": "Daubenton's Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-natterer-s-bat",
+    "commonName": "Natterer's Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-whiskered-bat",
+    "commonName": "Whiskered Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-brandt-s-bat",
+    "commonName": "Brandt's Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-alcathoe-bat",
+    "commonName": "Alcathoe Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-bechstein-s-bat",
+    "commonName": "Bechstein's Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-serotine",
+    "commonName": "Serotine",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-noctule",
+    "commonName": "Noctule",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-leisler-s-bat",
+    "commonName": "Leisler's Bat",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-barbastelle",
+    "commonName": "Barbastelle",
+    "class": "Mammalia",
+    "order": "Chiroptera",
+    "family": "Vespertilionidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-red-squirrel",
+    "commonName": "Red Squirrel",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Sciuridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-eastern-grey-squirrel",
+    "commonName": "Eastern Grey Squirrel",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Sciuridae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-bank-vole",
+    "commonName": "Bank Vole",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Cricetidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-field-vole",
+    "commonName": "Field Vole",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Cricetidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-european-water-vole",
+    "commonName": "European Water Vole",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Cricetidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-wood-mouse",
+    "commonName": "Wood Mouse",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Muridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-yellow-necked-mouse",
+    "commonName": "Yellow-necked Mouse",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Muridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-house-mouse",
+    "commonName": "House Mouse",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Muridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-brown-rat",
+    "commonName": "Brown Rat",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Muridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-black-rat",
+    "commonName": "Black Rat",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Muridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-hazel-dormouse",
+    "commonName": "Hazel Dormouse",
+    "class": "Mammalia",
+    "order": "Rodentia",
+    "family": "Gliridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-european-rabbit",
+    "commonName": "European Rabbit",
+    "class": "Mammalia",
+    "order": "Lagomorpha",
+    "family": "Leporidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-brown-hare",
+    "commonName": "Brown Hare",
+    "class": "Mammalia",
+    "order": "Lagomorpha",
+    "family": "Leporidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-mountain-hare",
+    "commonName": "Mountain Hare",
+    "class": "Mammalia",
+    "order": "Lagomorpha",
+    "family": "Leporidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-red-fox",
+    "commonName": "Red Fox",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Canidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-eurasian-otter",
+    "commonName": "Eurasian Otter",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-eurasian-badger",
+    "commonName": "Eurasian Badger",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-american-mink",
+    "commonName": "American Mink",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-stoat",
+    "commonName": "Stoat",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-least-weasel",
+    "commonName": "Least Weasel",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-european-polecat",
+    "commonName": "European Polecat",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-pine-marten",
+    "commonName": "Pine Marten",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Mustelidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-grey-seal",
+    "commonName": "Grey Seal",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Phocidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-harbour-seal",
+    "commonName": "Harbour Seal",
+    "class": "Mammalia",
+    "order": "Carnivora",
+    "family": "Phocidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-red-deer",
+    "commonName": "Red Deer",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-roe-deer",
+    "commonName": "Roe Deer",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-fallow-deer",
+    "commonName": "Fallow Deer",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "introduced",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-sika-deer",
+    "commonName": "Sika Deer",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-reeves-s-muntjac",
+    "commonName": "Reeves's Muntjac",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-chinese-water-deer",
+    "commonName": "Chinese Water Deer",
+    "class": "Mammalia",
+    "order": "Artiodactyla",
+    "family": "Cervidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-harbour-porpoise",
+    "commonName": "Harbour Porpoise",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Phocoenidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-white-beaked-dolphin",
+    "commonName": "White-beaked Dolphin",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-short-beaked-common-dolphin",
+    "commonName": "Short-beaked Common Dolphin",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-common-bottlenose-dolphin",
+    "commonName": "Common Bottlenose Dolphin",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-risso-s-dolphin",
+    "commonName": "Risso's Dolphin",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-atlantic-white-sided-dolphin",
+    "commonName": "Atlantic White-sided Dolphin",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-orca",
+    "commonName": "Orca",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Delphinidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-minke-whale",
+    "commonName": "Minke Whale",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Balaenopteridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "mammalia-humpback-whale",
+    "commonName": "Humpback Whale",
+    "class": "Mammalia",
+    "order": "Cetacea",
+    "family": "Balaenopteridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "reptilia-common-lizard",
+    "commonName": "Common Lizard",
+    "class": "Reptilia",
+    "order": "Squamata",
+    "family": "Lacertidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "reptilia-slow-worm",
+    "commonName": "Slow Worm",
+    "class": "Reptilia",
+    "order": "Squamata",
+    "family": "Anguidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "reptilia-grass-snake",
+    "commonName": "Grass Snake",
+    "class": "Reptilia",
+    "order": "Squamata",
+    "family": "Colubridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "reptilia-adder",
+    "commonName": "Adder",
+    "class": "Reptilia",
+    "order": "Squamata",
+    "family": "Viperidae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "reptilia-red-eared-slider",
+    "commonName": "Red-eared Slider",
+    "class": "Reptilia",
+    "order": "Testudines",
+    "family": "Emydidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-common-frog",
+    "commonName": "Common Frog",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Ranidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-pool-frog",
+    "commonName": "Pool Frog",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Ranidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-marsh-frog",
+    "commonName": "Marsh Frog",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Ranidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-edible-frog",
+    "commonName": "Edible Frog",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Ranidae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-common-toad",
+    "commonName": "Common Toad",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Bufonidae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-natterjack-toad",
+    "commonName": "Natterjack Toad",
+    "class": "Amphibia",
+    "order": "Anura",
+    "family": "Bufonidae",
+    "occurrenceStatus": "absent",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-smooth-newt",
+    "commonName": "Smooth Newt",
+    "class": "Amphibia",
+    "order": "Caudata",
+    "family": "Salamandridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-palmate-newt",
+    "commonName": "Palmate Newt",
+    "class": "Amphibia",
+    "order": "Caudata",
+    "family": "Salamandridae",
+    "occurrenceStatus": "resident",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-great-crested-newt",
+    "commonName": "Great Crested Newt",
+    "class": "Amphibia",
+    "order": "Caudata",
+    "family": "Salamandridae",
+    "occurrenceStatus": "scarce",
+    "conservationStatus": null
+  },
+  {
+    "id": "amphibia-alpine-newt",
+    "commonName": "Alpine Newt",
+    "class": "Amphibia",
+    "order": "Caudata",
+    "family": "Salamandridae",
+    "occurrenceStatus": "vagrant",
+    "conservationStatus": null
+  }
+]

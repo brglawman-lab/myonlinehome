@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef Claude — Recipe Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --red: #8B2E2E; --red-light: #F5EAEA;
+    --amber: #8B5E1A; --amber-light: #FBF2E3;
+    --blue: #1A3D6B; --blue-light: #E8EEF5;
+    --teal: #1A5050; --teal-light: #E5F0F0;
+    --pink: #6B2A4A; --pink-light: #F5EAF0;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px; --nav-h: 48px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+  .header-controls { display: flex; gap: 10px; align-items: center; flex: 1; max-width: 560px; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-faint); }
+  input[type="text"] { width: 100%; padding: 9px 12px 9px 34px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color 0.15s; }
+  input[type="text"]:focus { border-color: var(--border-strong); background: white; }
+  .cal-filter-wrap { flex-shrink: 0; }
+  .cal-input { width: 92px; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color 0.15s; }
+  .cal-input:focus { border-color: var(--border-strong); background: white; }
+  .cal-input::-webkit-outer-spin-button, .cal-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cal-input[type="number"] { -moz-appearance: textfield; }
+  .add-btn { padding: 9px 16px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+  .add-btn:hover { opacity: 0.88; }
+  .section-nav { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 40; padding: 0 2rem; }
+  .section-nav-inner { max-width: 1100px; margin: 0 auto; height: var(--nav-h); display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .section-nav-inner::-webkit-scrollbar { display: none; }
+  .pill { background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 999px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .pill:hover { background: var(--surface2); color: var(--text); }
+  .pill.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .pill.active:hover { background: var(--text); color: var(--bg); }
+  .pill .pill-count { font-size: 11px; opacity: 0.6; margin-left: 4px; }
+  .main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
+  .count-bar { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .section-block { margin-bottom: 2.5rem; scroll-margin-top: calc(var(--header-h) + var(--nav-h) + 8px); }
+  .section-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .section-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; color: var(--text); }
+  .section-count { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; }
+  .recipe-list { display: flex; flex-direction: column; }
+  .recipe-row { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  .recipe-row:hover { background: var(--surface); }
+  .recipe-row.expanded { background: var(--surface); }
+  .recipe-head { display: grid; grid-template-columns: 100px 1fr auto auto; align-items: center; gap: 14px; padding: 12px 8px; cursor: pointer; min-height: 56px; }
+  .recipe-head .tag-wrap { display: flex; align-items: center; }
+  .card-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; width: fit-content; }
+  .recipe-title-wrap { min-width: 0; }
+  .recipe-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 400; color: var(--text); line-height: 1.25; margin-bottom: 2px; }
+  .recipe-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  .recipe-meta { font-size: 12px; color: var(--text-faint); white-space: nowrap; text-align: right; }
+  .row-actions { display: flex; align-items: center; gap: 2px; }
+  .icon-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 6px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+  .icon-btn:hover { background: var(--surface2); color: var(--text); }
+  .icon-btn svg { display: block; }
+  .chevron { transition: transform 0.2s; }
+  .recipe-row.expanded .chevron { transform: rotate(180deg); }
+  .recipe-row.no-recipe .recipe-title { color: var(--text-muted); }
+  .recipe-row.no-recipe .recipe-desc { color: var(--text-faint); font-style: italic; }
+  .recipe-row.no-recipe .card-tag { opacity: 0.6; }
+  .recipe-expand { display: none; padding: 4px 8px 18px 122px; animation: slideDown 0.15s ease-out; }
+  .recipe-row.expanded .recipe-expand { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .expand-grid { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .expand-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.5rem; }
+  .expand-ingredients { list-style: none; columns: 2; column-gap: 2rem; }
+  .expand-ingredients li { display: flex; gap: 10px; padding: 3px 0; font-size: 13.5px; break-inside: avoid; line-height: 1.5; }
+  .expand-ingredients li .amt { color: var(--text-muted); min-width: 70px; flex-shrink: 0; }
+  .expand-actions { margin-top: 0.9rem; padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+  .text-btn { background: none; border: 1px solid var(--border-strong); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; transition: background 0.15s; }
+  .text-btn:hover { background: var(--surface2); }
+  .expand-empty { font-size: 13px; color: var(--text-muted); font-style: italic; }
+  .empty { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+  .empty p { font-size: 15px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,16,12,0.5); z-index: 200; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 640px; padding: 2rem; position: relative; margin: auto; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-faint); line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; margin: 8px 0 4px; line-height: 1.3; }
+  .modal-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .modal-image { width: 100%; max-height: 320px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1.5rem; display: block; }
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin: 1.5rem 0 0.6rem; }
+  .ingredient-list { list-style: none; }
+  .ingredient-list li { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .ingredient-list li:last-child { border-bottom: none; }
+  .ingredient-list li .amt { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
+  .steps { list-style: none; counter-reset: steps; }
+  .steps li { counter-increment: steps; padding: 8px 0 8px 2.25rem; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.65; position: relative; }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(steps); position: absolute; left: 0; top: 10px; font-size: 11px; font-weight: 500; color: var(--text-faint); width: 1.5rem; font-family: 'DM Sans', sans-serif; }
+  .notes-box { background: var(--surface2); border-left: 3px solid var(--border-strong); padding: 0.75rem 1rem; font-size: 13px; color: var(--text-muted); line-height: 1.65; border-radius: 0 var(--radius) var(--radius) 0; }
+  .no-recipe-box { text-align: center; padding: 2rem; background: var(--surface2); border-radius: var(--radius-lg); font-size: 14px; color: var(--text-muted); margin: 1.5rem 0; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-strong); background: white; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-hint { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+  .save-btn { width: 100%; padding: 11px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 1rem; transition: opacity 0.15s; }
+  .save-btn:hover { opacity: 0.88; }
+  .tag-starters { background: var(--blue-light); color: var(--blue); }
+  .tag-fish { background: var(--teal-light); color: var(--teal); }
+  .tag-meat { background: var(--red-light); color: var(--red); }
+  .tag-chicken { background: var(--amber-light); color: var(--amber); }
+  .tag-veg { background: var(--accent-light); color: var(--accent-text); }
+  .tag-sides { background: var(--surface2); color: var(--text-muted); }
+  .tag-baking { background: var(--pink-light); color: var(--pink); }
+  .tag-soft-drinks { background: #e5f4ee; color: #1a5c3a; }
+  .tag-beef { background: var(--red-light); color: var(--red); }
+  .tag-pork { background: #FAE8DF; color: #8B3A20; }
+  /* ── Cocktail spirit tags ── */
+  .tag-gin     { background: var(--teal-light); color: var(--teal); }
+  .tag-bourbon { background: var(--amber-light); color: var(--amber); }
+  .tag-vodka   { background: var(--blue-light); color: var(--blue); }
+  .tag-tequila { background: var(--accent-light); color: var(--accent-text); }
+  .tag-rum     { background: var(--red-light); color: var(--red); }
+  .tag-mezcal  { background: var(--pink-light); color: var(--pink); }
+  .tag-spirit-other { background: var(--surface2); color: var(--text-muted); }
+  /* ── Spirit filter bar ── */
+  .spirit-filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 0.5rem 0 1.25rem; }
+  .spirit-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 999px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .spirit-btn:hover { background: var(--surface2); color: var(--text); }
+  .spirit-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  /* ── Main hamburger menu ── */
+  .menu-wrap { position: relative; flex-shrink: 0; }
+  .menu-btn { display: flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .menu-btn:hover { background: var(--surface2); }
+  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 10px 28px rgba(20,16,12,0.14); min-width: 200px; z-index: 70; overflow: hidden; padding: 5px; }
+  .menu-dropdown.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; transition: background 0.15s; }
+  .menu-item:hover { background: var(--surface2); }
+  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  /* ── Seasonal produce timeline ── */
+  .season-intro { font-size: 13px; color: var(--text-muted); margin: 0 0 1.25rem; }
+  .season-icon { width: 38px; height: 38px; border-radius: 999px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; line-height: 1; }
+  .season-row.is-active-row .season-icon { background: var(--accent-light); }
+  .season-head { display: grid; grid-template-columns: 38px 200px 1fr 60px 32px; align-items: center; gap: 14px; padding: 10px 8px; cursor: pointer; min-height: 56px; }
+  .season-axis { display: grid; grid-template-columns: 38px 200px 1fr 60px 32px; gap: 14px; padding: 0 8px 8px; margin-top: 0.25rem; }
+  .season-axis-track { grid-column: 3; position: relative; height: 30px; border-bottom: 1px solid var(--border); }
+  .season-axis-label { position: absolute; bottom: 6px; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-faint); transform: translateX(2px); }
+  .season-track { position: relative; height: 20px; }
+  .season-bar { position: absolute; top: 4px; height: 12px; }
+  .season-bar.is-veg.is-active { background: var(--accent); }
+  .season-bar.is-veg.is-inactive { background: var(--accent-light); }
+  .season-bar.is-fruit.is-active { background: var(--pink); }
+  .season-bar.is-fruit.is-inactive { background: var(--pink-light); }
+  .season-bar.is-fungi.is-active { background: var(--amber); }
+  .season-bar.is-fungi.is-inactive { background: var(--amber-light); }
+  .season-today-line { position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--red); opacity: 0.6; }
+  .season-today-line-axis { top: 0; bottom: -5px; opacity: 0.6; }
+  .season-today-label { position: absolute; bottom: 100%; margin-bottom: 2px; font-size: 10px; font-weight: 500; color: var(--red); white-space: nowrap; transform: translateX(-50%); }
+  .season-count-meta { font-size: 12px; color: var(--text-faint); text-align: right; }
+  .season-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .season-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .season-card-icon { width: 42px; height: 42px; border-radius: 999px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .season-card-name { font-family: 'Playfair Display', serif; font-size: 14.5px; line-height: 1.25; color: var(--text); }
+  .season-card-range { font-size: 11.5px; color: var(--text-faint); letter-spacing: 0.02em; }
+  @media (max-width: 720px) {
+    .site-header { padding: 0 1rem; }
+    .section-nav { padding: 0 1rem; }
+    .main { padding: 1.25rem 1rem 3rem; }
+    .header-inner { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 8px; }
+    .logo { flex: 1; }
+    .header-controls { max-width: 100%; }
+    .form-row { grid-template-columns: 1fr; }
+    .recipe-head { grid-template-columns: 1fr auto; gap: 8px; padding: 12px 4px; }
+    .recipe-head .tag-wrap { display: none; }
+    .recipe-meta { display: none; }
+    .recipe-desc { }
+    .recipe-expand { padding: 4px 4px 16px; }
+    .expand-ingredients { columns: 1; }
+    .season-head { grid-template-columns: 34px 1fr; grid-template-areas: "icon title" "track track"; row-gap: 6px; padding: 10px 4px; }
+    .season-head .season-icon { grid-area: icon; width: 34px; height: 34px; font-size: 16px; }
+    .season-head .recipe-title-wrap { grid-area: title; }
+    .season-head .season-track { grid-area: track; height: 16px; }
+    .season-head .season-count-meta, .season-head .row-actions { display: none; }
+    .season-axis { grid-template-columns: 34px 1fr; padding: 0 4px 8px; }
+    .season-axis-track { grid-column: 2; }
+    .season-card-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+    .season-card { padding: 12px 6px; }
+  }
+  /* ── Print button (screen) ── */
+  .modal-print-actions { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+  .print-btn { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+  .print-btn:hover { background: var(--surface2); color: var(--text); }
+  /* ── Print / recipe card view ── */
+  @media print {
+    .site-header, .section-nav, .main, #addOverlay, .modal-close, .modal-print-actions { display: none !important; }
+    body { background: white; }
+    #detailOverlay { display: block !important; position: static !important; background: none !important; padding: 0 !important; overflow: visible !important; }
+    #detailModal { max-width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important; }
+    #detailModal .card-tag { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    #detailModal h2 { font-size: 22pt; margin: 6pt 0 2pt; }
+    #detailModal .modal-meta { font-size: 10pt; margin-bottom: 14pt; }
+    .print-recipe-body { display: grid; grid-template-columns: 1fr 1.6fr; gap: 28pt; margin-top: 4pt; }
+    #detailModal .section-label { font-size: 7.5pt; margin: 0 0 5pt; }
+    #detailModal .ingredient-list li { font-size: 10pt; padding: 4pt 0; }
+    #detailModal .ingredient-list li .amt { min-width: 72pt; }
+    #detailModal .steps li { font-size: 10pt; padding: 5pt 0 5pt 18pt; line-height: 1.55; }
+    #detailModal .notes-box { font-size: 9.5pt; margin-top: 14pt; }
+    #detailModal .section-label + .notes-box { margin-top: 0; }
+    @page { margin: 2cm; }
+  }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:6px 12px;border-radius:999px;background:rgba(45,74,62,0.92);color:#f5f0e8;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,0.18);backdrop-filter:blur(4px);
+transition:background .15s ease}
+#mohome-back:hover{background:#2d4a3e}
+@media print{#mohome-back{display:none}}
+</style>
+
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="menu-wrap">
+      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
+        <span id="menuCurrentLabel">Recipes</span>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="menu-dropdown" id="mainMenuDropdown">
+        <button class="menu-item" data-page="recipes" onclick="switchToPage('recipes')">Recipes</button>
+        <button class="menu-item" data-page="drinks" onclick="switchToPage('drinks')">Drinks</button>
+        <button class="menu-item" data-page="seasonal" onclick="switchToPage('seasonal')">Seasonal Produce</button>
+        <button class="menu-item" data-page="foraging" onclick="switchToPage('foraging')">Foraging</button>
+      </div>
+    </div>
+    <div class="logo">Chef <span>Claude</span></div>
+    <div class="header-controls">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"></circle><path d="M11 11l3 3"></path></svg>
+        <input type="text" id="search" placeholder="Search recipes…" oninput="render()">
+      </div>
+      <div class="cal-filter-wrap" id="calFilterWrap">
+        <input type="number" id="calFilter" class="cal-input" placeholder="Max cal" min="0" step="10" inputmode="numeric" oninput="render()" title="Show recipes with calories per serving under this number">
+      </div>
+      <button class="add-btn" id="addBtn" onclick="openAddModal()">+ Add</button>
+    </div>
+  </div>
+</header>
+
+<nav class="section-nav" id="sectionNavWrap">
+  <div class="section-nav-inner" id="sectionNav"></div>
+</nav>
+
+<main class="main">
+  <div class="count-bar" id="countBar">38 recipes</div>
+  <div id="grid"></div>
+  <div id="empty" style="display:none; text-align:center; padding:4rem 2rem; color:var(--text-muted);">No recipes found.</div>
+</main>
+
+<div class="modal-overlay" id="detailOverlay" onclick="closeDetail(event)">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<div class="modal-overlay" id="addOverlay" onclick="closeAdd(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdd()">✕</button>
+    <h2 style="margin-bottom:1.25rem;">Add a recipe</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Title</label><input type="text" id="f-title" placeholder="e.g. Beef short rib"></div>
+      <div class="form-group"><label>Category</label>
+        <select id="f-cat">
+          <option value="pasta">Pasta</option><option value="rice">Rice</option><option value="fish">Seafood</option>
+          <option value="meat">Meat</option><option value="chicken">Chicken</option><option value="tacos">Tacos</option>
+          <option value="veg">Veg</option><option value="soup">Soup</option><option value="sides">Sides</option>
+          <option value="baking">Baking</option><option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Serves</label><input type="text" id="f-serves" placeholder="e.g. 2–3"></div>
+      <div class="form-group"><label>Time</label><input type="text" id="f-time" placeholder="e.g. 45 mins"></div>
+    </div>
+    <div class="form-group"><label>Short description</label><input type="text" id="f-desc" placeholder="One line summary"></div>
+    <div class="form-group">
+      <label>Ingredients</label>
+      <textarea id="f-ingredients" placeholder="One per line: 250g macaroni&#10;40g butter&#10;500ml milk"></textarea>
+      <div class="form-hint">Format: amount then ingredient, e.g. "250g macaroni"</div>
+    </div>
+    <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
+    <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
+    <button class="save-btn" onclick="saveRecipe()">Save recipe</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'chefclaude_recipes_v2';
+const DEFAULT_RECIPES = [
+  { id:'baked-mac-cheese', section:'veg', title:'Baked mac and cheese', category:'pasta', serves:'2–3', time:'45 mins', calories:'1050', description:'Rich, creamy baked pasta with a Gruyère and cheddar sauce and crisp breadcrumb top.', ingredients:[{amount:'250g',item:'macaroni'},{amount:'40g',item:'unsalted butter'},{amount:'40g',item:'plain flour'},{amount:'500ml',item:'semi-skimmed milk'},{amount:'120g',item:'Gruyère, grated'},{amount:'80g',item:'cheddar, grated'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'pinch',item:'nutmeg'},{amount:'40g',item:'panko breadcrumbs'},{amount:'20g',item:'Parmesan, grated'}], steps:['Cook macaroni in well-salted boiling water until just under al dente. Drain and set aside.','Melt butter in a saucepan over medium heat. Add flour and cook, stirring, for 2 minutes.','Gradually whisk in milk until smooth. Cook until thickened, about 5–7 mins.','Remove from heat. Stir in Gruyère, cheddar, mustard, and nutmeg. Season generously.','Combine sauce with pasta. Transfer to a baking dish.','Mix panko with Parmesan and scatter over the top. Bake at 200°C for 20–25 mins until golden and bubbling.'], notes:'The pasta finishes cooking in the oven — keep it slightly underdone when boiling. Add cayenne to the sauce for heat.' },
+  { id:'kewpie-prawn-baguette', section:'fish', title:'Kewpie prawn baguette', category:'fish', serves:'2', time:'20 mins', calories:'640', description:'Juicy prawns tossed in Kewpie mayo, piled into a crusty baguette.', ingredients:[{amount:'300g',item:'cooked king prawns'},{amount:'3 tbsp',item:'Kewpie mayo'},{amount:'1 tsp',item:'sriracha (optional)'},{amount:'1 tsp',item:'lemon juice'},{amount:'1',item:'baguette'},{amount:'handful',item:'little gem lettuce leaves'}], steps:['Mix prawns with Kewpie mayo, lemon juice, and sriracha if using. Season to taste.','Split and lightly toast the baguette.','Line the baguette with lettuce leaves, then pile in the prawn mixture.','Serve immediately.'], notes:'Keep sriracha on the side for mixed heat preferences.' },
+  { id:'salmon-rice-bowls', section:'fish', title:'Salmon rice bowls', category:'rice', serves:'2–3', time:'30 mins', calories:'750', description:'Roasted salmon over jasmine rice with quick pickled carrot and cucumber, avocado, and sesame.', ingredients:[{amount:'400g',item:'salmon fillets'},{amount:'300g',item:'jasmine rice, cooked'},{amount:'2',item:'medium carrots, julienned'},{amount:'1',item:'mini cucumber, sliced'},{amount:'1',item:'avocado, sliced'},{amount:'100ml',item:'rice vinegar'},{amount:'1 tsp',item:'sugar'},{amount:'1 tsp',item:'salt'},{amount:'1 tbsp',item:'soy sauce'},{amount:'1 tsp',item:'toasted sesame oil'},{amount:'1 tbsp',item:'sesame seeds, toasted'},{amount:'2 tbsp',item:'Kewpie mayo'}], steps:['Combine rice vinegar, sugar, and salt. Toss with carrot and cucumber. Pickle for at least 15 mins.','Season salmon with salt, pepper, and soy sauce. Roast at 200°C for 12–14 mins.','Mix soy sauce and sesame oil as a dressing.','Assemble bowls: rice, salmon, pickled veg, avocado. Drizzle with dressing and Kewpie mayo.','Finish with toasted sesame seeds.'], notes:'The quick pickle needs at least 15 mins but is better after 30. Keeps in the fridge for a few days.' },
+  { id:'thomas-straker-salmon-slaw', section:'fish', title:'Thomas Straker salmon with slaw', category:'fish', serves:'2–3', time:'30 mins', calories:'500', description:'Crispy-skinned roasted salmon served with a creamy rice vinegar slaw.', ingredients:[{amount:'400g',item:'salmon fillet, skin on'},{amount:'200g',item:'white cabbage, finely shredded'},{amount:'1',item:'carrot, grated'},{amount:'3 tbsp',item:'Kewpie mayo'},{amount:'1 tbsp',item:'rice vinegar'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'1 tbsp',item:'olive oil'}], steps:['Make the slaw: mix Kewpie mayo, rice vinegar, and mustard. Toss with cabbage and carrot. Season well and refrigerate.','Season salmon generously with salt and pepper.','Heat oil in a skillet over high heat. Place salmon skin-side down and press gently. Cook 4–5 mins until skin is crisp.','Flip and cook 2 mins more. Rest briefly.','Serve salmon over slaw.'], notes:'Make the slaw first so it softens slightly in the dressing.' },
+  { id:'beef-short-rib', section:'beef', title:'Beef short rib with red wine sauce and mash', category:'meat', serves:'2–3', time:'3.5–4 hrs', calories:'1290', description:'Slow-braised short ribs in a deep red wine sauce, served with buttery mash.', ingredients:[{amount:'1–1.2kg',item:'beef short ribs'},{amount:'1',item:'white onion, diced'},{amount:'2',item:'carrots, diced'},{amount:'3',item:'garlic cloves, smashed'},{amount:'2 tbsp',item:'tomato paste'},{amount:'300ml',item:'red wine'},{amount:'400ml',item:'beef stock'},{amount:'2',item:'bay leaves'},{amount:'2 sprigs',item:'fresh rosemary'},{amount:'800g',item:'Wilja potatoes, peeled and chopped'},{amount:'60g',item:'unsalted butter'},{amount:'100ml',item:'semi-skimmed milk, warm'}], steps:['Pat ribs dry and season. Sear all over in a hot Le Creuset until deeply browned. Remove.','Soften onion and carrot in the same pot. Add garlic and tomato paste, cook 2 mins.','Add red wine, scrape the bottom, simmer 3–4 mins. Add stock, bay, and rosemary.','Return ribs. Cover and braise at 160°C for 3–3.5 hrs until tender.','Remove ribs. Strain braising liquid and reduce until saucy.','Boil potatoes, drain, rice with butter and warm milk. Season well.','Serve ribs over mash with sauce spooned over.'], notes:'Best made a day ahead — reheat ribs gently in the sauce.' },
+  { id:'gambas-al-ajillo', section:'starters', title:'Gambas al ajillo with crusty bread', category:'fish', serves:'2', time:'15 mins', calories:'740', description:'Spanish garlic prawns in olive oil with chilli and white wine, mopped up with bread.', ingredients:[{amount:'300g',item:'raw king prawns, peeled'},{amount:'6',item:'garlic cloves, thinly sliced'},{amount:'1 tsp',item:'chilli flakes'},{amount:'80ml',item:'extra virgin olive oil'},{amount:'60ml',item:'white wine or dry sherry'},{amount:'handful',item:'fresh parsley, chopped'},{amount:'1',item:'crusty baguette'}], steps:['Heat olive oil in a skillet over medium heat. Add garlic and chilli flakes — cook gently until garlic is just golden, 2–3 mins.','Turn heat to high. Add prawns and cook 1–2 mins per side until pink.','Add wine or sherry and let sizzle 30 seconds.','Season with salt and scatter parsley.','Serve immediately with crusty bread.'], notes:'Serve straight away — prawns toughen quickly. Reduce chilli for milder version.' },
+  { id:'cajun-chicken-nachos', section:'chicken', title:'Cajun chicken and beer cheese nachos', category:'chicken', serves:'2–3', time:'35 mins', calories:'900', description:'Loaded nachos with Cajun chicken, a beer cheese sauce, soured cream and jalapeños.', ingredients:[{amount:'2',item:'chicken breasts'},{amount:'1.5 tsp',item:'smoked paprika'},{amount:'1 tsp',item:'cumin'},{amount:'1 tsp',item:'cayenne pepper'},{amount:'1 tsp',item:'dried oregano'},{amount:'200g',item:'tortilla chips'},{amount:'20g',item:'unsalted butter'},{amount:'20g',item:'plain flour'},{amount:'100ml',item:'lager or pale ale'},{amount:'150ml',item:'semi-skimmed milk'},{amount:'120g',item:'cheddar, grated'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'to serve',item:'soured cream, jalapeños, lime'}], steps:['Mix paprika, cumin, cayenne, oregano, salt, and pepper. Coat chicken and cook in pan or air fryer. Rest then slice.','Beer cheese: melt butter, add flour, cook 1–2 mins. Whisk in beer then milk. Thicken, then stir in cheddar and mustard.','Spread chips on a baking tray. Pour beer cheese over. Add chicken.','Bake at 200°C for 8–10 mins until bubbling.','Top with soured cream, jalapeños, and lime.'], notes:'Reduce cayenne for milder nachos. Add avocado to serve.' },
+  { id:'sundried-tomato-chickpea-stew', section:'veg', title:'Sundried tomato and chickpea stew', category:'veg', serves:'2–3', time:'30 mins', calories:'550', description:'Hearty veg stew with chickpeas, sundried tomatoes, harissa, and warm spices.', ingredients:[{amount:'2 tins',item:'chickpeas, drained'},{amount:'100g',item:'sundried tomatoes, chopped'},{amount:'1 tin',item:'crushed tomatoes'},{amount:'1',item:'white onion, diced'},{amount:'4',item:'garlic cloves, sliced'},{amount:'1 tsp',item:'smoked paprika'},{amount:'1 tsp',item:'cumin'},{amount:'1 tbsp',item:'harissa paste'},{amount:'200ml',item:'vegetable stock'},{amount:'2 tbsp',item:'olive oil'},{amount:'to serve',item:'Greek yoghurt, crusty bread'}], steps:['Soften onion in olive oil 5–7 mins. Add garlic, smoked paprika, and cumin, cook 2 mins.','Add harissa and sundried tomatoes, stir through.','Add crushed tomatoes, chickpeas, and stock. Simmer 15–20 mins until thickened.','Season well. Serve with Greek yoghurt and crusty bread.'], notes:'Add a handful of spinach in the last 2 mins. Great for batch cooking.' },
+  { id:'red-pepper-pepperoni-orzotto', section:'pork', title:'Roasted red pepper and pepperoni orzotto', category:'pasta', serves:'2–3', time:'40 mins', calories:'730', description:'Orzo cooked risotto-style with roasted red peppers and crispy pepperoni.', ingredients:[{amount:'200g',item:'orzo'},{amount:'2',item:'red peppers, halved'},{amount:'100g',item:'pepperoni, sliced'},{amount:'1',item:'white onion, finely diced'},{amount:'3',item:'garlic cloves, minced'},{amount:'1 tbsp',item:'tomato paste'},{amount:'150ml',item:'white wine'},{amount:'700ml',item:'chicken or vegetable stock, warm'},{amount:'30g',item:'Parmesan, grated'},{amount:'20g',item:'unsalted butter'}], steps:['Roast red peppers at 220°C for 20–25 mins until charred. Peel and roughly chop or blend.','Fry pepperoni in a dry pan until crispy. Remove and set aside.','Soften onion in olive oil. Add garlic and tomato paste, cook 2 mins.','Add orzo, stir to coat. Pour in wine, stir until absorbed.','Add warm stock ladle by ladle, stirring frequently, until orzo is cooked — about 15 mins.','Stir in roasted pepper, butter, and Parmesan. Season.','Serve topped with crispy pepperoni.'], notes:'Orzo thickens quickly — add a splash of stock when reheating.' },
+  { id:'smashed-potatoes-pancetta-raclette', section:'pork', title:'Smashed potatoes, pancetta, raclette, cornichons', category:'meat', serves:'2–3', time:'50 mins', calories:'730', description:'Crispy smashed potatoes loaded with pancetta, melted raclette, and sharp cornichons.', ingredients:[{amount:'700g',item:'small Wilja potatoes'},{amount:'100g',item:'pancetta, diced'},{amount:'150g',item:'raclette cheese, sliced'},{amount:'8–10',item:'cornichons, sliced'},{amount:'2 tbsp',item:'olive oil'}], steps:['Boil potatoes in salted water until just tender, 15–20 mins. Drain and steam dry.','Place on an oiled tray and smash each one with the bottom of a mug. Drizzle with oil and season.','Roast at 220°C for 25–30 mins until golden and crispy.','Fry pancetta until crispy. Set aside.','Lay raclette over potatoes and return to oven 3–4 mins until melted.','Top with pancetta and cornichons. Serve immediately.'], notes:'Steam-drying after boiling is the key to crispiness.' },
+  { id:'leek-potato-soup', section:'starters', title:'Leek and potato soup', category:'soup', serves:'3–4', time:'35 mins', calories:'340', description:'Simple, creamy leek and potato soup made in the Ninja.', ingredients:[{amount:'3',item:'leeks, sliced and washed'},{amount:'500g',item:'Wilja potatoes, peeled and diced'},{amount:'1',item:'white onion, diced'},{amount:'2',item:'garlic cloves, sliced'},{amount:'30g',item:'unsalted butter'},{amount:'900ml',item:'vegetable or chicken stock'},{amount:'100ml',item:'semi-skimmed milk or cream'}], steps:['Melt butter on sauté mode. Soften onion and leeks for 8–10 mins.','Add garlic, cook 1 min.','Add potatoes and stock. Pressure cook on high for 8 mins.','Blend until smooth. Stir in milk or cream.','Season with salt and white pepper.'], notes:'Serve with crusty bread. Keeps 3 days in the fridge.' },
+  { id:'roast-beef-christmas', section:'beef', title:'Roast beef (Christmas)', category:'meat', serves:'4–6', time:'2+ hrs (plus overnight brine)', calories:'850', description:'Dry-brined, seared roast beef on a veg trivet with gravy from the pan juices.', ingredients:[{amount:'1.5–2kg',item:'beef joint (sirloin or rib)'},{amount:'1',item:'head of garlic, halved'},{amount:'2',item:'white onions, quartered'},{amount:'3',item:'carrots, halved'},{amount:'2 sprigs',item:'fresh rosemary'},{amount:'3',item:'bay leaves'},{amount:'2 tbsp',item:'olive oil'},{amount:'2 tbsp',item:'plain flour'},{amount:'150ml',item:'red wine'},{amount:'400ml',item:'beef stock'},{amount:'generous',item:'sea salt flakes and black pepper'}], steps:['Pat beef dry. Season generously with salt. Leave uncovered in the fridge overnight to dry brine.','Remove from fridge 1 hour before cooking. Rub with olive oil and pepper.','Sear all over in the Le Creuset over high heat until deeply browned.','Build a trivet of garlic, onions, carrots, rosemary, and bay in the roasting tin. Place beef on top.','Roast at 240°C for 20 mins, then reduce to 160°C until internal temp reaches 52–55°C.','Rest under foil for at least 20–30 mins.','Make gravy: mash veg in the tin, stir in flour, add wine then stock. Simmer and strain.','Reheat leftovers gently in the gravy.'], notes:'Pull at 52°C — it will carry over to 55°C while resting. The overnight dry brine is the most important step.' },
+  { id:'spiced-red-cabbage', section:'sides', title:'Spiced red cabbage', category:'sides', serves:'4–6', time:'1 hr (prep day before)', calories:'220', description:'Sweet-sour braised red cabbage with spices and redcurrant jelly. Based on Marco Pierre White.', ingredients:[{amount:'1',item:'red cabbage, finely shredded'},{amount:'240ml',item:'red wine vinegar'},{amount:'200g',item:'caster sugar'},{amount:'240ml',item:'water'},{amount:'2 tbsp',item:'redcurrant jelly'},{amount:'1',item:'bouquet garni (bay, thyme, rosemary)'}], steps:['Combine vinegar, sugar, and water in a large pan. Simmer and stir to dissolve sugar.','Add cabbage and bouquet garni. Cover and cook over low heat 45–60 mins until tender.','Stir in redcurrant jelly and season. Remove bouquet garni.','Serve or cool and refrigerate — best made the day before.'], notes:'The 1:1:1 cup ratio of vinegar, sugar, and water is the base. Adjust sweetness with more redcurrant jelly.' },
+  { id:'pork-belly-carnitas', section:'pork', title:'Pork belly carnitas tacos', category:'tacos', serves:'2–3', time:'2.5–3 hrs', calories:'1350', description:'Thomasina Miers-inspired slow-cooked pork belly carnitas in tacos with guacamole and chipotle.', ingredients:[{amount:'666g',item:'pork belly, cut into chunks'},{amount:'2 sprigs',item:'fresh rosemary'},{amount:'1 tsp',item:'cumin'},{amount:'1 tsp',item:'smoked paprika'},{amount:'4',item:'garlic cloves, smashed'},{amount:'1',item:'orange, juice and zest'},{amount:'6–8',item:'small tortillas'},{amount:'2',item:'avocados'},{amount:'1',item:'lime'},{amount:'1',item:'shallot, finely diced'},{amount:'handful',item:'fresh parsley, chopped'},{amount:'2 tbsp',item:'chipotle in adobo sauce'}], steps:['Season pork with cumin, smoked paprika, salt, and pepper. Place in a heavy pot with rosemary, garlic, orange juice and zest.','Add just enough water to barely cover. Bring to a boil, cover and cook at 160°C for 2–2.5 hrs.','Uncover, increase heat until liquid evaporates and pork fries in its own fat. Turn to crisp all sides.','Guacamole: mash avocados with lime juice, salt, and shallot.','Chipotle sauce: blend chipotle in adobo with a little mayo.','Warm tortillas over a gas flame or dry pan.','Serve pork in tortillas with guacamole, chipotle sauce, parsley, and lime.'], notes:'Let the liquid evaporate fully so the pork fries in its own fat — don\'t rush this step. Rosemary instead of thyme.' },
+  { id:'chorizo-al-vino', section:'pork', title:'Chorizo al vino with roasties and chipotle mayo', category:'meat', serves:'2', time:'45 mins', calories:'1250', description:'Chorizo braised in red wine with crispy roast potatoes and smoky chipotle mayo.', ingredients:[{amount:'300g',item:'cooking chorizo, sliced'},{amount:'200ml',item:'red wine'},{amount:'2',item:'garlic cloves, sliced'},{amount:'1 tsp',item:'smoked paprika'},{amount:'600g',item:'Wilja potatoes, cut into chunks'},{amount:'3 tbsp',item:'olive oil'},{amount:'1–2',item:'chipotles in adobo, blended'},{amount:'3 tbsp',item:'mayonnaise'}], steps:['Parboil potatoes 8–10 mins. Drain and steam dry. Toss in olive oil, salt, pepper.','Roast at 220°C for 30–35 mins, turning once.','Fry chorizo in a dry pan until crisping. Add garlic and smoked paprika.','Pour in red wine, scrape bits, simmer 10 mins until glossy.','Blend chipotle with mayo for chipotle mayo.','Serve chorizo and sauce over roasties with chipotle mayo on the side.'], notes:'Thomasina Miers chipotle paste works well here.' },
+  { id:'chipotle-black-bean-halloumi-tacos', section:'veg', title:'Chipotle refried black bean and halloumi tacos', category:'tacos', serves:'2–3', time:'30 mins', calories:'900', description:'Tacos with smoky refried black beans made with dried ancho chillies and crispy halloumi.', ingredients:[{amount:'2 tins',item:'black beans, drained'},{amount:'2',item:'dried ancho chillies, soaked and chopped'},{amount:'3',item:'garlic cloves, minced'},{amount:'1',item:'white onion, diced'},{amount:'1 tsp',item:'cumin'},{amount:'1 tbsp',item:'chipotle in adobo'},{amount:'225g',item:'halloumi, sliced'},{amount:'3 tbsp',item:'mayonnaise'},{amount:'1',item:'lime, juice'},{amount:'1',item:'red onion, thinly sliced'},{amount:'handful',item:'sweet gem lettuce, shredded'},{amount:'6–8',item:'small tortillas'}], steps:['Soak ancho chillies in hot water 20 mins. Drain and finely chop.','Soften onion in olive oil. Add garlic, cumin, ancho chilli, and chipotle. Cook 2 mins.','Add beans with a splash of water. Mash roughly — keep some texture. Season.','Fry halloumi in a dry pan over high heat until golden, about 2 mins per side.','Mix mayo with lime juice for lime mayo.','Warm tortillas. Fill with beans, halloumi, red onion, lettuce, and lime mayo.'], notes:'Dried ancho chillies give depth without too much heat. Use less chipotle for a milder version.' },
+  { id:'creamy-harissa-butter-beans', section:'veg', title:'Creamy harissa butter beans', category:'veg', serves:'2–3', time:'20 mins', calories:'450', description:'Quick, comforting butter beans in a creamy harissa tomato sauce.', ingredients:[{amount:'2 tins',item:'butter beans, drained'},{amount:'2 tbsp',item:'harissa paste'},{amount:'3',item:'garlic cloves, sliced'},{amount:'100ml',item:'double cream or Greek yoghurt'},{amount:'1 tin',item:'crushed tomatoes'},{amount:'1 tbsp',item:'olive oil'},{amount:'to serve',item:'crusty bread, lemon'}], steps:['Warm olive oil. Add garlic and cook gently 2 mins.','Add harissa paste, stir 1 min.','Add crushed tomatoes and simmer 5 mins.','Add beans, stir and simmer 5 mins more.','Stir in cream or yoghurt. Season and serve with crusty bread.'], notes:'Greek yoghurt is lighter; double cream is richer. Both work.' },
+  { id:'spicy-bean-enchiladas', section:'veg', title:'Spicy bean enchiladas', category:'veg', serves:'2–3', time:'40 mins', calories:'890', description:'Baked flour tortillas filled with spiced beans, tomato sauce, and melted cheese.', ingredients:[{amount:'2 tins',item:'black beans, drained'},{amount:'1 tin',item:'crushed tomatoes'},{amount:'1',item:'white onion, diced'},{amount:'3',item:'garlic cloves, minced'},{amount:'1 tsp',item:'cumin'},{amount:'1 tsp',item:'smoked paprika'},{amount:'1 tbsp',item:'chipotle in adobo'},{amount:'6',item:'flour tortillas'},{amount:'120g',item:'cheddar, grated'},{amount:'to serve',item:'soured cream, coriander, lime'}], steps:['Soften onion in olive oil. Add garlic, cumin, smoked paprika, and chipotle. Cook 2 mins.','Add beans and half the tomatoes. Simmer 10 mins. Season and mash lightly.','Simmer remaining tomatoes with garlic for a simple sauce.','Fill tortillas, roll up seam-down in a baking dish.','Pour tomato sauce over. Scatter cheese on top. Bake at 190°C for 20 mins.','Serve with soured cream, coriander, and lime.'], notes:'Use less chipotle for milder enchiladas.' },
+  { id:'cajun-chicken-wraps', section:'chicken', title:'Cajun chicken wraps', category:'chicken', serves:'2–3', time:'25 mins', calories:'470', description:'Spiced Cajun chicken in flour wraps with lettuce, avocado, red onion, and tomato.', ingredients:[{amount:'2',item:'chicken breasts'},{amount:'1.5 tsp',item:'smoked paprika'},{amount:'1 tsp',item:'cumin'},{amount:'1 tsp',item:'cayenne pepper'},{amount:'1 tsp',item:'dried oregano'},{amount:'3',item:'large flour tortillas'},{amount:'1',item:'avocado, sliced'},{amount:'1',item:'red onion, thinly sliced'},{amount:'2',item:'tomatoes, sliced'},{amount:'handful',item:'little gem lettuce'},{amount:'3 tbsp',item:'Kewpie mayo or soured cream'}], steps:['Mix smoked paprika, cumin, cayenne, and oregano with salt and pepper. Coat chicken.','Cook in a hot pan or air fryer until cooked through. Rest 5 mins then slice.','Warm tortillas.','Layer lettuce, tomato, red onion, avocado, and chicken in each wrap.','Add Kewpie mayo or soured cream. Fold and serve.'], notes:'Reduce cayenne for milder wraps.' },
+  { id:'steak-peppercorn', section:'beef', title:'Steak with peppercorn sauce', category:'meat', serves:'2', time:'25 mins', calories:'950', description:'Pan-seared steak with a classic creamy peppercorn sauce.', ingredients:[{amount:'2',item:'sirloin or ribeye steaks (~250g each)'},{amount:'1 tbsp',item:'black peppercorns, coarsely crushed'},{amount:'1',item:'shallot, finely diced'},{amount:'50ml',item:'brandy or whisky'},{amount:'150ml',item:'beef stock'},{amount:'100ml',item:'double cream'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'20g',item:'unsalted butter'}], steps:['Pat steaks dry. Press crushed peppercorns into both sides. Season with salt.','Heat a cast iron pan until very hot. Sear steaks 2–3 mins per side for medium-rare. Rest on a board.','In the same pan, soften shallot in butter 2 mins.','Add brandy — flambé or let reduce 30 seconds.','Add stock and simmer 3–4 mins. Add cream and mustard. Simmer until saucy.','Season and pour over rested steaks.'], notes:'Rest steaks at least 5 mins. Sauce can be made ahead and reheated gently.' },
+  { id:'dauphinois', section:'sides', title:'Dauphinois potatoes', category:'sides', serves:'2–3', time:'1 hr 15 mins', calories:'720', description:'Thinly sliced potatoes slow-baked in cream and garlic until silky and golden.', ingredients:[{amount:'700g',item:'Wilja potatoes, very thinly sliced'},{amount:'300ml',item:'double cream'},{amount:'200ml',item:'semi-skimmed milk'},{amount:'2',item:'garlic cloves, minced'},{amount:'pinch',item:'nutmeg'},{amount:'20g',item:'unsalted butter'}], steps:['Heat cream, milk, garlic, nutmeg, salt, and pepper to a simmer.','Add sliced potatoes and simmer 5 mins.','Transfer to a buttered dish in layers. Pour cream mixture over.','Cover with foil and bake at 170°C for 45 mins.','Remove foil and bake 20–25 mins more until golden.','Rest 10 mins before serving.'], notes:'A mandoline makes slicing much easier and ensures even cooking.' },
+  { id:'mash', section:'sides', title:'Mash', category:'sides', serves:'2–3', time:'25 mins', calories:'440', description:'Classic buttery mashed potatoes.', ingredients:[{amount:'800g',item:'Wilja potatoes, peeled and chopped'},{amount:'60g',item:'unsalted butter'},{amount:'100ml',item:'semi-skimmed milk, warmed'}], steps:['Boil potatoes in well-salted water until completely tender, about 20 mins.','Drain and return to pot over low heat 1–2 mins to steam dry.','Pass through a potato ricer. Stir in butter.','Add warm milk gradually, beating until smooth and creamy.','Season with salt and white pepper.'], notes:'Ricing gives a much smoother result. Don\'t overwork or it becomes gluey.' },
+  { id:'hash-browns', section:'sides', title:'Hash browns', category:'sides', serves:'2–3', time:'30 mins', calories:'340', description:'Crispy, golden shredded potato hash browns.', ingredients:[{amount:'600g',item:'Wilja potatoes, peeled'},{amount:'1 tsp',item:'salt'},{amount:'2 tbsp',item:'groundnut oil'},{amount:'20g',item:'unsalted butter'}], steps:['Grate potatoes on the coarse side of a box grater. Squeeze out as much moisture as possible in a tea towel.','Season with salt and pepper.','Heat oil and butter in a non-stick pan over medium-high heat.','Add potato in a thin layer and press firmly. Cook 6–8 mins without moving until deep golden.','Flip in sections and cook 5–6 mins more until crispy all over.'], notes:'Squeezing out moisture is the critical step for crispiness.' },
+  { id:'roasties', section:'sides', title:'Roast potatoes', category:'sides', serves:'2–3', time:'1 hr', calories:'390', description:'Classic crispy roast potatoes.', ingredients:[{amount:'800g',item:'Wilja potatoes, peeled and cut into chunks'},{amount:'3 tbsp',item:'vegetable oil or goose fat'},{amount:'to taste',item:'sea salt flakes'}], steps:['Parboil in well-salted water 10–12 mins until edges start to soften. Drain.','Shake the colander vigorously to roughen up the edges.','Heat oil in a roasting tin at 220°C until smoking hot.','Add potatoes, toss in oil, and season.','Roast 40–45 mins, turning once or twice, until deeply golden and crispy.'], notes:'The rough edges from shaking create extra crispiness. Don\'t crowd the tin.' },
+  { id:'pad-thai', section:'chicken', title:'Chicken Pad Thai', category:'chicken', serves:'2–3', time:'35 mins', calories:'1030', description:'Single-batch home pad Thai using pad Thai paste — crispy edges, silky noodles, properly seasoned.', ingredients:[{amount:'4 nests',item:'pad Thai rice noodles'},{amount:'450g',item:'chicken breast, thinly sliced'},{amount:'4 tbsp',item:'pad Thai paste'},{amount:'3',item:'eggs'},{amount:'4',item:'spring onions, whites and greens separated, sliced'},{amount:'200g',item:'bean sprouts'},{amount:'60g',item:'peanuts, roughly chopped'},{amount:'2 tbsp',item:'fish sauce'},{amount:'1 tbsp',item:'soy sauce'},{amount:'3 tbsp',item:'groundnut or vegetable oil'},{amount:'2',item:'limes, cut into wedges'},{amount:'to serve',item:'sriracha'}], steps:['Soak the noodles in cold or just-warm water (not boiling) for 20–25 minutes until pliable but still with a little resistance. Drain and toss with a splash of oil to stop them clumping.','Slice chicken thinly against the grain — around 5mm. Season lightly with a splash of soy sauce.','Heat oil in your largest pan or wok over the highest heat you can manage. Add the chicken and leave it alone for 90 seconds — don\'t stir. Then toss and cook until golden, about 3–4 minutes total. Push to one side.','Crack in the eggs. Leave for 20 seconds, then scramble gently into the chicken — you want some larger pieces, not fine crumble.','Add the drained noodles and pad Thai paste. Toss everything together well. Add fish sauce and taste — adjust seasoning as needed.','Add the spring onion whites and bean sprouts. Toss for 1 minute — you want the sprouts to retain some crunch.','Serve topped with peanuts, spring onion greens and lime wedges. Sriracha on the side.'], notes:'The most important thing: resist stirring the chicken for the first 90 seconds — that\'s where flavour is built. Sriracha on the side so your partner can control their own heat.' },
+  { id:'dirty-wedges', section:'sides', title:'Dirty wedges', category:'sides', serves:'2–3', time:'45 mins', calories:'500', description:'Crispy spiced potato wedges finished with Parmesan and sriracha mayo — the parboil is what makes them.', ingredients:[{amount:'800g',item:'potatoes (Wilja or Regal Red), cut into wedges'},{amount:'3 tbsp',item:'groundnut or vegetable oil'},{amount:'1 tsp',item:'smoked paprika'},{amount:'1 tsp',item:'garlic granules'},{amount:'½ tsp',item:'ground cumin'},{amount:'¼ tsp',item:'cayenne pepper'},{amount:'to taste',item:'salt and black pepper'},{amount:'30g',item:'Parmesan, finely grated'},{amount:'2 tbsp',item:'Kewpie mayo'},{amount:'1 tbsp',item:'sriracha'},{amount:'optional',item:'spring onions and/or lime to garnish'}], steps:['Bring a large pan of well-salted water to the boil. Add the wedges and parboil for 6–8 minutes — just starting to soften but not cooked through. Drain.','Leave in the colander to steam dry for 5 minutes. Then shake the colander vigorously to rough up the edges — those bashed surfaces turn into shards of crunch.','Toss the wedges in a large bowl with the oil, smoked paprika, garlic granules, cumin, cayenne, salt and pepper. Coat well.','Spread in a single layer on roasting tins — don\'t crowd them. Roast at 220°C fan for 25–30 minutes, flipping once halfway, until deeply golden.','As soon as they come out, grate Parmesan over the hot wedges so it melts in. Mix the Kewpie and sriracha together and drizzle over. Garnish with spring onions or a squeeze of lime.'], notes:'Don\'t skip the parboil — it\'s the difference between soft and crispy. Can also be done in the air fryer at 200°C for 20–25 minutes, shaking every 8 minutes, in batches. Air fryer gives a crispier result but cook in batches or they\'ll steam.' },
+  { id:'cheesy-bean-burritos', section:'veg', title:'Cheesy bean burritos', category:'tacos', serves:'2', time:'30 mins', calories:'820', description:'Pantry-friendly burritos with jammy smashed black beans, roasted pepper and melted cheddar, sealed in a cast iron pan.', ingredients:[{amount:'2',item:'large flour tortillas (burrito-sized)'},{amount:'1 tin',item:'black beans, drained (reserve the liquid)'},{amount:'1',item:'red onion, finely diced'},{amount:'3',item:'garlic cloves, minced'},{amount:'1',item:'red or yellow pepper, sliced'},{amount:'200g',item:'tinned crushed tomatoes'},{amount:'1 tsp',item:'smoked paprika'},{amount:'1 tsp',item:'ground cumin'},{amount:'¼ tsp',item:'cayenne (optional)'},{amount:'80g',item:'cheddar, grated'},{amount:'3 tbsp',item:'soured cream, to serve'},{amount:'2 tbsp',item:'olive oil'},{amount:'1',item:'lime, juiced'},{amount:'to taste',item:'salt and black pepper'}], steps:['Heat oil in a large frying pan over medium heat. Add the red onion with a pinch of salt and cook for 5–6 minutes until soft.','Add the garlic, smoked paprika, cumin and cayenne. Stir and cook for 1 minute.','Add the pepper and cook for 4–5 minutes until softened.','Add the black beans and crushed tomatoes. Stir well. Cook for 5–6 minutes until thickened.','Use a potato masher or the back of a spoon to partially smash the beans — you want a jammy, cohesive mixture with some whole beans still intact. Season and add lime juice. Taste and adjust.','Warm the tortillas briefly in a dry pan. Spoon the filling across the centre of each, leaving a border. Top with grated cheddar. Fold in the sides, then roll up tightly.','Place seam-side down in a dry cast iron skillet over medium heat. Press down gently. Cook 2–3 minutes per side until the outside is golden and sealed and the cheese has melted.','Serve with soured cream. Add sriracha to your portion.'], notes:'The partial smash is the key — it binds the filling so it doesn\'t fall out. Chipotle in adobo (½ tbsp) stirred into the beans adds smoky depth without noticeable heat — good option if you have it. Leftover filling keeps in the fridge for 3 days.' },
+
+  { id:'lemon-drizzle', section:'baking', title:'Mary Berry lemon drizzle traybake', category:'baking', serves:'30 squares', time:'1 hr', calories:'150', description:'Mary Berry\'s top-favourite traybake — a moist, buttery sponge with a crunchy lemon-sugar topping spooned over while still warm.', ingredients:[{amount:'225g',item:'butter, softened'},{amount:'225g',item:'caster sugar'},{amount:'275g',item:'self-raising flour'},{amount:'2 tsp',item:'baking powder'},{amount:'4',item:'eggs'},{amount:'4 tbsp',item:'milk'},{amount:'finely grated rind of 2',item:'lemons'},{amount:'175g',item:'granulated sugar (for the crunchy topping)'},{amount:'juice of 2',item:'lemons (for the crunchy topping)'}], steps:['Preheat the oven to 160°C / 325°F / Gas 3. Grease a traybake or roasting tin (30 x 23 x 4 cm) and line with non-stick baking parchment, pushing it neatly into the corners.','Measure all the traybake ingredients (butter, caster sugar, flour, baking powder, eggs, milk and lemon rind) into a large bowl. Beat well for about 2 minutes with an electric mixer (or by hand with a wooden spoon) until smooth and well blended.','Turn the mixture into the prepared tin, scraping the sides of the bowl to get it all in. Level the top gently with the back of a spatula.','Bake in the middle of the oven for about 35–40 minutes, until the traybake springs back when pressed lightly in the centre and is beginning to shrink away from the sides of the tin.','Allow the traybake to cool in the tin for a few minutes, then lift it out using the lining paper. Carefully peel off the paper and put the cake on a wire rack set over a tray to catch drips.','To make the crunchy topping, mix the lemon juice and granulated sugar in a small bowl to a runny consistency. Spoon evenly over the traybake while it is still just warm so the juice soaks in and the sugar stays on top. Cut into squares once cold.'], notes:'From Mary Berry\'s Baking Bible. The cake needs to be still warm when the topping is added so the syrup absorbs and the sugar stays crunchy — but not too hot, or the syrup will run straight through. Stores in an airtight container for 3–4 days; freezes for up to a month.' },
+  { id:'wild-salmon-beetroot-labneh', section:'fish', title:'Wild Alaskan salmon with beetroot salad and labneh', category:'fish', serves:'2–3', time:'30 mins', calories:'900', description:'A sharing platter: pan-fried salmon laid over dressed beetroot and rocket, with labneh dotted generously around. Pull it apart at the table.', ingredients:[{amount:'500g',item:'Wild Alaskan salmon fillet, skin on (one large piece)'},{amount:'150g',item:'labneh (shop-bought, or Greek yogurt strained overnight)'},{amount:'400g',item:'cooked beetroot, cut into wedges'},{amount:'80g',item:'rocket or watercress'},{amount:'1',item:'small red onion, very thinly sliced'},{amount:'40g',item:'walnuts, toasted and roughly broken'},{amount:'small bunch',item:'fresh dill or flat-leaf parsley'},{amount:'1 tbsp',item:'olive oil (for the pan)'},{amount:'3 tbsp',item:'extra virgin olive oil (for dressing)'},{amount:'1 tbsp',item:'red wine vinegar'},{amount:'1 tsp',item:'honey'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'1',item:'lemon, for squeezing over'}], steps:['Make the dressing: whisk together the extra virgin olive oil, red wine vinegar, honey, Dijon, salt and pepper. Taste and adjust.','Dress the beetroot: toss the beetroot wedges and sliced red onion with half the dressing. Set aside.','Prepare the platter: scatter the rocket across a large serving board or platter. Spoon the dressed beetroot over the top. Dot generous spoonfuls of labneh around the platter — leave gaps between them. Scatter over the walnuts and most of the dill.','Pan-fry the salmon: pat the fillet completely dry and season generously all over. Heat oil in a large frying pan over high heat. Lay the salmon skin-side down and press gently with a spatula. Cook for 4–5 minutes without moving until the skin is deeply golden and crispy and the flesh is cooked about two-thirds of the way up the sides.','Flip and cook for 1–2 minutes more — the centre should be just barely translucent. Rest for 2 minutes off the heat.','Place the salmon skin-side up on top of the platter. Drizzle over the remaining dressing. Squeeze lemon over everything and scatter the last of the dill. Bring to the table and let everyone pull it apart.'], notes:'Labneh: increasingly stocked in UK supermarkets (Waitrose, M&S, Ocado). To make your own, line a sieve with muslin or a clean tea towel, add 400g full-fat Greek yogurt seasoned with a pinch of salt, tie up and hang over a bowl in the fridge overnight. Beetroot: vacuum-packed cooked beetroot is fine. If roasting your own, wrap in foil and roast at 200°C for 50–60 minutes until tender, then cool before peeling. The salmon should go skin-side up on the platter so the skin stays crispy. Keep the centre of the fillet slightly underdone — carryover heat will finish it and it should still be a little glassy inside when pulled apart at the table.' },
+  { id:'chicken-caesar', section:'chicken', title:'Thomas Straker chicken Caesar', category:'chicken', serves:'4–6', time:'1 hr 30 mins', calories:'870', description:'Roast chicken shredded into Romaine with an indulgent egg-yolk and anchovy dressing, sourdough croutons and shaved Parmesan. From Thomas Straker\'s Food You Want To Eat — the two-temperature roast is the trick.', ingredients:[{amount:'1',item:'whole chicken (~1.4kg)'},{amount:'1',item:'onion, halved'},{amount:'1',item:'unwaxed lemon, halved'},{amount:'1',item:'head of garlic, halved through its equator'},{amount:'3 sprigs',item:'rosemary'},{amount:'3 sprigs',item:'thyme'},{amount:'75ml',item:'rapeseed oil'},{amount:'generous',item:'fine sea salt'},{amount:'300g',item:'sourdough bread (crusts removed), cut into 1.5cm chunks'},{amount:'3 tbsp',item:'extra virgin olive oil (for croutons)'},{amount:'to taste',item:'sea salt flakes'},{amount:'2 large',item:'heads of Romaine lettuce'},{amount:'12',item:'good-quality anchovy fillets in oil'},{amount:'60g',item:'Parmesan, for grating to finish'},{amount:'1',item:'egg yolk'},{amount:'½',item:'lemon, juice'},{amount:'1½ tbsp',item:'Dijon mustard'},{amount:'3',item:'anchovy fillets in oil (for the dressing)'},{amount:'½',item:'garlic clove, finely grated'},{amount:'25ml',item:'extra virgin olive oil (for the dressing)'},{amount:'125ml',item:'vegetable oil'},{amount:'20g',item:'Parmesan, finely grated (for the dressing)'},{amount:'~20 grinds',item:'black pepper'}], steps:['Preheat the oven to 250°C / 230°C fan. Season the chicken all over with a generous amount of fine salt and sit it in a roasting tray. Stuff the cavity with the onion, lemon, garlic and herbs. Rub the bird all over with the rapeseed oil. Roast for 25 minutes.','Remove from the oven and reduce the temperature to 120°C / 100°C fan. Baste the chicken with the juices in the tray, then return to the oven for 20–25 minutes until cooked through. The juices should run clear from the thickest part of the thigh; if you have a probe, the breast should read about 60°C. Set aside to rest.','Increase the oven to 180°C / 160°C fan. Toss the sourdough chunks with the 3 tbsp olive oil and a generous pinch of sea salt flakes in a roasting tray. Bake for 12–15 minutes, tossing halfway, until evenly golden.','Carve the chicken and shred the breast and leg meat with two forks. Return the shredded meat to the roasting tray so it sits in the juices while you finish everything else.','Dressing: put the egg yolk, lemon juice, Dijon, the 3 dressing anchovies and grated garlic into a food processor. Combine the extra virgin olive oil and vegetable oil in a jug. With the motor running, slowly pour in half the oils in a steady stream, then add 1 tablespoon of water. Keep the motor running and pour in the remaining oils until you have a creamy, emulsified dressing. Turn off, add the 20g grated Parmesan, salt to taste and about 20 grinds of black pepper. Blend briefly to finish.','Remove the bases of the lettuces and separate the leaves, keeping them whole. Put the leaves in a large mixing bowl and toss with all the dressing.','To serve, layer the dressed lettuce, chicken, whole anchovies and croutons. Finish with a good grating of Parmesan and enjoy.'], notes:'The two-temperature roast is the technique: blast at 250°C / 230°C fan for colour, then drop to 120°C / 100°C fan to finish gently — residual heat keeps things hotter than the dial reads, so don\'t panic about the low number. The egg yolk plus tablespoon of water is what gives the dressing its emulsified body — don\'t skip either. Chicken, croutons and dressing can all be done a couple of hours ahead; only dress the leaves at the last minute or they\'ll wilt. From pages 76–78 of Straker\'s Food You Want To Eat. Note his unusual assembly — leaves are kept whole and tossed with ALL the dressing first, then everything else is layered on top rather than tossed through.' },
+  { id:'shawarma-chicken-flatbreads', section:'chicken', title:'Shawarma roast chicken with yogurt flatbreads', category:'chicken', serves:'4–6', time:'2 hrs (plus marinating)', calories:'700', description:'A whole chicken yogurt-marinated in shawarma spices and roasted, shredded into yogurt flatbreads with a sharp red cabbage slaw. Adapted from a Waitrose recipe — chicken thighs swapped for a roast bird.', ingredients:[{amount:'1',item:'whole chicken (1.6–1.8kg)'},{amount:'400ml',item:'Greek yogurt (250ml for marinade, 150ml for flatbreads)'},{amount:'2',item:'lemons (1 for marinade, 1 for slaw and serving)'},{amount:'4 tsp',item:'shawarma spice blend (or ground cumin with a pinch of chilli flakes)'},{amount:'2',item:'garlic cloves, grated'},{amount:'2 tbsp',item:'olive oil'},{amount:'1 tsp',item:'fine salt'},{amount:'200g',item:'self-raising flour, plus extra for rolling'},{amount:'pinch',item:'salt (for the dough)'},{amount:'½',item:'red cabbage, thinly sliced'},{amount:'1 small',item:'red onion, thinly sliced'},{amount:'1',item:'carrot, julienned'},{amount:'handful',item:'fresh mint leaves'},{amount:'to serve',item:'extra Greek yogurt'}], steps:['In a large bowl, mix 250ml of the yogurt with the zest and juice of 1 lemon, the shawarma spice, grated garlic, olive oil and 1 tsp salt. Take the chicken out of the fridge, pat it dry, and rub the marinade all over — get your fingers under the breast and thigh skin where you can and push some in there too.','Cover and marinate in the fridge for at least 2 hours, ideally overnight. Take the chicken out about an hour before cooking so it comes up to room temperature.','Preheat the oven to 200°C / 180°C fan. Sit the chicken breast-up in a roasting tin and roast for 1 hr to 1 hr 15 (roughly 40 minutes per kg) until the juices at the thigh run clear and a probe in the thickest part of the thigh reads 75°C. If the skin is browning too fast, tent loosely with foil.','Rest the chicken, loosely covered, for 15–20 minutes. The carryover heat will finish it.','While the chicken rests: in another bowl, stir together the remaining 150ml yogurt, the self-raising flour and a pinch of salt. Bring it together with your hands into a soft dough. Tip onto a lightly floured surface and knead for 2–3 minutes until smooth. Cover and rest.','Make the slaw: toss the cabbage, red onion and carrot with the juice of the second lemon and a pinch of salt. Set aside so it softens slightly.','Divide the dough into 4–6 balls and roll each out to a rough 20cm round. Heat a dry non-stick frying pan over medium-high. Cook each flatbread for about 2 minutes a side until puffed and lightly charred in patches. Stack and cover to keep warm.','Carve the chicken or — for the proper shawarma effect — pull the meat off the bones with two forks into rough shreds. Toss with any juices from the resting tin.','Build: a warm flatbread, a smear of yogurt, a generous pile of chicken, slaw on top, scattered mint, a final squeeze of lemon and a drizzle of olive oil.'], notes:'Overnight marinating makes a real difference — the yogurt tenderises the meat and the spices get deeper than a same-day marinade. Spatchcocking the chicken cuts the roasting time to about 45 minutes and gives more even browning if you have time to do it. Shred rather than carve to get closer to the texture of spit-roasted shawarma. If you don\'t have a shawarma blend, mix your own: 1 tsp each of cumin, paprika and coriander, ½ tsp each of turmeric, cinnamon and allspice, plus a small pinch of cayenne. Leftovers make brilliant wraps the next day — keep meat, slaw and flatbreads separate in the fridge.' },
+  { id:'thomas-straker-burgers', section:'beef', title:'Thomas Straker chilli cheese smash burgers', category:'meat', serves:'2', time:'25 mins', calories:'1150', description:'Double smash burgers with charred onion, Red Leicester, and a sharp pickle-garlic sauce, all in a toasted potato bun.', ingredients:[{amount:'400g',item:'beef mince, 25–30% fat'},{amount:'1',item:'white onion'},{amount:'2',item:'potato buns'},{amount:'4 slices',item:'Red Leicester'},{amount:'1',item:'pickle, plus extra to serve'},{amount:'3 tbsp',item:'olive oil'},{amount:'to taste',item:'salt and black pepper'},{amount:'2 tbsp',item:'neutral mayonnaise'},{amount:'2 tsp',item:'yellow mustard'},{amount:'½ tsp',item:'cayenne pepper'},{amount:'dash',item:'pickle juice'},{amount:'½ tsp',item:'white sugar'},{amount:'½ clove',item:'garlic'}], steps:['Make the sauce: blend or mash the pickle and garlic into a paste. Mix into the mayo with mustard, cayenne, pickle juice, sugar, a pinch of salt, and a pinch of black pepper. Taste and adjust.','Divide the beef into 4 x 100g balls — handle them as little as possible.','Slice the onion into 1cm thick rings. Set aside 2 rings.','Heat a cast iron pan or skillet over high heat. Add a splash of oil. Oil and salt the onion rings and fry until charred on one side, then flip and char the other. Remove.','Add more oil to the pan and heat until very hot. Season the beef balls generously with salt and pepper. Place in the pan and immediately press each one flat with an oiled spatula until about 1cm thick.','Cook until you see juices bubbling on the surface and a deep dark crust has formed underneath — about 2 mins. Flip, immediately lay a slice of Red Leicester on each patty, then add a splash of water and cover to steam the cheese.','Toast the insides of the buns in the same pan (or alongside) until golden brown. Lightly sear the outside too.','Once the cheese has melted and the second side has a crust, add a charred onion ring and stack two patties per bun.','Spread sauce generously on the bottom bun, add pickle slices, then add the stacked patties. Press the lid on and serve immediately.'], notes:'The fat percentage matters — 25–30% keeps the patties juicy after smashing. Use a heavy-bottomed spatula and press firmly. The steam step for the cheese is key to getting it fully melted.' },
+  { id:'gruyere-dijon-palmiers', section:'baking', title:'Gruyère & Dijon palmiers', category:'baking', serves:'4–6', time:'35 mins (plus 20 mins chilling)', calories:'330', description:'Crisp, cheesy, flaky savoury palmiers with Gruyère, Dijon and smoked paprika. Great as a snack, starter, or drinks accompaniment.', ingredients:[{amount:'1 sheet',item:'ready-rolled puff pastry'},{amount:'2 tbsp',item:'Dijon mustard'},{amount:'85g',item:'Gruyère, finely grated'},{amount:'½ tsp',item:'smoked paprika'},{amount:'pinch',item:'black pepper, freshly ground'},{amount:'pinch',item:'sea salt flakes'}], steps:['Heat oven to 200°C fan. Unroll the pastry on its paper and lay it landscape (long edge facing you).','Spread Dijon mustard evenly across the entire surface, going right to the edges. Mix the Gruyère with smoked paprika and black pepper, then scatter evenly over the mustard. Press lightly with your palm so it adheres.','Roll each long edge inward toward the centre, tightly, until the two rolls meet in the middle. Press gently together. Wrap in the baking paper, twist the ends, and refrigerate for 20 minutes minimum.','Remove from the fridge and slice the whole log into rounds about 1cm thick — slice them all now even if you\'re only baking half. If they\'ve softened, refrigerate again for 10 minutes before baking.','To freeze half: lay the rounds you\'re not baking on a tray to freeze individually, then transfer to a bag or container. Bake straight from frozen at 200°C fan, adding 3–4 minutes to the bake time.','Arrange the rounds you\'re baking on a lined tray, cut-side up, with a 3–4cm gap between each. Scatter sea salt flakes over the top. Bake for 12–13 minutes until deep golden. Any escaped cheese on the tray will caramelise — leave it.','Transfer to a cooling rack after 2 minutes. They firm up as they cool — don\'t judge them straight from the oven. Best eaten warm.'], notes:'Variations: lay 4–5 anchovy fillets across the pastry before rolling — they dissolve in and add great savoury depth. Fresh rosemary (finely chopped, about 1 tsp) also works well in place of the smoked paprika. Storage: keeps 2 days at room temperature in an airtight container; a few minutes in the air fryer at 180°C crisps them back up.' },
+  { id:'tahini-soy-mushroom-bagel', section:'starters', title:'Tahini soy glazed sautéed mushrooms on sesame bagel', category:'other', serves:'2', time:'20 mins', calories:'510', description:'Deeply savoury mushrooms cooked with the wet sauté method, finished in a glossy tahini-soy glaze and piled onto a toasted sesame bagel.', ingredients:[{amount:'400g',item:'mushrooms (chestnut, shiitake, or a mix), thickly sliced or torn'},{amount:'100ml',item:'water'},{amount:'pinch',item:'salt'},{amount:'1 tbsp',item:'tahini'},{amount:'2 tsp',item:'soy sauce'},{amount:'2 tbsp',item:'water (for loosening the tahini)'},{amount:'30g',item:'unsalted butter'},{amount:'2',item:'garlic cloves, finely grated'},{amount:'1 tsp',item:'toasted sesame oil'},{amount:'2',item:'sesame bagels, halved'},{amount:'1 tsp',item:'sesame seeds, toasted (optional)'},{amount:'small handful',item:'chives or flat-leaf parsley, chopped'}], steps:['Mix the tahini and soy sauce with 2 tbsp water in a small bowl until smooth and loose. This stops the tahini seizing the moment it hits the hot pan — don\'t skip it.','Heat a cast iron skillet over high heat. Add the mushrooms, 100ml water and a pinch of salt. Bring to a boil and cook, stirring occasionally, until all the water has evaporated and the pan is dry and the mushrooms are starting to sizzle in their own moisture. Don\'t rush this — wait until the pan is genuinely dry or the mushrooms won\'t colour.','Add the butter and grated garlic. Cook for 1–1½ minutes until the garlic is fragrant and the mushrooms pick up some colour. Resist over-stirring — let them sit to pick up a sear.','Pour in the tahini-soy mixture and toss to coat. Cook for another minute until the glaze thickens and clings to the mushrooms.','Take the pan off the heat and stir in the toasted sesame oil. Sesame oil turns bitter if it cooks, so it always goes in off the heat.','Toast the sesame bagel halves while the mushrooms finish. Pile the mushrooms onto the bagels and scatter over the sesame seeds and chives or parsley.'], notes:'Tahini stands in for miso here — it gives the same glossy, clingy paste-like body with a nutty richness. If you do have miso, swap in 1½ tbsp white or brown miso instead. The pre-mix step is non-negotiable for tahini in particular — it seizes on direct heat. Cast iron is ideal: it holds the heat for proper browning once the water\'s gone. A fried or poached egg on top turns this into a full meal. A mix of chestnut and shiitake or oyster mushrooms pushes it into special-occasion territory.' },
+  { id:'coconut-rice', section:'sides', title:'Coconut rice', category:'rice', serves:'3', time:'25 mins (mostly hands-off)', calories:'580', description:'Fragrant jasmine rice cooked in coconut milk — subtle, slightly sweet, pairs with anything Asian-adjacent.', ingredients:[{amount:'300g',item:'jasmine rice'},{amount:'275ml',item:'tinned coconut milk'},{amount:'175ml',item:'water'},{amount:'pinch',item:'salt'},{amount:'1 tsp',item:'sugar (optional, brings out coconut flavour)'}], steps:['Rinse the rice in cold water until the water runs clear. Drain well.','Add the rice to a saucepan with the coconut milk, water, salt and sugar if using. Stir once.','Bring to the boil over medium heat, then immediately reduce to the lowest heat and cover tightly.','Cook for 12 minutes without lifting the lid.','Remove from heat and leave to steam, still covered, for 10 minutes.','Fluff with a fork and serve.'], notes:'Don\'t stir during cooking — it makes the rice gluey. The 10-minute rest off the heat is important, don\'t skip it. If the coconut milk has separated in the tin, stir it well before measuring so you get the cream mixed in, not just the watery part.' },
+  { id:'rhubarb-shrub', section:'soft-drinks', title:'Rhubarb shrub', category:'other', serves:'15–20', time:'48 hrs (15 mins active)', calories:'50', description:'A tart, vibrant drinking vinegar — cold-process for the brightest rhubarb flavour. Great with sparkling water or as a gin cocktail base.', ingredients:[{amount:'400g',item:'rhubarb stalks (4–6), roughly chopped'},{amount:'200g',item:'caster sugar'},{amount:'200ml',item:'white wine vinegar'},{amount:'pinch',item:'sea salt flakes'}], steps:['Combine the chopped rhubarb and sugar in a clean 1.5–2 litre jar or non-reactive bowl. Stir well to coat.','Cover loosely with cheesecloth (or a cloth) secured with a rubber band — not a tight lid, the mixture should breathe.','Leave to macerate at room temperature for 48 hours, stirring once or twice when you pass it. The sugar dissolves and draws the juice out, turning everything deep pink.','Pour through a fine mesh sieve into a bowl or jug, pressing the solids firmly to extract as much liquid as possible. Don\'t bin the pulp — it\'s lightly sweetened cooked rhubarb at that point, great stirred through yoghurt or folded into a crumble.','Stir in the white wine vinegar and a pinch of salt. Taste — it should be sharp, sweet and intensely rhubarby. Add a splash more vinegar if you want more bite.','Funnel into a sterilised 500ml bottle. Seal and refrigerate. Ready immediately, improves over the first week.'], notes:'Ratio is 2:1:1 (fruit : sugar : vinegar) — classic shrub balance, easy to scale. Yield: ~350–400ml, enough for 15–20 drinks. Keeps refrigerated for up to 3 months — the vinegar is the preservative. Soft drink: 30–40ml shrub + 150ml sparkling water over ice. Gin cocktail: 30ml shrub + 50ml gin + ice + top with sparkling water, slice of cucumber. Sterilise the bottle by running it through a hot dishwasher cycle or rinsing with boiling water and air drying. Cold-process (macerate first, vinegar second) gives the brightest colour and flavour — a cooked shrub is faster but muddier. Sherry vinegar adds complexity if you want to experiment later. Best picked from your own rhubarb in May–June; stop harvesting in July so the plant can recover.' },
+  { id:'caramelised-asian-pulled-pork', section:'pork', title:'Asian caramel pulled pork', category:'meat', serves:'4–6', time:'8–9 hrs', calories:'1000', description:'Slow-cooked pork shoulder in coconut milk, soy, and Shaoxing rice wine, finished with a glossy brown sugar caramel. Adapted from Carlsbad Cravings.', ingredients:[{amount:'1.5kg',item:'pork shoulder, bone-in or boneless'},{amount:'2 tbsp',item:'vegetable oil'},{amount:'2 tbsp',item:'toasted sesame oil'},{amount:'25g',item:'ground ginger'},{amount:'2 tsp',item:'garlic granules'},{amount:'¾ tsp',item:'fine salt'},{amount:'½ tsp',item:'black pepper'},{amount:'120ml',item:'full-fat coconut milk'},{amount:'120ml',item:'soy sauce'},{amount:'80ml',item:'Shaoxing rice wine'},{amount:'60ml',item:'Asian sweet chilli sauce'},{amount:'2 tbsp',item:'fish sauce'},{amount:'1 tbsp',item:'sriracha'},{amount:'1 tbsp',item:'cornflour'},{amount:'250g',item:'soft light brown sugar'},{amount:'60ml',item:'water'}], steps:['Mix together the sesame oil, ground ginger, garlic granules, salt, and black pepper into a paste. Trim any very thick fat from the pork, leaving a thin layer for flavour, then massage the rub all over every surface.','Heat the vegetable oil in your Le Creuset skillet over high heat until shimmering. Sear the pork on all sides until deeply golden — 3–4 minutes per side. Wait until it releases naturally before turning. Drain any excess oil before transferring to the slow cooker.','Whisk together the coconut milk, soy sauce, Shaoxing rice wine, sweet chilli sauce, fish sauce, sriracha, and cornflour until the cornflour is fully dissolved. Place the seared pork in the slow cooker and pour the sauce over it.','Cook on LOW for 7–9 hours or HIGH for 4–5 hours. The pork is ready when it shreds easily with two forks. If cooking on LOW and it is not tender at 7 hours, switch to HIGH for the final 1–2 hours.','Remove the pork to a board and shred with two forks. Pour the cooking liquid into a jug and skim the fat off the surface — this is important before making the caramel.','In the Le Creuset skillet (not non-stick), combine the brown sugar and water over medium heat, stirring until dissolved. Increase heat and cook without stirring until the caramel turns deep amber. Carefully pour in the skimmed cooking liquid — it will bubble hard. Stir and reduce by roughly one-third until the sauce is glossy and coats the back of a spoon.','Return the shredded pork to the slow cooker and pour the caramel sauce over it. Toss to coat. Serve with jasmine rice, garnished with spring onions, sesame seeds, or fresh chilli.'], notes:'Shaoxing rice wine replaces mirin 1:1 — no sugar adjustment needed. Onion powder omitted entirely. Always use the Le Creuset skillet (not non-stick) for the caramel step. Skim fat thoroughly before reducing the sauce or it will not emulsify properly. Leftovers keep 5 days in the fridge or 3 months frozen — store with sauce mixed in.' },
+  { id:'rump-steak-ciabatta', section:'beef', title:'Rump steak ciabatta with caramelised red onion, Gouda and chipotle mayo', category:'meat', serves:'2', time:'1 hr', calories:'1200', description:'Pan-seared rump on griddled ciabatta with chipotle mayo, jammy red onions and just-melted Gouda.', ingredients:[{amount:'2',item:'rump steaks (~2cm thick)'},{amount:'to taste',item:'salt and black pepper'},{amount:'1 tbsp',item:'high-smoke-point oil'},{amount:'100ml',item:'Kewpie or Japanese-style mayo'},{amount:'2–3',item:'chipotles in adobo'},{amount:'1',item:'lime, juice'},{amount:'1',item:'garlic clove'},{amount:'1 tsp',item:'Dijon mustard'},{amount:'few drops',item:'Worcestershire sauce'},{amount:'2',item:'red onions, thinly sliced'},{amount:'30g',item:'unsalted butter'},{amount:'1 tsp',item:'balsamic vinegar'},{amount:'2 slices',item:'Gouda'},{amount:'1',item:'ciabatta loaf'},{amount:'handful',item:'rocket or watercress'}], steps:['Take the steaks out of the fridge 30 minutes before cooking. Pat them completely dry.','Chipotle mayo: blend the mayo, 2 chipotles in adobo (hold the third in reserve), lime juice, garlic clove, Dijon, a few drops of Worcestershire and a pinch of salt. Taste and adjust — start mild, you can always add more chipotle but you can\'t take it out.','Caramelised onions: melt the butter in a pan over low heat. Add the sliced onions and a pinch of salt. Cook gently for 25–30 minutes, stirring occasionally, until soft, jammy and sweet. If they\'re still chewy add a splash of water and cover briefly. Finish with the balsamic and let it bubble for a minute so it coats the onions rather than pooling.','Slice the ciabatta in half lengthways. Pull a little of the soft crumb out of the bottom half so the fillings sit in it. Press the cut sides onto a hot dry pan for 1–2 minutes until golden and lightly charred — this stops the bread going soggy.','Season the steaks generously with salt and pepper just before they hit the pan. Get the pan very hot (cast iron dry, or a touch of oil). Sear about 3 minutes per side for medium — slightly pink throughout so it stays juicy when sliced. Press the edges gently if they curl.','Lay the Gouda slices over the steaks, take the pan off the heat, cover with a lid and rest for at least 3–4 minutes. You want the cheese soft and just starting to collapse, not fully liquid.','Slice the steaks thinly against the grain at a slight angle. Identify the grain direction before slicing — rump can change direction across the cut.','Build, bottom up: chipotle mayo on both cut faces, caramelised onions on the bottom half, steak slices with Gouda draped over, rocket on top. Press the top half down firmly. Cut across the middle to give four manageable pieces, two per person.'], notes:'The rest is non-negotiable with rump — at least as long as you cooked it, or it tightens up. Don\'t fully melt the Gouda; soft and just collapsing is the sweet spot. Sweetness from the onions should lead, balsamic just lifts it. Onions can be made ahead and warmed through with a knob of butter when assembling.' },
+  { id:'black-bean-cheddar-quesadillas', section:'veg', title:'Black bean and cheddar quesadillas', category:'tacos', serves:'2', time:'15 mins', calories:'780', description:'Smoky, crispy and satisfying. Chipotle gives depth without blowing the heat.', ingredients:[{amount:'4',item:'large flour tortillas'},{amount:'1 tin',item:'black beans, drained and rinsed'},{amount:'1',item:'chipotle in adobo, finely chopped (plus 1 tsp sauce from the tin)'},{amount:'½ tsp',item:'smoked paprika'},{amount:'100g',item:'cheddar, grated'},{amount:'1',item:'lime, juiced'},{amount:'1 tbsp',item:'olive oil'},{amount:'4 tbsp',item:'soured cream, to serve'},{amount:'to serve',item:'sriracha (for your portion)'}], steps:['Tip the black beans into a bowl. Add the chipotle, adobo sauce, smoked paprika and a squeeze of lime. Season with salt (taste first — the chipotle is already salty). Roughly crush with a fork — a mix of whole and mashed beans, not a smooth paste.','Lay out two tortillas. Spread the bean mixture over one half of each, leaving a 1cm border. Top with grated cheddar. Fold the empty half over to make a half-moon.','Heat a large non-stick or cast iron pan over medium-high heat with a thin layer of oil. Cook each quesadilla for 2–3 minutes per side, pressing down gently with a spatula, until deep golden and the cheese has melted. Cook in batches if needed.','Cut each into 3 wedges. Serve with soured cream and sriracha on the side.'], notes:'Don\'t rush the heat — medium-high gives a proper golden crust without burning. One chipotle is smoky with mild warmth; add more to your half if you want more heat. A handful of frozen sweetcorn stirred into the beans works really well.' },
+  { id:'creamed-spinach', section:'sides', title:'Creamed spinach', category:'sides', serves:'2–3', time:'20 mins', calories:'210', description:'Simple, silky and rich. The key is pressing the spinach dry before it goes anywhere near the cream.', ingredients:[{amount:'120g',item:'baby spinach'},{amount:'100ml',item:'double cream'},{amount:'15g',item:'unsalted butter'},{amount:'½',item:'white onion, finely diced'},{amount:'2',item:'garlic cloves, minced'},{amount:'pinch',item:'ground nutmeg'},{amount:'pinch',item:'salt (for sweating onion)'}], steps:['Wilt the spinach: get your largest frying pan on a high heat with no fat. Once hot, add the spinach in batches — it will look like far too much but collapses quickly. Push each batch to the side and keep adding until it\'s all wilted.','Press dry: tip the wilted spinach into a colander and press firmly with the back of a spoon to squeeze out as much liquid as possible. This step is critical — skipping it will make the sauce watery. When cool enough to handle, roughly chop.','Sweat the onion: wipe out the pan and return to a medium heat. Add the butter and diced onion with a pinch of salt. Sweat gently for about 8 minutes until soft and translucent but not coloured.','Add the garlic and cook for 1 minute more.','Make the sauce: pour in the double cream and let it reduce for 3–4 minutes, stirring occasionally, until it coats the back of a spoon.','Finish and season: stir in the chopped spinach. Season well with salt, pepper, and a pinch of ground nutmeg. Taste and adjust — nutmeg should be present but not overpowering. Serve immediately.'], notes:'Make it a main: make wells in the finished spinach with a spoon, crack an egg into each, cover with a lid and cook on low heat for 3–4 minutes until the whites are set and the yolk is still runny. The yolk breaking into the sauce as you eat it is excellent. Parmesan: stirring in a handful of grated Parmesan at the end is optional but very good. Nutmeg: ground works fine — start with a small pinch, it\'s more intense than freshly grated, so go cautiously and add more to taste.' },
+  { id:'bbq-corn-smoky-garlic-butter', section:'sides', title:'BBQ corn on the cob with smoky garlic butter', category:'sides', serves:'3', time:'40 mins', calories:'330', description:'Charred barbecue corn cooked in the husk then finished on the hot grate, slathered in a smoky garlic butter.', ingredients:[{amount:'3',item:'corn cobs, husks on'},{amount:'100g',item:'unsalted butter, softened'},{amount:'1 tsp',item:'smoked paprika'},{amount:'1',item:'garlic clove, finely grated'},{amount:'½ tsp',item:'sea salt flakes'},{amount:'1',item:'lime, juiced'}], steps:['Make the butter: mash the smoked paprika, grated garlic, and sea salt flakes into the softened butter with a fork until combined. Refrigerate until needed, then take out 20 minutes before serving.','Soak the corn: pull back the husks without removing them, strip out the silk, then fold the husks back up. Soak in cold water for 15 minutes.','BBQ in husks: grill over medium-high heat, turning every 5 minutes or so, for 15–20 minutes until tender through the husk.','Char the kernels: peel back the husks to use as a handle. Return the corn to the hottest part of the grill for 3–4 minutes to char the kernels.','Butter and serve: slather with the smoky butter while the corn is still sizzling hot. Squeeze over the lime and finish with extra sea salt flakes.'], notes:'Add a pinch of cayenne to the butter for heat. The husks act as a natural steam wrapper — don\'t skip the soak or they\'ll burn before the corn is tender.' },
+  { id:'grilled-herb-chicken-sandwich', section:'chicken', title:'Grilled herb chicken sandwich', category:'chicken', serves:'6', time:'20 mins', calories:'560', description:'Juicy barbecued lemon-herb chicken with melted Emmental, garlic mayo, and crisp salad in a toasted bun.', ingredients:[{amount:'6',item:'burger buns, split'},{amount:'6',item:'grilled herb chicken breast halves'},{amount:'6 slices',item:'Emmental'},{amount:'4 tbsp',item:'mayonnaise'},{amount:'1',item:'lemon, juiced'},{amount:'1',item:'garlic clove, minced'},{amount:'6 large',item:'lettuce leaves'},{amount:'2',item:'tomatoes, sliced'},{amount:'½',item:'red onion, thinly sliced'}], steps:['Make the garlic mayo: mix the mayonnaise with the minced garlic and a good squeeze of lemon juice. Set aside — this lifts the mayo and ties into the marinade flavours.','Melt the cheese: in the last 1–1½ minutes of grilling, lay an Emmental slice over each chicken breast and close the barbecue lid to melt.','Toast the buns: place the buns cut-side down on the barbecue grill for 1–1½ minutes until lightly golden.','Build the sandwich: spread garlic mayo on both cut faces of each bun. Layer on a lettuce leaf, the cheesy chicken, sliced tomato, and red onion. Top and serve immediately.'], notes:'The garlic mayo is the key — it echoes the marinade and makes it feel restaurant-quality. Fresh basil or rocket thrown in with the lettuce works brilliantly. A few dashes of hot sauce in the mayo is a great addition too.' },
+  { id:'classic-pizza-dough', section:'baking', title:'Classic pizza dough (Ooni)', category:'baking', serves:'3–4 dough balls', time:'3–4 hrs', calories:'640', description:'Flour, water, yeast and salt — the classic Neapolitan base. Puffy crust, thin centre, easy to fold.', ingredients:[{amount:'368g',item:'lukewarm water'},{amount:'3½g',item:'active dry yeast (or 2.7g instant dried, or 8½g fresh yeast)'},{amount:'613g',item:'"00" flour, plus extra for dusting'},{amount:'18g',item:'sea salt'}], steps:['Add the water and yeast to a large bowl and whisk until thoroughly dissolved.','Combine the flour and salt in a separate bowl. Gradually add the flour-salt mix into the wet ingredients until a dough forms. Stand mixer: use a dough hook on low for 5–10 mins until firm, smooth and elastic. By hand: stir with a wooden spoon, then knead on a floured surface for 10 mins.','Cover with a dish towel and leave to rest and rise for 2 hours, until doubled in size.','Divide into 3 equal balls for 16-inch pizzas (40cm) or 4 for 12-inch (30cm). Roll each into a smooth, tight ball and place in separate covered bowls. Leave to rise in a warm place for 1 hour. Freeze at this point if needed.','Place a dough ball on a lightly floured surface and press down. Working from the centre, push outwards while spreading your fingers. Pick up and gently stretch around the edge, letting gravity pull it down into a thin round — you should be able to see through it when held up.','Lightly flour a pizza peel and lay the base on it. Pinch any small holes shut. Add toppings.','Slide into a very hot oven. Cook for 1–2 minutes, turning every 20 seconds for an even bake.','Remove with a clean peel, slice and serve.'], notes:'Scales are essential for accuracy. Dough balls can be frozen after shaping — defrost overnight in the fridge and bring to room temperature before stretching. Best results at very high heat (450°C+) in a pizza oven.' },
+  { id:'sirloin-baguette-caramelised-onion', section:'beef', title:'Sirloin baguette with caramelised onion, tomato and Dijon mayo', category:'meat', serves:'1', time:'1 hr', calories:'1900', description:'Pan-seared sirloin on a toasted baguette with jammy caramelised red onion, tomato, wilted spinach and melted Double Gloucester.', ingredients:[{amount:'1',item:'sirloin steak'},{amount:'to taste',item:'salt and black pepper'},{amount:'1 tbsp',item:'oil'},{amount:'3',item:'red onions, thinly sliced'},{amount:'30g',item:'unsalted butter'},{amount:'splash',item:'sherry vinegar'},{amount:'3',item:'small tomatoes, sliced'},{amount:'pinch',item:'salt (for tomatoes)'},{amount:'60–80g',item:'Double Gloucester, sliced'},{amount:'1',item:'baguette'},{amount:'handful',item:'raw spinach'},{amount:'3 tbsp',item:'Kewpie mayo'},{amount:'1–1.5 tsp',item:'Dijon mustard'},{amount:'small dash',item:'sherry vinegar (for the mayo)'},{amount:'1',item:'small garlic clove, grated'}], steps:['Take the steak out of the fridge 30 minutes ahead and pat dry.','Caramelised onions: melt the butter in a wide, heavy-bottomed pan over low heat. Add the onions and a pinch of salt. Cook gently for 30–35 minutes, stirring occasionally, until soft and jammy. Finish with a splash of sherry vinegar and let it bubble a minute.','Dijon mayo: mix the Kewpie mayo, Dijon, garlic, a small dash of sherry vinegar and a pinch of salt. Taste and adjust.','Salt the tomato slices and leave on kitchen paper for a few minutes to drain.','Wilt the spinach in a hot dry pan for about 30 seconds, then squeeze out excess moisture.','Split the baguette lengthways and pull a little crumb out of the bottom half. Press the cut sides on a hot dry pan until golden.','Season the steak generously and sear in a very hot pan for about 3 minutes a side for medium. Lay the cheese over the top, take off the heat, cover and rest 3–4 minutes.','Slice the steak thinly against the grain.','Build: Dijon mayo on both cut faces, onions on the bottom, tomato slices, wilted spinach, then the steak with its melted cheese on top. Press the top down firmly and slice to serve.'], notes:'Rest the steak at least as long as it cooked — rump\'s original rest advice carries over here, don\'t skimp on it. Onions and mayo can both be made ahead and kept in the fridge a few days.' },
+  { id:'tuna-cannellini-bean-salad', section:'fish', title:'Tuna and Cannellini Bean Salad', category:'fish', serves:'2', time:'10 mins', calories:'480', description:'A quick, fresh no-cook lunch — bright with vinegar and capers.', ingredients:[{amount:'1 tin',item:'tuna, drained'},{amount:'1 tin',item:'cannellini beans, drained and rinsed'},{amount:'1/4',item:'red onion, finely sliced'},{amount:'1 tbsp',item:'capers, drained'},{amount:'3 tbsp',item:'extra virgin olive oil'},{amount:'1 tbsp',item:'sherry or red wine vinegar'},{amount:'1/2 tsp',item:'Dijon mustard'},{amount:'2 tbsp',item:'flat-leaf parsley, chopped'},{amount:'pinch',item:'sea salt flakes'},{amount:'pinch',item:'black pepper, cracked'}], steps:['Put the red onion in a small bowl of cold water for 5 minutes to take the raw edge off, then drain well.','Whisk the olive oil, vinegar, and Dijon together with the salt and pepper until emulsified.','Gently flake the tuna into a bowl and add the cannellini beans, drained onion, and capers. Pour over the dressing and toss lightly — don\'t mash the beans.','Scatter over the parsley, taste for seasoning, and adjust vinegar or salt as needed. Serve straight away with crusty bread.'], notes:'Uses sherry or red wine vinegar in place of lemon. Good cold the next day too, though the onion mellows further. Swap capers for chopped cornichons or a pinch of dried oregano if needed.' },
+  { id:'cheese-stuffed-arepas', section:'baking', title:'Cheese Arepas', category:'baking', serves:'2–3', time:'35 mins', calories:'540', description:'Felicity Cloake\'s perfect cheese arepas — salty white cheese worked through the corn dough, molten mozzarella hidden inside, griddled and served with butter.', ingredients:[{amount:'100ml',item:'whole milk'},{amount:'220ml',item:'hot water'},{amount:'½ tsp',item:'fine salt'},{amount:'200g',item:'masarepa (pre-cooked white cornmeal)'},{amount:'100g',item:'salty white cheese (queso fresco, feta or similar), crumbled'},{amount:'60g',item:'firm mozzarella'},{amount:'to cook',item:'oil'},{amount:'to finish',item:'butter'}], steps:['Put the milk and salt in a large bowl with the hot water. Sprinkle over the cornmeal and stir in until the mix comes together into a soft dough, adding more liquid if necessary.','Stir in the crumbled white cheese, cover and leave to sit for 15 minutes. Meanwhile, grate the mozzarella.','Using damp hands, divide the dough into six even pieces and roll into balls. Working one ball at a time on a wooden surface, flatten one to about 8cm wide and a little shy of 1cm thick.','Add a generous helping of grated mozzarella, then bring up the sides to enclose the cheese.','Roll again into a ball, then flatten again to 8cm wide and 1cm thick, turning it around inside your damp cupped hands to smooth out the edges.','Put a lightly greased, heavy frying pan on a medium heat and, once it\'s hot, add as many arepas as will fit comfortably without them touching.','Immediately turn the heat down to medium-low, cover (use a baking tray, board or foil if you don\'t have a pan lid) and cook, shaking the pan occasionally to stop them sticking, for about five or six minutes, until the base is golden brown.','Turn over and repeat on the other side, then serve spread with butter.'], notes:'Felicity Cloake, Guardian, 22 June 2025 — makes 6. The salty cheese goes into the dough itself, which is what stops the arepas tasting bland; the mozzarella is only for the molten middle. Keep hands damp throughout or the dough cracks at the edges. Covering the pan is what cooks them through without burning the outside.' },
+  { id:'roast-tomato-whipped-feta-toast', section:'other', title:'Roast Tomato & Whipped Feta Toast with Crispy Chorizo', category:'other', serves:'2–3', time:'1 hr 15 mins', calories:'660', description:'Sweet slow-roasted vine tomatoes and lemony whipped feta piled onto garlic-rubbed sourdough, finished with crispy fried chorizo. A Waitrose classic bulked up into a proper dinner.', ingredients:[{amount:'500g',item:'small vine tomatoes'},{amount:'2 cloves',item:'garlic, finely sliced'},{amount:'4 sprigs',item:'oregano (or 1 tsp dried thyme)'},{amount:'1 tbsp',item:'capers, drained'},{amount:'3 tbsp',item:'extra virgin olive oil'},{amount:'150g',item:'feta'},{amount:'75g',item:'Greek yoghurt'},{amount:'½',item:'unwaxed lemon, zested'},{amount:'100g',item:'cooking chorizo, sliced'},{amount:'2-3 thick slices',item:'sourdough'},{amount:'1 clove',item:'garlic, halved (for rubbing toast)'},{amount:'',item:'black pepper'}], steps:['Preheat the oven to 170°C (fan)/gas mark 3. Halve the tomatoes and arrange cut-side up in a large baking dish.','Nestle in the garlic, oregano sprigs and capers. Drizzle over the olive oil, season, and roast for 1 hour, basting with the juices halfway through. Set aside to cool slightly — best served warm or at room temperature.','For the whipped feta, pat the feta dry thoroughly on kitchen paper and leave for 10 minutes. Put in a food processor with the yoghurt, lemon zest and black pepper. Pulse in stages, scraping down the sides, until thick and smooth — add a splash of olive oil if needed to loosen.','Fry the chorizo slices in a dry pan over medium heat for 3-4 minutes, turning once, until crisp and the oil has rendered out. Set aside on kitchen paper.','Toast or griddle the sourdough, then rub each slice with the cut side of the garlic clove while still warm.','Spoon over a little of the oily tomato juices, spread with the whipped feta, then top with the roast tomatoes (discarding any thick oregano stalks) and the crispy chorizo.'], notes:'For a milder version, skip the chorizo and top with a fried egg instead. Roast the tomatoes and make the whipped feta up to 12 hours ahead — keep the tomatoes covered at room temperature and the feta chilled. Good with a herby orzo or bulgur salad on the side to make it more of a full plate.' },
+  { id: 'bbq-salmon-dill-creme-fraiche', section: 'fish', title: 'BBQ Salmon with Dill Crème Fraîche', category: 'fish', serves: '7', time: '25 mins', calories: '600', description: 'Skin-on salmon fillets grilled direct on a gas BBQ, served with a simple cold dill and crème fraîche sauce.', ingredients: [{ amount: '3 x 445g', item: 'salmon fillets, skin-on' }, { amount: '2 tbsp', item: 'olive oil' }, { amount: '1 tsp', item: 'sea salt flakes' }, { amount: '300g', item: 'crème fraîche' }, { amount: '10g', item: 'fresh dill, stalks removed' }, { amount: '45ml', item: 'lemon juice (approx. 1 lemon)' }, { amount: '5g', item: 'Dijon mustard' }], steps: ['Make the sauce: combine crème fraîche, dill, lemon juice and mustard. Blitz briefly with a stick blender for a smooth green sauce, or stir and chop the dill finely. Season with salt. Cover and refrigerate until needed.', 'Remove salmon from the fridge 15 minutes before cooking. Preheat the BBQ with the lid closed to 230–250°C. Oil the grates well just before the salmon goes on.', 'Pat the salmon dry. Rub the flesh side with olive oil and season both sides generously with salt.', 'Place skin side down on the hot grates. Close the lid and cook for 6 minutes without moving.', 'Flip to flesh side down and cook for a further 2–3 minutes. Remove and rest loosely covered for 5 minutes.', 'Serve with the dill crème fraîche sauce alongside.'], notes: 'Oil the grates well just before the salmon goes on or the skin will stick. Use sterk sennep or similar strong mustard if Dijon is not available — same quantity. The sauce can be made several hours ahead and is better for it.' },
+  { id: 'gambas-pil-pil-bbq', section: 'fish', title: 'Gambas al Pil Pil (BBQ)', category: 'fish', serves: '7', time: '15 mins', calories: '250', description: 'King prawns grilled in a holed foil tray with garlic, chilli and olive oil — the informal BBQ take on the Spanish classic.', ingredients: [{ amount: '1.2kg', item: 'raw peeled king prawns' }, { amount: '250ml', item: 'extra virgin olive oil' }, { amount: '10', item: 'garlic cloves, thinly sliced' }, { amount: '1.5 tsp', item: 'chilli flakes (or 5 dried red chillies, broken)' }, { amount: '1 tsp', item: 'sea salt flakes' }, { amount: '1 tbsp', item: 'flat-leaf parsley, roughly chopped' }], steps: ['Pat the prawns dry. Toss with the olive oil, garlic, chilli flakes and salt.', 'Spread in a single layer in a holed foil grilling tray.', 'Place over direct heat on the BBQ with the lid closed. Cook for 3–4 minutes, tossing once halfway, until the prawns are pink and just curled.', 'Scatter over the parsley and serve immediately straight from the tray.'], notes: 'For the traditional version, cook in a cast iron skillet directly over the BBQ: get the oil ripping hot, add garlic and chilli for 30 seconds, then prawns for 2–3 minutes. Carry to the table still bubbling with crusty bread to mop.' },
+  { id: 'bbq-corn-chipotle-lime-butter', section: 'sides', title: 'BBQ Corn with Chipotle-Lime Butter', category: 'sides', serves: '7', time: '30 mins', calories: '400', description: 'Charred corn on the cob with a smoky compound butter made with chipotle, smoked paprika and lime.', ingredients: [{ amount: '8', item: 'corn on the cob' }, { amount: '200g', item: 'unsalted butter, softened' }, { amount: '30g', item: 'chipotle in adobo, finely chopped (approx. 2 tbsp)' }, { amount: '1 tsp', item: 'smoked paprika' }, { amount: '2', item: 'limes, zested' }, { amount: '0.5 tsp', item: 'sea salt flakes' }], steps: ['Make the compound butter: beat softened butter with a fork until smooth. Add chipotle, smoked paprika, lime zest and salt. Mix well. Tip onto cling film, shape into a log, roll tightly and refrigerate for at least 1 hour until firm.', 'Grill corn over direct heat on the BBQ with the lid closed, rotating every 5–7 minutes, for 15–20 minutes total until charred and cooked through.', 'Slice cold discs of compound butter onto hot corn and let it melt at the table.'], notes: 'Chili crisp works well in place of chipotle — same quantity, use oil and solids together. It gives heat and umami rather than smokiness so keep the smoked paprika. The butter can be made days ahead and keeps well in the fridge.' },
+  { id: 'bbq-courgettes-asparagus', section: 'veg', title: 'Grilled Courgettes and Asparagus', category: 'veg', serves: '7', time: '15 mins', calories: '120', description: 'Simple grilled summer veg — courgette planks and asparagus with olive oil, salt and lemon.', ingredients: [{ amount: '4–5', item: 'courgettes' }, { amount: '2 bunches', item: 'asparagus' }, { amount: '2 tbsp', item: 'olive oil' }, { amount: '1 tsp', item: 'sea salt flakes' }, { amount: '1', item: 'lemon, for squeezing' }], steps: ['Slice courgettes lengthways into planks about 1cm thick. Snap the woody ends off the asparagus by bending each spear until it snaps naturally.', 'Toss courgette planks in olive oil and salt. Toss asparagus in olive oil and salt separately.', 'Grill courgettes directly on the grates over direct heat for 4–5 minutes per side until charred and tender.', 'Spread asparagus in a single layer in a holed foil grilling tray. Grill over direct heat for 4–5 minutes, shaking once halfway.', 'Squeeze lemon over both and serve.'], notes: 'Both can be prepped and tossed in oil hours ahead and left on a tray in the fridge covered with cling film.' },
+];
+
+function loadRecipes() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const storedArr = JSON.parse(stored);
+      const defaultIds = new Set(DEFAULT_RECIPES.map(r => r.id));
+      // File data always wins for recipes that exist in DEFAULT_RECIPES, so edits made to
+      // this file (new fields, corrections, etc.) always show up. Only recipes added purely
+      // through the browser's + Add form (not yet present in DEFAULT_RECIPES) are kept from storage.
+      const result = DEFAULT_RECIPES.slice();
+      storedArr.forEach(r => { if (!defaultIds.has(r.id)) result.push(r); });
+      saveRecipesToStorage(result);
+      return result;
+    }
+  } catch(e) {}
+  saveRecipesToStorage(DEFAULT_RECIPES);
+  return DEFAULT_RECIPES;
+}
+function saveRecipesToStorage(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
+let recipes = loadRecipes();
+
+const SECTIONS_ORDER = [
+  { id: 'starters',    label: 'Starters' },
+  { id: 'fish',        label: 'Seafood' },
+  { id: 'beef',        label: 'Beef' },
+  { id: 'pork',        label: 'Pork' },
+  { id: 'chicken',     label: 'Chicken' },
+  { id: 'veg',         label: 'Veg' },
+  { id: 'sides',       label: 'Sides' },
+  { id: 'baking',      label: 'Baking' },
+  { id: 'soft-drinks', label: 'Soft Drinks' },
+];
+function sectionLabel(s) { const sec = SECTIONS_ORDER.find(x => x.id === s); return sec ? sec.label : (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Other'); }
+function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
+function tagLabel(s) { return sectionLabel(s); }
+
+const expanded = new Set();
+let activeSection = null;
+let currentPage = 'recipes'; // 'recipes' | 'drinks' | 'seasonal' | 'foraging'
+const PAGE_LABELS = { recipes: 'Recipes', drinks: 'Drinks', seasonal: 'Seasonal Produce', foraging: 'Foraging' };
+
+function toggleMainMenu(e) {
+  e.stopPropagation();
+  document.getElementById('mainMenuDropdown').classList.toggle('open');
+}
+function closeMainMenu() {
+  document.getElementById('mainMenuDropdown').classList.remove('open');
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMainMenu();
+});
+function switchToPage(page) {
+  closeMainMenu();
+  if (currentPage === page) { window.scrollTo(0, 0); return; }
+  currentPage = page;
+  window.scrollTo(0, 0);
+  render();
+}
+function updateChromeForPage() {
+  document.getElementById('menuCurrentLabel').textContent = PAGE_LABELS[currentPage];
+  document.querySelectorAll('.menu-item').forEach(b => b.classList.toggle('active', b.dataset.page === currentPage));
+  const onRecipes = currentPage === 'recipes';
+  document.getElementById('sectionNavWrap').style.display = onRecipes ? '' : 'none';
+  document.getElementById('calFilterWrap').style.display = onRecipes ? '' : 'none';
+  document.getElementById('addBtn').style.display = onRecipes ? '' : 'none';
+  document.getElementById('search').placeholder = currentPage === 'drinks' ? 'Search cocktails…' : currentPage === 'seasonal' ? 'Search produce…' : currentPage === 'foraging' ? 'Search foraging…' : 'Search recipes…';
+}
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function buildMeta(r) { return [r.serves && r.serves !== '—' ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : ''].filter(Boolean).join(' · '); }
+function buildDetailMeta(r) { return [r.serves && r.serves !== '—' ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : '', r.calories ? r.calories + ' cal per serving' : ''].filter(Boolean).join(' · '); }
+
+function renderNav(visibleSectionIds) {
+  const nav = document.getElementById('sectionNav');
+  const foodItems = SECTIONS_ORDER.filter(s => visibleSectionIds.has(s.id));
+  nav.innerHTML = foodItems.map(s => {
+    const count = recipes.filter(r => r.section === s.id).length;
+    const isActive = activeSection === s.id;
+    return '<a href="#sec-' + s.id + '" class="pill' + (isActive ? ' active' : '') + '" data-section="' + s.id + '" onclick="onPillClick(event, \'' + s.id + '\')">' + s.label + '<span class="pill-count">' + count + '</span></a>';
+  }).join('');
+}
+function onPillClick(e, id) {
+  activeSection = id;
+  document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.dataset.section === id); });
+}
+
+function render() {
+  updateChromeForPage();
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const maxCalRaw = document.getElementById('calFilter').value;
+  const maxCal = maxCalRaw !== '' ? parseInt(maxCalRaw, 10) : NaN;
+  const hasCalFilter = Number.isFinite(maxCal) && maxCal > 0;
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  if (currentPage === 'seasonal') {
+    grid.innerHTML = renderSeasonalSection(q);
+    empty.style.display = 'none';
+    document.getElementById('countBar').textContent = seasonalCountBarText(q);
+    return;
+  }
+  if (currentPage === 'foraging') {
+    grid.innerHTML = renderForagingSection(q);
+    empty.style.display = 'none';
+    document.getElementById('countBar').textContent = foragingCountBarText(q);
+    return;
+  }
+  if (currentPage === 'drinks') {
+    grid.innerHTML = renderCocktailSection(q);
+    empty.style.display = 'none';
+    const shown = drinks.filter(d => spiritMatches(d) && drinkQueryMatches(d, q)).length;
+    document.getElementById('countBar').textContent = shown + ' cocktail' + (shown !== 1 ? 's' : '') + ' · ' + drinks.length + ' total';
+    return;
+  }
+  let totalShown = 0;
+  let html = '';
+  const visibleSectionIds = new Set();
+  for (const sec of SECTIONS_ORDER) {
+    const secRecipes = recipes.filter(r => {
+      const ms = r.section === sec.id;
+      const mq = !q || r.title.toLowerCase().includes(q) || (r.description||'').toLowerCase().includes(q);
+      const mc = !hasCalFilter || (r.calories && parseInt(r.calories, 10) < maxCal);
+      return ms && mq && mc;
+    });
+    if (!secRecipes.length) continue;
+    visibleSectionIds.add(sec.id);
+    totalShown += secRecipes.length;
+    const withRecipe = secRecipes.filter(r => !r.noRecipe).length;
+    const countText = withRecipe + ' recipe' + (withRecipe !== 1 ? 's' : '') + (withRecipe !== secRecipes.length ? ' · ' + (secRecipes.length - withRecipe) + ' to add' : '');
+    html += '<div class="section-block" id="sec-' + sec.id + '">'
+      + '<div class="section-header"><h2>' + sec.label + '</h2><span class="section-count">' + countText + '</span></div>'
+      + '<div class="recipe-list">' + secRecipes.map(r => renderRow(r)).join('') + '</div>'
+      + '</div>';
+  }
+  if (!totalShown) { grid.innerHTML = ''; empty.style.display = 'block'; }
+  else { empty.style.display = 'none'; grid.innerHTML = html; }
+  document.getElementById('countBar').textContent = recipes.length + ' recipes · ' + totalShown + ' shown';
+  if (!activeSection || !visibleSectionIds.has(activeSection)) { activeSection = visibleSectionIds.values().next().value || null; }
+  renderNav(visibleSectionIds);
+}
+
+function renderRow(r) {
+  const meta = buildMeta(r);
+  const isExpanded = expanded.has(r.id);
+  const noRecipe = !!r.noRecipe;
+  const chevronSvg = '<svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
+  const openSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2h5v5"/><path d="M14 2L7.5 8.5"/><path d="M13 9.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3.5"/></svg>';
+  const desc = r.description ? escapeHtml(r.description) : '';
+  const title = escapeHtml(r.title);
+  let expandInner;
+  if (noRecipe) {
+    expandInner = '<div class="expand-grid"><div class="expand-empty">No recipe saved yet. Cook this dish and add the recipe with + Add.</div></div>';
+  } else if (!r.ingredients || !r.ingredients.length) {
+    expandInner = '<div class="expand-grid"><div class="expand-empty">No ingredients listed.</div><div class="expand-actions"><button class="text-btn" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')">View full recipe</button></div></div>';
+  } else {
+    const ingHtml = r.ingredients.map(i => '<li><span class="amt">' + escapeHtml(i.amount) + '</span>' + escapeHtml(i.item) + '</li>').join('');
+    const metaText = meta ? '<span style="font-size:12px;color:var(--text-faint);">' + meta + '</span>' : '';
+    expandInner = '<div class="expand-grid"><div class="expand-label">Ingredients</div>'
+      + '<ul class="expand-ingredients">' + ingHtml + '</ul>'
+      + '<div class="expand-actions"><button class="text-btn" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')">View full recipe →</button>' + metaText + '</div>'
+      + '</div>';
+  }
+  const rowClasses = 'recipe-row' + (isExpanded ? ' expanded' : '') + (noRecipe ? ' no-recipe' : '');
+  return '<div class="' + rowClasses + '" data-id="' + r.id + '">'
+    + '<div class="recipe-head" onclick="toggleExpand(\'' + r.id + '\')">'
+    + '<div class="tag-wrap"><span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span></div>'
+    + '<div class="recipe-title-wrap"><div class="recipe-title">' + title + '</div>'
+    + (desc ? '<div class="recipe-desc">' + desc + '</div>' : '')
+    + '</div>'
+    + '<div class="recipe-meta">' + meta + '</div>'
+    + '<div class="row-actions">'
+    + '<button class="icon-btn" title="View full recipe" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')" aria-label="View full recipe">' + openSvg + '</button>'
+    + '<button class="icon-btn" title="Toggle ingredients" onclick="event.stopPropagation();toggleExpand(\'' + r.id + '\')" aria-label="Toggle ingredients">' + chevronSvg + '</button>'
+    + '</div></div>'
+    + '<div class="recipe-expand">' + expandInner + '</div>'
+    + '</div>';
+}
+
+function toggleExpand(id) {
+  if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+  const row = document.querySelector('.recipe-row[data-id="' + id + '"]');
+  if (row) row.classList.toggle('expanded'); else render();
+}
+
+function openDetail(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  const m = document.getElementById('detailModal');
+  if (r.noRecipe) {
+    m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
+      + '<span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span>'
+      + '<h2>' + escapeHtml(r.title) + '</h2>'
+      + '<div class="no-recipe-box">No recipe saved yet.<br><br>Cook this dish and add the recipe using the + Add button.</div>';
+  } else {
+    const meta = buildDetailMeta(r);
+    const ingHtml = (r.ingredients||[]).map(i => '<li><span class="amt">' + escapeHtml(i.amount) + '</span>' + escapeHtml(i.item) + '</li>').join('');
+    const stepsHtml = (r.steps||[]).map(s => '<li>' + escapeHtml(s) + '</li>').join('');
+    const notesHtml = r.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(r.notes) + '</div>' : '';
+    const printSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+    const titleForPrint = escapeHtml(r.title).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+    m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
+      + '<span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span>'
+      + '<h2>' + escapeHtml(r.title) + '</h2>'
+      + (meta ? '<div class="modal-meta">' + meta + '</div>' : '')
+      + (r.image ? '<img class="modal-image" src="' + escapeHtml(r.image) + '" alt="' + escapeHtml(r.title) + '">' : '')
+      + '<div class="print-recipe-body">'
+      + '<div><p class="section-label">Ingredients</p><ul class="ingredient-list">' + ingHtml + '</ul></div>'
+      + '<div><p class="section-label">Method</p><ol class="steps">' + stepsHtml + '</ol></div>'
+      + '</div>'
+      + notesHtml
+      + '<div class="modal-print-actions"><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>';
+  }
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail(e) {
+  if (!e || e.target === document.getElementById('detailOverlay')) {
+    document.getElementById('detailOverlay').classList.remove('open');
+  }
+}
+
+function setupScrollspy() {
+  const update = () => {
+    const headerH = (document.querySelector('.site-header') ? document.querySelector('.site-header').offsetHeight : 64);
+    const navH = (document.querySelector('.section-nav') ? document.querySelector('.section-nav').offsetHeight : 48);
+    const threshold = headerH + navH + 24;
+    const sections = SECTIONS_ORDER.map(s => ({ id: s.id, el: document.getElementById('sec-' + s.id) })).filter(x => x.el);
+    if (!sections.length) return;
+    let current = sections[0].id;
+    for (const item of sections) {
+      if (item.el.getBoundingClientRect().top - threshold <= 0) current = item.id;
+      else break;
+    }
+    if (current !== activeSection) {
+      activeSection = current;
+      document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.dataset.section === current); });
+    }
+  };
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) { window.requestAnimationFrame(() => { update(); ticking = false; }); ticking = true; }
+  }, { passive: true });
+  update();
+}
+
+function openAddModal() { document.getElementById('addOverlay').classList.add('open'); }
+function closeAdd(e) {
+  if (!e || e.target === document.getElementById('addOverlay')) {
+    document.getElementById('addOverlay').classList.remove('open');
+  }
+}
+function saveRecipe() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { alert('Please enter a title.'); return; }
+  const rawIngredients = document.getElementById('f-ingredients').value.trim();
+  const rawSteps = document.getElementById('f-steps').value.trim();
+  const ingredients = rawIngredients ? rawIngredients.split('\n').filter(Boolean).map(line => {
+    const parts = line.trim().split(/\s+/);
+    const amount = parts[0] || '';
+    const item = parts.slice(1).join(' ') || line.trim();
+    return { amount, item };
+  }) : [];
+  const steps = rawSteps ? rawSteps.split('\n').filter(Boolean) : [];
+  const recipe = {
+    id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now(),
+    title,
+    section: document.getElementById('f-cat').value,
+    category: document.getElementById('f-cat').value,
+    serves: document.getElementById('f-serves').value.trim() || '2–3',
+    time: document.getElementById('f-time').value.trim() || '—',
+    description: document.getElementById('f-desc').value.trim() || '',
+    ingredients, steps,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  recipes.unshift(recipe);
+  saveRecipesToStorage(recipes);
+  closeAdd();
+  render();
+  ['f-title','f-serves','f-time','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('addOverlay').classList.remove('open');
+});
+
+// ── Drinks data ──
+const drinks = [
+  { name:"Bourbon Smash", spirit:"Bourbon", spirits:["bourbon"], ingredients:["8 fresh mint leaves","22ml simple syrup","3 lemon wedges","60ml bourbon"], method:"Muddle the mint leaves, simple syrup, and lemon wedges in a shaker. Add the bourbon and stir vigorously with ice. Strain into a glass.", garnish:"Mint sprig", notes:null, rating:null },
+  { name:"Negroni", spirit:"Gin", spirits:["gin"], ingredients:["1 part gin","1 part Campari","1 part sweet red vermouth"], method:"Stir all ingredients over ice.", garnish:"Orange slice or twist", notes:null, rating:null },
+  { name:"Amaretto Sour", spirit:"Amaretto / Bourbon", spirits:["other","bourbon"], ingredients:["90ml amaretto","45ml bourbon","60ml lemon juice","30ml simple syrup","1–2 egg whites"], method:"Dry shake first (to emulsify) — no ice — then add ice and shake again. Strain into a glass. Add a dash of Angostura bitters on top. Makes two.", garnish:"Cherry", notes:"Or use the ratio version: 2 parts amaretto, 1 part (or more — up to 3 parts) lemon juice, ½ egg white.", rating:null },
+  { name:"Margarita", spirit:"Tequila", spirits:["tequila"], ingredients:["3 tbsp tequila","1 tbsp agave syrup","1 tbsp Cointreau","Juice of 1 large lime","Ice to nearly fill a 600ml blender"], method:"Blend all ingredients. Serve in salt-rimmed glasses.", garnish:"Salt rim, lime wedge", notes:null, rating:null },
+  { name:"Tom Collins", spirit:"Gin", spirits:["gin"], ingredients:["60ml gin","30ml lemon juice","1 tsp sugar syrup","Soda water to top"], method:"Shake gin, lemon juice, and sugar syrup with ice. Strain into a glass and top with soda water.", garnish:"Lemon slice", notes:null, rating:null },
+  { name:"White Russian", spirit:"Vodka", spirits:["vodka"], ingredients:["2 parts vodka","1 part Kahlúa","1 part cream (or top with milk)"], method:"Combine vodka and Kahlúa over ice. Add cream last, poured over the back of a spoon.", garnish:null, notes:null, rating:null },
+  { name:"Christmas in Hollis", spirit:"Bourbon / Chartreuse", spirits:["bourbon","other"], ingredients:["1 part Green Chartreuse","1 part bourbon","2 parts Bénédictine","2 parts lemon juice","4 parts orange soda (San Pellegrino Aranciata)"], method:"Stir. Double the soda if you want it much easier to drink.", garnish:"Cherry", notes:"Invented on Christmas Eve. A festive, herbal long drink.", rating:null },
+  { name:"Alaska", spirit:"Gin", spirits:["gin"], ingredients:["2 parts gin","1½ parts lemon juice","½ part sugar syrup","½ part crème de cassis or Chambord"], method:"Shake all ingredients with ice. Strain.", garnish:"Lemon twist", notes:"Would up the gin or it's just sweet and sour.", rating:null },
+  { name:"Kentucky Colonel", spirit:"Bourbon", spirits:["bourbon"], ingredients:["6 parts bourbon","1 part Bénédictine"], method:"Stir or build over ice.", garnish:"Lemon twist", notes:"Bénédictine adds a silky spice.", rating:null },
+  { name:"Monkey Gland", spirit:"Gin", spirits:["gin"], ingredients:["2 parts gin","1 part orange juice","3 dashes Bénédictine (original: absinthe)","Grenadine to sweeten (optional)"], method:"Shake and strain.", garnish:"Cherry", notes:"Original recipe uses absinthe not Bénédictine. More orange juice makes it a long drink.", rating:null },
+  { name:"Smart Christine", spirit:"Gin", spirits:["gin"], ingredients:["1 part gin","1 part orange juice","¼ part Bénédictine","Cherry, grenadine (optional)"], method:"Shake and strain.", garnish:"Cherry", notes:"Like a Monkey Gland but more gin — better really.", rating:null },
+  { name:"Lorraine", spirit:"Cherry Brandy", spirits:["other"], ingredients:["1 part Bénédictine","1 part lime juice","2 parts cherry brandy"], method:"Shake with ice. Strain.", garnish:null, notes:"Tastes like a sour cherry sweet.", rating:null },
+  { name:"Creole", spirit:"Bourbon", spirits:["bourbon"], ingredients:["2 parts bourbon","1 part sweet vermouth","Splash of Bénédictine","Splash of maraschino"], method:"Stir over ice.", garnish:"Lemon twist", notes:"Meh.", rating:null },
+  { name:"Paloma", spirit:"Tequila", spirits:["tequila"], ingredients:["1 part tequila","1 part grapefruit juice","½ part agave syrup","Soda to top"], method:"Build over ice, top with soda.", garnish:"Grapefruit wedge", notes:null, rating:null },
+  { name:"Gypsy Queen", spirit:"Vodka", spirits:["vodka"], ingredients:["2 parts vodka","1 part Bénédictine","2 dashes Angostura bitters"], method:"Stir over crushed ice.", garnish:"Lemon peel", notes:"Not quite as bad as it sounds.", rating:null },
+  { name:"The Last Word", spirit:"Gin", spirits:["gin"], ingredients:["1 part gin","1 part maraschino","1 part Green Chartreuse","1 part lime juice"], method:"Shake with ice for 10 seconds. Strain.", garnish:null, notes:null, rating:null },
+  { name:"Hangman's Blood", spirit:"Everything", spirits:["gin","rum","bourbon","other"], ingredients:["50ml gin","50ml whisky","50ml rum","50ml port","50ml brandy","Small bottle of port","Champagne to top"], method:"Pour the spirits into a pint glass. Add a small bottle of port. Top with champagne.", garnish:null, notes:"⚠️ Insane. \"Induces a somewhat metaphysical elation\" — Anthony Burgess", rating:null },
+  { name:"Toasted Almond", spirit:"Kahlúa / Amaretto", spirits:["other"], ingredients:["1 part Kahlúa","1 part amaretto","1 part milk (or 1.5 parts milk)"], method:"Shake with ice. Strain.", garnish:null, notes:null, rating:null },
+  { name:"Brandy Cocktail", spirit:"Brandy", spirits:["other"], ingredients:["2 tbsp brandy","1 dash Angostura bitters","2 dashes orange bitters","3 dashes maraschino"], method:"Stir with ice.", garnish:null, notes:null, rating:null },
+  { name:"Madras", spirit:"Vodka", spirits:["vodka"], ingredients:["1 part vodka","1 part orange juice","3 parts cranberry juice"], method:"Build over ice.", garnish:"Lime wedge", notes:null, rating:null },
+  { name:"Raspberry Zoo", spirit:"Vodka", spirits:["vodka"], ingredients:["50ml Żubrówka","6 raspberries, muddled","25ml lemon juice","10ml (2 tsp) agave syrup","Dash or two of orange bitters"], method:"Muddle raspberries. Add all ingredients, shake with ice, strain. Top with soda.", garnish:null, notes:null, rating:null },
+  { name:"Hemingway Daiquiri", spirit:"Rum", spirits:["rum"], ingredients:["60ml light rum","22ml lime juice","15ml grapefruit juice","15ml maraschino"], method:"Shake with ice. Strain. Can add a touch of simple syrup if needed.", garnish:null, notes:"As a long drink: 1 part agave, 2 parts lime juice, 4 parts rum, 8 parts grapefruit juice.", rating:null },
+  { name:"Golden Daisy", spirit:"Whisky", spirits:["other"], ingredients:["3 parts whisky","1 part Cointreau","Juice of 1 lemon","1 tsp sugar syrup or agave"], method:"Shake with ice. Strain.", garnish:"Wedge of lime", notes:null, rating:null },
+  { name:"Godfather", spirit:"Scotch / Bourbon", spirits:["bourbon","other"], ingredients:["1–2 parts Scotch or bourbon","1 part amaretto"], method:"Stir and serve over ice.", garnish:null, notes:null, rating:null },
+  { name:"Cherry Bourbon", spirit:"Bourbon", spirits:["bourbon"], ingredients:["1–2 parts bourbon","1–2 parts amaretto","1 part cherry juice"], method:"Stir and serve over ice.", garnish:null, notes:null, rating:null },
+  { name:"Kamikaze", spirit:"Vodka", spirits:["vodka"], ingredients:["1 part vodka","1 part triple sec","1 part lime juice"], method:"Shake with ice. Strain.", garnish:"Lime", notes:"Like a vodka Martini crossed with a Margarita.", rating:null },
+  { name:"Between the Sheets", spirit:"Cognac", spirits:["other"], ingredients:["60ml cognac (or brandy)","1 part lemon juice","½ part Bénédictine (or rum)","½ part Cointreau (or triple sec)"], method:"Shake with ice. Fine strain into a coupé or Martini glass.", garnish:"Lemon or orange peel", notes:"Herbal, lemon, deep flavour. Similar to a Sidecar — but clearly many possible variations.", rating:null },
+  { name:"Gin Basil Smash", spirit:"Gin", spirits:["gin"], ingredients:["60ml gin (doubled for blender technique)","30ml lemon juice","22ml simple syrup (1:1 demerara to water by weight)","Large handful of fresh basil"], method:"Blender-muddle technique (from Liquid Intelligence): muddle a big handful of basil with the gin in a blender — double the recipe to cover the blades (ie 120ml gin, 2 handfuls basil). Muddle the citrus with the gin and basil. Post-muddling, shake with syrup and ice. Strain into a cocktail glass.", garnish:"Basil sprig", notes:"9/10. Really good. Used 3:1 lemon to lime (30ml total) because of limited lemon juice. Simple syrup made 1:1 demerara to water by weight.", rating:"9/10" },
+  { name:"Caipirinha", spirit:"Cachaça", spirits:["rum"], ingredients:["½ lime, pith removed, cut into 8 sections","Up to 2 tbsp brown sugar","90ml cachaça (from freezer)"], method:"Muddle the lime sections with brown sugar. Add cachaça. Add 4–5 cracked ice cubes.", garnish:null, notes:"Key: remove the pith. Cachaça from the freezer. Don't overdo the sugar.", rating:null },
+  { name:"Jungle Bird", spirit:"Rum", spirits:["rum"], ingredients:["45ml dark rum","15ml Campari","45ml pineapple juice","15ml lime juice","15ml sugar syrup"], method:"Shake with ice. Strain into glasses filled with crushed ice.", garnish:"Pineapple wedge and cherry", notes:"National cocktail of Malaysia.", rating:null },
+  { name:"Old Fashioned", spirit:"Bourbon", spirits:["bourbon"], ingredients:["60ml bourbon","1 sugar cube","3 dashes Angostura bitters"], method:"Muddle the sugar cube with bitters in a glass. Add bourbon and pour over ice. Stir.", garnish:"Orange peel (flamed) and cherry", notes:null, rating:null },
+  { name:"Christmas Jumper", spirit:"Whisky", spirits:["other","bourbon"], ingredients:["2 parts cold coffee","2 parts milk","1 part whiskey","1 part amaretto","1 part Kahlúa","Pinch of nutmeg","Pinch of cinnamon"], method:"Shake with ice.", garnish:null, notes:"Invented on Christmas Eve.", rating:null },
+  { name:"Lemon Drop", spirit:"Vodka", spirits:["vodka"], ingredients:["60ml vodka","30ml simple syrup","30ml lemon juice","15ml triple sec"], method:"Shake with ice. Strain into a Martini glass.", garnish:null, notes:null, rating:null },
+  { name:"Piemont", spirit:"Gin", spirits:["gin"], ingredients:["160ml gin","160ml cooled fresh mint tea","80ml lime juice","80ml sugar syrup"], method:"Stir with ice. Pitcher serves four.", garnish:"Mint and thyme sprigs", notes:"9/10. Pitcher for four.", rating:"9/10" },
+  { name:"Arnold Palmer (Hard)", spirit:"Vodka / Peach", spirits:["vodka"], ingredients:["2 sliced peaches","1 sliced lemon","125ml vodka","2 tsp caster sugar","100ml cooled breakfast tea","75ml peach liqueur","Cloudy lemonade (San Pellegrino) to top","8–10 tarragon leaves (optional)"], method:"Macerate peaches, lemon, vodka, and caster sugar in a jug at room temperature for up to 3 hours (an hour is fine). Add cooled tea and peach liqueur. Stir, then top with cloudy lemonade. Optionally add tarragon, mix, and strain. Serve over ice.", garnish:null, notes:"Serves four.", rating:null },
+  { name:"Vodka Collins", spirit:"Vodka", spirits:["vodka"], ingredients:["60ml vodka","Juice of 1 lime (or 1 tbsp yuzu juice)","1 tsp caster sugar (or less)","Soda water to top"], method:"Shake vodka, lime juice, and sugar with ice. Strain. Top with soda water.", garnish:"Lime/lemon slice and/or cherry", notes:null, rating:null },
+  { name:"Mezcal Paloma", spirit:"Mezcal", spirits:["mezcal"], ingredients:["60ml mezcal","60ml grapefruit juice","30ml lime juice","30ml simple syrup or agave syrup","Soda water to top"], method:"Shake with ice. Top with soda water.", garnish:"Grapefruit wheel. Can rim with salt, lime peel, chilli powder.", notes:null, rating:null },
+  { name:"Poet's Dream", spirit:"Gin", spirits:["gin"], ingredients:["3 parts gin","1 part Bénédictine","1 part dry vermouth"], method:"Short stir over ice. Strain into a chilled cocktail glass.", garnish:"Lemon peel slice", notes:"Strong but nuanced.", rating:null },
+  { name:"Martini", spirit:"Vodka / Gin", spirits:["gin","vodka"], ingredients:["60ml vodka or gin","15ml dry vermouth"], method:"Shake or stir. Strain.", garnish:"Lemon peel or olive", notes:null, rating:null },
+  { name:"Tipperary", spirit:"Gin", spirits:["gin"], ingredients:["60ml gin","60ml dry vermouth","Juice of 1 lemon"], method:"Stir over ice. Strain into a chilled cocktail glass.", garnish:null, notes:null, rating:null },
+  { name:"Pink Gin", spirit:"Gin", spirits:["gin"], ingredients:["60ml gin","3–4 dashes Angostura bitters"], method:"Stir with ice, then strain into a coupé glass. 'In' means bitters are left in. 'Out' means bitters coat the glass and are poured out before the gin is added.", garnish:"Twist", notes:null, rating:null },
+  { name:"Espresso Martini", spirit:"Vodka", spirits:["vodka"], ingredients:["100ml vodka","50ml cooled espresso (17g coffee + 55g water, aeropress)","50ml Kahlúa","1 tbsp sugar syrup"], method:"Make strong coffee in an aeropress: 17g finely ground coffee, 55g water, swirl 10s then plunge quickly and pour slowly. Shake vodka, cooled espresso, Kahlúa, sugar syrup, and ice. Strain into chilled Martini glasses.", garnish:"Coffee beans", notes:"Makes two.", rating:null },
+  { name:"Bourbon Manhattan", spirit:"Bourbon", spirits:["bourbon"], ingredients:["75ml bourbon","30ml sweet vermouth","2 dashes Angostura bitters","1 dash orange bitters"], method:"Stir in a mixing glass with ice. Strain into a coupé, chilled.", garnish:"Cherry", notes:null, rating:null },
+  { name:"Moscow Mule", spirit:"Vodka", spirits:["vodka"], ingredients:["60ml vodka","15ml lime juice","180ml ginger beer (or less)"], method:"Build in a copper mug over ice. Add lime juice and vodka, top with ginger beer.", garnish:"Lime wedge", notes:"Serve in a copper mug — keeps the drink cold. Variations: Gin → Ginger Mule, Bourbon → Kentucky Mule, White rum → Cuban Mule, Dark rum → Dark Mule, Tequila → Mexican Mule.", rating:null },
+  { name:"Strawberry Shortcake", spirit:"Baileys", spirits:["other"], ingredients:["50ml Baileys","50ml cranberry juice","50ml pineapple juice"], method:"Shake with ice. Strain.", garnish:null, notes:"Sounds mad but it's sweet, creamy, and really does kind of taste like strawberry shortcake.", rating:null },
+  { name:"Southside Royale", spirit:"Gin", spirits:["gin"], ingredients:["60ml gin","30ml sugar syrup","30ml lime juice","Champagne or prosecco to top"], method:"Shake gin, syrup, and lime juice with ice. Strain. Top with champagne/prosecco.", garnish:null, notes:null, rating:null },
+  { name:"Oaxaca Old Fashioned", spirit:"Mezcal", spirits:["mezcal"], ingredients:["60ml mezcal","15ml agave","Couple dashes bitters (orange used)"], method:"Stir with ice.", garnish:"Expressed grapefruit peel (or orange)", notes:null, rating:null },
+  { name:"El Diablo", spirit:"Tequila", spirits:["tequila"], ingredients:["60ml reposado tequila","15ml crème de cassis","15–22ml lime juice","90–120ml ginger beer"], method:"Build over ice.", garnish:null, notes:"Too sweet as written. Better with less crème de cassis and/or more lime juice.", rating:null },
+  { name:"Los Mochis Collins", spirit:"Mezcal", spirits:["mezcal"], ingredients:["50ml espadín mezcal","30ml lime juice","30ml (or less) strawberry syrup","Grapefruit soda to top"], method:"Mix lime juice, strawberry syrup, and mezcal in a salt-rimmed glass filled with ice. Top with grapefruit soda.", garnish:"Salt rim", notes:"Very good.", rating:null },
+  { name:"White Lady", spirit:"Gin", spirits:["gin"], ingredients:["50ml gin","25ml triple sec","25ml lemon juice","2 tsp sugar syrup","Egg white (optional, with extra dry shake)"], method:"Shake with ice. Serve in a Martini glass with a twist.", garnish:"Lemon twist", notes:"Fine — a simpler, easier Last Word type.", rating:null },
+  { name:"Cherry Martini", spirit:"Vodka", spirits:["vodka"], ingredients:["50ml vodka","25ml cherry brandy","15ml vermouth (optional)","Dash of orange bitters (optional)"], method:"Stir with ice. Strain.", garnish:"Cherry", notes:null, rating:null },
+  { name:"Blackell", spirit:"Brennivín", spirits:["other"], ingredients:["50ml Brennivín","150ml blood orange tonic (or soda)","Squeeze of lemon"], method:"Build in a rocks glass with ice.", garnish:null, notes:"From the Hotel Geysir in Iceland.", rating:null },
+  { name:"Blind Russian", spirit:"Vodka", spirits:["vodka"], ingredients:["50ml vodka","25ml Kahlúa","25ml Baileys"], method:"Pour vodka and Kahlúa into a rocks glass with ice. Float Baileys on top and stir slowly.", garnish:null, notes:null, rating:null },
+  { name:"Bicycle Thief", spirit:"Campari / Gin", spirits:["gin","other"], ingredients:["30ml Campari","30ml gin","45ml grapefruit juice","15ml lemon juice","15ml agave syrup (or a bit more)","Soda water to top"], method:"Shake with ice. Strain and top with soda water.", garnish:"Dried grapefruit", notes:null, rating:null },
+  { name:"Peach Me", spirit:"Bourbon", spirits:["bourbon"], ingredients:["60ml bourbon","15ml peach liqueur","2 dashes orange bitters"], method:"Stir with ice.", garnish:"Cherry or orange", notes:"An Old Fashioned with an unnecessary twist — but fine.", rating:null },
+  { name:"Coconut Martini", spirit:"Vodka", spirits:["vodka"], ingredients:["60ml vodka","30ml cream of coconut (eg. Coco López)","15ml lime juice"], method:"Shake with ice.", garnish:"Dip rim in cream of coconut then toasted shredded coconut", notes:"Sweet and strong but good.", rating:null },
+  { name:"Penicillin", spirit:"Scotch", spirits:["other"], ingredients:["60ml blended Scotch","25ml lemon juice","25ml honey-ginger syrup","10ml Islay single malt (float)"], method:"Shake blended Scotch, lemon juice, and honey-ginger syrup with ice. Strain over fresh ice. Float the Islay Scotch on top.", garnish:"Candied ginger", notes:"Honey-ginger syrup: 1 cup honey, 1 cup water, 1 six-inch piece of ginger sliced. Bring to boil, reduce heat, simmer 5 mins. Steep overnight then strain.", rating:null },
+  { name:"The Marty", spirit:"Mezcal", spirits:["mezcal"], ingredients:["25ml mezcal","25ml fino sherry","25ml maraschino"], method:"Add to a jug with ice and stir 15–30 seconds. Strain into a glass with fresh ice. Garnish with sherry cherries (add cherries to a small jar with sherry for a week).", garnish:"Sherry cherries", notes:null, rating:null },
+  { name:"Spicy Marg", spirit:"Tequila", spirits:["tequila"], ingredients:["120ml tequila","60ml fresh lime juice","45ml triple sec","30ml agave syrup","8 jarred jalapeño slices","15ml brine from jar"], method:"Muddle jalapeño for 15 seconds. Add all ingredients and ice to shaker. Double strain. Makes two.", garnish:"Lime wheel, salt rim optional", notes:null, rating:null },
+  { name:"Sarti Spritz", spirit:"Sarti Rosa", spirits:["other"], ingredients:["90ml prosecco","60ml Sarti Rosa","30ml soda water","ice cubes"], method:"Fill a large wine glass with ice. Add the prosecco first, then the Sarti Rosa, then the soda. Give it one gentle stir — more than that and you lose the bubbles.", garnish:"Slice of lime", notes:"3:2:1 ratio (prosecco:Sarti Rosa:soda). Sarti Rosa is an Italian aperitif with Sicilian blood orange, mango, and passion fruit. Find it at Waitrose and Ocado.", rating:null }
+];
+
+let currentSpirit = 'all';
+const cocktailExpanded = new Set();
+
+function spiritMatches(d) {
+  return currentSpirit === 'all' || d.spirits.includes(currentSpirit);
+}
+
+function drinkQueryMatches(d, q) {
+  if (!q) return true;
+  return d.name.toLowerCase().includes(q) ||
+    d.spirit.toLowerCase().includes(q) ||
+    d.ingredients.some(i => i.toLowerCase().includes(q));
+}
+
+function setSpirit(spirit, btn) {
+  currentSpirit = spirit;
+  document.querySelectorAll('.spirit-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function getCocktailPreview(d) {
+  return d.ingredients.slice(0, 3).map(i =>
+    i.replace(/^\d+[\w.–\-\/]*\s*(ml|tsp|tbsp|parts?|oz|dash(?:es)?|g|cup|tins?|handful|pinch|squeeze)\s*/i, '')
+     .replace(/^\d+\s*/, '').trim()
+  ).join(', ');
+}
+
+function spiritTagClass(spirits) {
+  const s = spirits && spirits[0];
+  return { gin:'tag-gin', bourbon:'tag-bourbon', vodka:'tag-vodka', tequila:'tag-tequila', rum:'tag-rum', mezcal:'tag-mezcal' }[s] || 'tag-spirit-other';
+}
+
+function parseCocktailIngredient(i) {
+  const m = i.match(/^(\d[\d\w.–\-\/]*(?:\s*(?:ml|tsp|tbsp|parts?|oz|dash(?:es)?|g|cup|tins?|handful|pinch|squeeze)))\s+(.+)$/i);
+  if (m) return '<li><span class="amt">' + escapeHtml(m[1]) + '</span>' + escapeHtml(m[2]) + '</li>';
+  return '<li><span class="amt"></span>' + escapeHtml(i) + '</li>';
+}
+
+function toggleCocktailExpand(idx) {
+  if (cocktailExpanded.has(idx)) cocktailExpanded.delete(idx); else cocktailExpanded.add(idx);
+  const row = document.querySelector('.recipe-row[data-cocktail-idx="' + idx + '"]');
+  if (row) row.classList.toggle('expanded'); else render();
+}
+
+function renderCocktailRow(d, idx) {
+  const isExpanded = cocktailExpanded.has(idx);
+  const tagCls = spiritTagClass(d.spirits);
+  const preview = getCocktailPreview(d);
+  const chevronSvg = '<svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
+  const openSvg = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2h5v5"/><path d="M14 2L7.5 8.5"/><path d="M13 9.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h3.5"/></svg>';
+  const ingExpandHtml = d.ingredients.map(parseCocktailIngredient).join('');
+  const metaText = d.rating ? '★ ' + d.rating : '';
+  const expandInner = '<div class="expand-grid">'
+    + '<div class="expand-label">Ingredients</div>'
+    + '<ul class="expand-ingredients">' + ingExpandHtml + '</ul>'
+    + '<div class="expand-actions"><button class="text-btn" onclick="event.stopPropagation();openCocktailDetail(' + idx + ')">View full recipe →</button>'
+    + (metaText ? '<span style="font-size:12px;color:var(--text-faint);">' + escapeHtml(metaText) + '</span>' : '')
+    + '</div></div>';
+  const rowClasses = 'recipe-row' + (isExpanded ? ' expanded' : '');
+  return '<div class="' + rowClasses + '" data-cocktail-idx="' + idx + '">'
+    + '<div class="recipe-head" onclick="toggleCocktailExpand(' + idx + ')">'
+    + '<div class="tag-wrap"><span class="card-tag ' + tagCls + '">' + escapeHtml(d.spirit) + '</span></div>'
+    + '<div class="recipe-title-wrap"><div class="recipe-title">' + escapeHtml(d.name) + '</div>'
+    + (preview ? '<div class="recipe-desc">' + escapeHtml(preview) + '</div>' : '')
+    + '</div>'
+    + '<div class="recipe-meta">' + escapeHtml(metaText) + '</div>'
+    + '<div class="row-actions">'
+    + '<button class="icon-btn" title="View full recipe" onclick="event.stopPropagation();openCocktailDetail(' + idx + ')" aria-label="View full recipe">' + openSvg + '</button>'
+    + '<button class="icon-btn" title="Toggle ingredients" onclick="event.stopPropagation();toggleCocktailExpand(' + idx + ')" aria-label="Toggle ingredients">' + chevronSvg + '</button>'
+    + '</div></div>'
+    + '<div class="recipe-expand">' + expandInner + '</div>'
+    + '</div>';
+}
+
+function renderCocktailSection(q) {
+  const SPIRITS = [
+    { id:'all', label:'All' }, { id:'gin', label:'Gin' }, { id:'bourbon', label:'Bourbon' },
+    { id:'vodka', label:'Vodka' }, { id:'tequila', label:'Tequila' }, { id:'rum', label:'Rum' },
+    { id:'mezcal', label:'Mezcal' }, { id:'other', label:'Other' }
+  ];
+  const filtered = drinks.filter(d => spiritMatches(d) && drinkQueryMatches(d, q));
+  filtered.sort((a, b) => a.name.localeCompare(b.name));
+  const spiritButtons = SPIRITS.map(s =>
+    '<button class="spirit-btn' + (currentSpirit === s.id ? ' active' : '') + '" onclick="setSpirit(\'' + s.id + '\', this)">' + s.label + '</button>'
+  ).join('');
+  const rows = filtered.map(d => renderCocktailRow(d, drinks.indexOf(d))).join('');
+  const emptyMsg = filtered.length === 0 ? '<div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;">No cocktails found.</div>' : '';
+  return '<div class="section-block">'
+    + '<div class="section-header"><h2>Cocktails</h2><span class="section-count">' + filtered.length + ' of ' + drinks.length + '</span></div>'
+    + '<div class="spirit-filter">' + spiritButtons + '</div>'
+    + '<div class="recipe-list">' + rows + '</div>'
+    + emptyMsg + '</div>';
+}
+
+function openCocktailDetail(idx) {
+  const d = drinks[idx];
+  if (!d) return;
+  const m = document.getElementById('detailModal');
+  const tagCls = spiritTagClass(d.spirits);
+  const ingHtml = d.ingredients.map(parseCocktailIngredient).join('');
+  const garnishHtml = d.garnish ? '<p class="section-label" style="margin-top:1.25rem;">Garnish</p><div class="notes-box">' + escapeHtml(d.garnish) + '</div>' : '';
+  const notesHtml = d.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(d.notes) + '</div>' : '';
+  const ratingHtml = d.rating ? '<div style="margin-top:0.75rem;font-size:13px;color:var(--amber);">★ ' + escapeHtml(d.rating) + '</div>' : '';
+  const printSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+  m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
+    + '<span class="card-tag ' + tagCls + '">' + escapeHtml(d.spirit) + '</span>'
+    + '<h2>' + escapeHtml(d.name) + '</h2>'
+    + (d.rating ? '<div class="modal-meta">★ ' + escapeHtml(d.rating) + '</div>' : '')
+    + '<div class="print-recipe-body">'
+    + '<div><p class="section-label">Ingredients</p><ul class="ingredient-list">' + ingHtml + '</ul></div>'
+    + '<div><p class="section-label">Method</p><ol class="steps"><li>' + escapeHtml(d.method) + '</li></ol>'
+    + garnishHtml + '</div>'
+    + '</div>'
+    + notesHtml + ratingHtml
+    + '<div class="modal-print-actions"><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(d.name) + '">' + printSvg + ' Print recipe</button></div>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+// ── Seasonal produce data ──
+// UK harvest seasons, based on Hubbub's month-by-month seasonal guide (hubbub.org.uk),
+// with cabbage/spring greens added from general UK growing-season knowledge (not in that source).
+// startMonth/endMonth are 1–12; when endMonth < startMonth the season wraps across the new year
+// (e.g. leeks 9–3 means September through March).
+const SEASONAL_PRODUCE = [
+  // Fruit
+  { name:'Apples', type:'fruit', icon:'🍎', startMonth:9, endMonth:1, match:['apple','apples'] },
+  { name:'Bilberries', type:'fruit', icon:'🫐', startMonth:6, endMonth:10, match:['bilberry','bilberries'] },
+  { name:'Blackberries', type:'fruit', icon:'🫐', startMonth:9, endMonth:10, match:['blackberry','blackberries'] },
+  { name:'Blackcurrants', type:'fruit', icon:'🫐', startMonth:7, endMonth:7, match:['blackcurrant','blackcurrants'] },
+  { name:'Blueberries', type:'fruit', icon:'🫐', startMonth:6, endMonth:8, match:['blueberry','blueberries'] },
+  { name:'Cherries', type:'fruit', icon:'🍒', startMonth:6, endMonth:8, match:['cherry','cherries'] },
+  { name:'Damsons', type:'fruit', icon:'🍇', startMonth:8, endMonth:9, match:['damson','damsons'] },
+  { name:'Elderberries', type:'fruit', icon:'🫐', startMonth:9, endMonth:10, match:['elderberry','elderberries'] },
+  { name:'Gooseberries', type:'fruit', icon:'🫐', startMonth:6, endMonth:7, match:['gooseberry','gooseberries'] },
+  { name:'Greengages', type:'fruit', icon:'🍏', startMonth:6, endMonth:8, match:['greengage','greengages'] },
+  { name:'Loganberries', type:'fruit', icon:'🍇', startMonth:8, endMonth:8, match:['loganberry','loganberries'] },
+  { name:'Medlars', type:'fruit', icon:'🍐', startMonth:10, endMonth:10, match:['medlar','medlars'] },
+  { name:'Pears', type:'fruit', icon:'🍐', startMonth:9, endMonth:1, match:['pear','pears'] },
+  { name:'Plums', type:'fruit', icon:'🍇', startMonth:8, endMonth:9, match:['plum','plums'] },
+  { name:'Quince', type:'fruit', icon:'🍐', startMonth:10, endMonth:11, match:['quince'] },
+  { name:'Raspberries', type:'fruit', icon:'🍓', startMonth:8, endMonth:9, match:['raspberry','raspberries'] },
+  { name:'Redcurrants', type:'fruit', icon:'🍒', startMonth:8, endMonth:9, match:['redcurrant','redcurrants'] },
+  { name:'Rhubarb', type:'fruit', icon:'🌱', startMonth:1, endMonth:5, match:['rhubarb'] },
+  { name:'Strawberries', type:'fruit', icon:'🍓', startMonth:6, endMonth:8, match:['strawberry','strawberries'] },
+  // Veg
+  { name:'Globe artichokes', type:'veg', icon:'🌿', startMonth:6, endMonth:11, match:['artichoke','artichokes'] },
+  { name:'Asparagus', type:'veg', icon:'🌱', startMonth:4, endMonth:6, match:['asparagus'] },
+  { name:'Aubergine', type:'veg', icon:'🍆', startMonth:6, endMonth:9, match:['aubergine','eggplant'] },
+  { name:'Beetroot', type:'veg', icon:'🫚', startMonth:6, endMonth:2, match:['beetroot','beets'] },
+  { name:'Broad beans', type:'veg', icon:'🫛', startMonth:6, endMonth:8, match:['broad bean','broad beans'] },
+  { name:'Broccoli', type:'veg', icon:'🥦', startMonth:4, endMonth:10, match:['broccoli'] },
+  { name:'Purple sprouting broccoli', type:'veg', icon:'🥦', startMonth:2, endMonth:4, match:['purple sprouting broccoli','psb'] },
+  { name:'Brussels sprouts', type:'veg', icon:'🥬', startMonth:12, endMonth:2, match:['brussels sprout','brussel sprout','brussels sprouts','brussel sprouts'] },
+  { name:'Butternut squash', type:'veg', icon:'🎃', startMonth:9, endMonth:11, match:['butternut squash','butternut'] },
+  { name:'Cabbage', type:'veg', icon:'🥬', startMonth:9, endMonth:3, match:['cabbage'] },
+  { name:'Spring greens', type:'veg', icon:'🥬', startMonth:3, endMonth:6, match:['spring green','spring greens'] },
+  { name:'Carrots', type:'veg', icon:'🥕', startMonth:5, endMonth:9, match:['carrot','carrots'] },
+  { name:'Cauliflower', type:'veg', icon:'🥦', startMonth:11, endMonth:3, match:['cauliflower'] },
+  { name:'Celeriac', type:'veg', icon:'🫚', startMonth:9, endMonth:2, match:['celeriac'] },
+  { name:'Celery', type:'veg', icon:'🥬', startMonth:9, endMonth:1, match:['celery'] },
+  { name:'Chard', type:'veg', icon:'🥬', startMonth:6, endMonth:9, match:['chard'] },
+  { name:'Chestnuts', type:'veg', icon:'🌰', startMonth:9, endMonth:12, match:['chestnuts'] },
+  { name:'Chicory', type:'veg', icon:'🥬', startMonth:10, endMonth:2, match:['chicory'] },
+  { name:'Chillies', type:'veg', icon:'🌶️', startMonth:6, endMonth:10, match:['chilli','chillies','chili'] },
+  { name:'Cobnuts', type:'veg', icon:'🌰', startMonth:9, endMonth:11, match:['cobnut','cobnuts','cob nut','cob nuts'] },
+  { name:'Courgettes', type:'veg', icon:'🥒', startMonth:6, endMonth:9, match:['courgette','courgettes','zucchini'] },
+  { name:'Cucumber', type:'veg', icon:'🥒', startMonth:8, endMonth:9, match:['cucumber'] },
+  { name:'Fennel', type:'veg', icon:'🌿', startMonth:6, endMonth:10, match:['fennel'] },
+  { name:'French beans', type:'veg', icon:'🫛', startMonth:6, endMonth:9, match:['french bean','french beans'] },
+  { name:'Garlic', type:'veg', icon:'🧄', startMonth:6, endMonth:10, match:['garlic'] },
+  { name:'Horseradish', type:'veg', icon:'🫚', startMonth:9, endMonth:1, match:['horseradish'] },
+  { name:'Jerusalem artichoke', type:'veg', icon:'🫚', startMonth:10, endMonth:2, match:['jerusalem artichoke'] },
+  { name:'Kale', type:'veg', icon:'🥬', startMonth:9, endMonth:3, match:['kale'] },
+  { name:'Kohlrabi', type:'veg', icon:'🫚', startMonth:6, endMonth:2, match:['kohlrabi'] },
+  { name:'Leeks', type:'veg', icon:'🧅', startMonth:9, endMonth:3, match:['leek','leeks'] },
+  { name:'Lettuce & salad leaves', type:'veg', icon:'🥬', startMonth:4, endMonth:10, match:['lettuce','little gem','romaine','salad leaves','salad leaf'] },
+  { name:'Mangetout', type:'veg', icon:'🫛', startMonth:6, endMonth:9, match:['mangetout','mange tout'] },
+  { name:'Marrow', type:'veg', icon:'🥒', startMonth:8, endMonth:10, match:['marrow'] },
+  { name:'New potatoes', type:'veg', icon:'🥔', startMonth:4, endMonth:7, match:['new potato','new potatoes','jersey royal'] },
+  { name:'Onions', type:'veg', icon:'🧅', startMonth:6, endMonth:9, match:['onion','onions'] },
+  { name:'Pak choi', type:'veg', icon:'🥬', startMonth:6, endMonth:9, match:['pak choi','pak-choi'] },
+  { name:'Parsnips', type:'veg', icon:'🫚', startMonth:10, endMonth:2, match:['parsnip','parsnips'] },
+  { name:'Peas', type:'veg', icon:'🫛', startMonth:5, endMonth:8, match:['pea','peas'] },
+  { name:'Peppers', type:'veg', icon:'🫑', startMonth:8, endMonth:9, match:['red pepper','yellow pepper','green pepper','bell pepper','red peppers','yellow peppers','green peppers'] },
+  { name:'Potatoes (maincrop)', type:'veg', icon:'🥔', startMonth:8, endMonth:2, match:['potato','potatoes','wilja'] },
+  { name:'Pumpkin', type:'veg', icon:'🎃', startMonth:9, endMonth:11, match:['pumpkin'] },
+  { name:'Radishes', type:'veg', icon:'🫚', startMonth:4, endMonth:10, match:['radish','radishes'] },
+  { name:'Rocket', type:'veg', icon:'🌿', startMonth:4, endMonth:10, match:['rocket'] },
+  { name:'Runner beans', type:'veg', icon:'🫛', startMonth:6, endMonth:10, match:['runner bean','runner beans'] },
+  { name:'Salsify', type:'veg', icon:'🫚', startMonth:10, endMonth:3, match:['salsify'] },
+  { name:'Samphire', type:'veg', icon:'🌿', startMonth:4, endMonth:7, match:['samphire'] },
+  { name:'Shallots', type:'veg', icon:'🧅', startMonth:7, endMonth:2, match:['shallot','shallots'] },
+  { name:'Spinach', type:'veg', icon:'🥬', startMonth:3, endMonth:7, match:['spinach'] },
+  { name:'Spring onions', type:'veg', icon:'🧅', startMonth:3, endMonth:9, match:['spring onion','spring onions'] },
+  { name:'Swede', type:'veg', icon:'🫚', startMonth:10, endMonth:3, match:['swede'] },
+  { name:'Sweetcorn', type:'veg', icon:'🌽', startMonth:8, endMonth:10, match:['sweetcorn','corn cob','corn cobs','corn on the cob'] },
+  { name:'Tomatoes', type:'veg', icon:'🍅', startMonth:6, endMonth:10, match:['tomato','tomatoes'] },
+  { name:'Turnips', type:'veg', icon:'🫚', startMonth:6, endMonth:2, match:['turnip','turnips'] },
+  { name:'Watercress', type:'veg', icon:'🥬', startMonth:4, endMonth:11, match:['watercress'] },
+];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ── Foraging data ──
+// Wild food realistically found around Leeds/West Yorkshire — woodland edges, hedgerows,
+// riversides (Meanwood, Golden Acre Park, Roundhay) and the Dales/Pennine moorland within
+// reach. Timings are general UK guidance (Countryfile, Woodland Trust) applied to this region;
+// always confirm identification yourself before eating anything.
+const FORAGING_ITEMS = [
+  // Leaves, flowers & greens
+  { name:'Wild garlic (ramsons)', type:'green', icon:'🌿', startMonth:3, endMonth:6, match:['wild garlic','ramsons'] },
+  { name:'Stinging nettles', type:'green', icon:'🌿', startMonth:2, endMonth:6, match:['nettle','nettles'] },
+  { name:'Chickweed', type:'green', icon:'🌿', startMonth:1, endMonth:11, match:['chickweed'] },
+  { name:'Wild sorrel', type:'green', icon:'🌿', startMonth:3, endMonth:9, match:['sorrel'] },
+  { name:'Dandelion leaves', type:'green', icon:'🌿', startMonth:3, endMonth:10, match:['dandelion'] },
+  { name:'Cleavers (goosegrass)', type:'green', icon:'🌿', startMonth:3, endMonth:5, match:['cleavers','goosegrass'] },
+  { name:'Elderflower', type:'green', icon:'🌸', startMonth:5, endMonth:6, match:['elderflower','elderflowers'] },
+  { name:'Wild watercress', type:'green', icon:'🥬', startMonth:4, endMonth:10, match:['watercress'] },
+  // Berries, fruit & nuts
+  { name:'Bilberries (whinberries)', type:'berry', icon:'🫐', startMonth:7, endMonth:9, match:['bilberry','bilberries','whinberry','whinberries'] },
+  { name:'Wild strawberries', type:'berry', icon:'🍓', startMonth:6, endMonth:7, match:['wild strawberry','wild strawberries'] },
+  { name:'Elderberries', type:'berry', icon:'🫐', startMonth:8, endMonth:9, match:['elderberry','elderberries'] },
+  { name:'Blackberries (brambles)', type:'berry', icon:'🫐', startMonth:8, endMonth:10, match:['blackberry','blackberries','bramble','brambles'] },
+  { name:'Wild damsons', type:'berry', icon:'🍇', startMonth:8, endMonth:9, match:['damson','damsons'] },
+  { name:'Rowan berries', type:'berry', icon:'🔴', startMonth:8, endMonth:10, match:['rowan'] },
+  { name:'Crab apples', type:'berry', icon:'🍎', startMonth:9, endMonth:10, match:['crab apple','crab apples'] },
+  { name:'Sloes (blackthorn)', type:'berry', icon:'🫐', startMonth:9, endMonth:11, match:['sloe','sloes'] },
+  { name:'Hawthorn berries (haws)', type:'berry', icon:'🔴', startMonth:9, endMonth:10, match:['hawthorn','haw berries'] },
+  { name:'Rosehips', type:'berry', icon:'🔴', startMonth:9, endMonth:11, match:['rosehip','rosehips','rose hip','rose hips'] },
+  { name:'Wild hazelnuts (cobnuts)', type:'berry', icon:'🌰', startMonth:9, endMonth:10, match:['hazelnut','hazelnuts','cobnut','cobnuts'] },
+  { name:'Sweet chestnuts', type:'berry', icon:'🌰', startMonth:10, endMonth:11, match:['chestnuts'] },
+  // Fungi
+  { name:'Chicken of the woods', type:'fungi', icon:'🍄', startMonth:5, endMonth:9, match:['chicken of the woods'] },
+  { name:'Chanterelles', type:'fungi', icon:'🍄', startMonth:6, endMonth:11, match:['chanterelle','chanterelles','girolle','girolles'] },
+  { name:'Ceps (porcini)', type:'fungi', icon:'🍄', startMonth:8, endMonth:11, match:['cep','ceps','porcini'] },
+  { name:'Field mushrooms', type:'fungi', icon:'🍄', startMonth:8, endMonth:10, match:['field mushroom','field mushrooms'] },
+  { name:'Giant puffball', type:'fungi', icon:'🍄', startMonth:8, endMonth:10, match:['puffball'] },
+  { name:'Shaggy inkcap', type:'fungi', icon:'🍄', startMonth:8, endMonth:11, match:['shaggy inkcap','shaggy ink cap'] },
+  { name:'Wood blewit', type:'fungi', icon:'🍄', startMonth:10, endMonth:12, match:['blewit','blewits'] },
+];
+const FORAGING_GROUPS = [
+  { id:'green', label:'Leaves, Flowers & Greens' },
+  { id:'berry', label:'Berries, Fruit & Nuts' },
+  { id:'fungi', label:'Fungi' },
+];
+const seasonalExpanded = new Set();
+let seasonalTab = 'veg'; // 'veg' | 'fruit' | 'nextmonth'
+
+function isInSeasonForMonth(p, month) {
+  if (p.startMonth <= p.endMonth) return month >= p.startMonth && month <= p.endMonth;
+  return month >= p.startMonth || month <= p.endMonth;
+}
+function seasonRangeLabel(p) {
+  const short = MONTH_NAMES.map(m => m.slice(0, 3));
+  return short[p.startMonth - 1] + '–' + short[p.endMonth - 1];
+}
+function seasonEndDateForToday(p, today) {
+  const y = today.getFullYear();
+  const m = today.getMonth() + 1;
+  let endYear = y;
+  if (p.startMonth > p.endMonth) {
+    endYear = (m >= p.startMonth) ? y + 1 : y;
+  }
+  return new Date(endYear, p.endMonth, 0); // last day of endMonth
+}
+function daysLeftInSeason(p, today) {
+  const end = seasonEndDateForToday(p, today);
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.round((end - startOfToday) / 86400000);
+}
+function matchesKeywords(text, matchArr) {
+  return matchArr.some(kw => {
+    const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(^|[^a-z])' + esc + '([^a-z]|$)', 'i');
+    return re.test(text);
+  });
+}
+function normalizeMatchText(r) {
+  const ingredientText = (r.ingredients || []).map(i => i.item).join(' | ');
+  return (ingredientText + ' ' + (r.title || '') + ' ' + (r.description || '')).toLowerCase();
+}
+function normalizeDrinkText(d) {
+  const ingredientText = (d.ingredients || []).join(' | ');
+  return (ingredientText + ' ' + (d.name || '') + ' ' + (d.notes || '')).toLowerCase();
+}
+function produceMatchesRecipe(p, r) { return matchesKeywords(normalizeMatchText(r), p.match); }
+function produceMatchesDrink(p, d) { return matchesKeywords(normalizeDrinkText(d), p.match); }
+function matchRecipesForProduce(p) {
+  return recipes.filter(r => !r.noRecipe && produceMatchesRecipe(p, r));
+}
+function matchDrinksForProduce(p) {
+  return drinks.map((d, idx) => ({ d, idx })).filter(x => produceMatchesDrink(p, x.d));
+}
+function buildMatchChipsHtml(p) {
+  const recipeMatches = matchRecipesForProduce(p);
+  const drinkMatches = matchDrinksForProduce(p);
+  const count = recipeMatches.length + drinkMatches.length;
+  if (!count) {
+    return { count: 0, html: '<div class="expand-grid"><div class="expand-empty">Nothing in your recipe book uses ' + escapeHtml(p.name.toLowerCase()) + ' yet.</div></div>' };
+  }
+  const recipeChips = recipeMatches.map(r => '<button class="text-btn" style="margin:2px 6px 6px 0;" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')">' + escapeHtml(r.title) + '</button>').join('');
+  const drinkChips = drinkMatches.map(x => '<button class="text-btn" style="margin:2px 6px 6px 0;" onclick="event.stopPropagation();openCocktailDetail(' + x.idx + ')">' + escapeHtml(x.d.name) + ' (drink)</button>').join('');
+  return { count, html: '<div class="expand-grid"><div class="expand-label">Recipes &amp; drinks using ' + escapeHtml(p.name.toLowerCase()) + '</div><div>' + recipeChips + drinkChips + '</div></div>' };
+}
+function toggleSeasonalExpand(id) {
+  if (seasonalExpanded.has(id)) seasonalExpanded.delete(id); else seasonalExpanded.add(id);
+  const row = document.querySelector('.recipe-row[data-seasonal-id="' + id + '"]');
+  if (row) row.classList.toggle('expanded'); else render();
+}
+function seasonalRowId(p) { return p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+
+function todayFractionOfYear(today) {
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  return (m + (today.getDate() - 1) / daysInMonth) / 12;
+}
+function seasonBarSegments(p) {
+  if (p.startMonth <= p.endMonth) {
+    return [{ left: (p.startMonth - 1) / 12 * 100, width: (p.endMonth - p.startMonth + 1) / 12 * 100, roundLeft: true, roundRight: true }];
+  }
+  return [
+    { left: (p.startMonth - 1) / 12 * 100, width: (12 - p.startMonth + 1) / 12 * 100, roundLeft: true, roundRight: false },
+    { left: 0, width: p.endMonth / 12 * 100, roundLeft: false, roundRight: true },
+  ];
+}
+function typeBarClass(type) {
+  if (type === 'fruit' || type === 'berry') return 'is-fruit';
+  if (type === 'fungi') return 'is-fungi';
+  return 'is-veg';
+}
+function seasonBarsHtml(p, active) {
+  const cls = 'season-bar ' + typeBarClass(p.type) + ' ' + (active ? 'is-active' : 'is-inactive');
+  return seasonBarSegments(p).map(s => {
+    const radius = (s.roundLeft && s.roundRight) ? '5px' : s.roundLeft ? '5px 0 0 5px' : s.roundRight ? '0 5px 5px 0' : '0';
+    return '<div class="' + cls + '" style="left:' + s.left.toFixed(2) + '%;width:' + Math.max(s.width, 1.2).toFixed(2) + '%;border-radius:' + radius + ';"></div>';
+  }).join('');
+}
+function monthsForwardFrom(startMonth, currentMonth) {
+  return (startMonth - currentMonth + 12) % 12;
+}
+function sortByActiveThenSoon(items, currentMonth) {
+  return items.slice().sort((a, b) => {
+    const aActive = isInSeasonForMonth(a, currentMonth);
+    const bActive = isInSeasonForMonth(b, currentMonth);
+    if (aActive !== bActive) return aActive ? -1 : 1;
+    const aKey = monthsForwardFrom(a.startMonth, currentMonth);
+    const bKey = monthsForwardFrom(b.startMonth, currentMonth);
+    if (aKey !== bKey) return aKey - bKey;
+    return a.name.localeCompare(b.name);
+  });
+}
+function renderTimelineGroup(label, arr, today, currentMonth) {
+  if (!arr.length) return '';
+  return '<div class="section-block"><div class="section-header"><h2>' + label + '</h2><span class="section-count">' + arr.length + '</span></div>'
+    + '<div class="recipe-list">' + arr.map(p => renderSeasonalRow(p, today, currentMonth)).join('') + '</div></div>';
+}
+
+function renderSeasonAxisHeader(today) {
+  const shortMonths = MONTH_NAMES.map(m => m.slice(0, 3));
+  const labels = shortMonths.map((m, i) => '<span class="season-axis-label" style="left:' + (i / 12 * 100).toFixed(2) + '%;">' + m + '</span>').join('');
+  const todayPct = (todayFractionOfYear(today) * 100).toFixed(2);
+  return '<div class="season-axis"><div class="season-axis-track">' + labels
+    + '<div class="season-today-line season-today-line-axis" style="left:' + todayPct + '%;"></div>'
+    + '<div class="season-today-label" style="left:' + todayPct + '%;">Today</div>'
+    + '</div></div>';
+}
+
+function renderSeasonalRow(p, today, currentMonth) {
+  const id = seasonalRowId(p);
+  const isExpanded = seasonalExpanded.has(id);
+  const active = isInSeasonForMonth(p, currentMonth);
+  const metaBits = [seasonRangeLabel(p)];
+  if (active) {
+    const days = daysLeftInSeason(p, today);
+    metaBits.push(days <= 0 ? 'ends today' : days + ' day' + (days !== 1 ? 's' : '') + ' left');
+  } else {
+    metaBits.push('not in season now');
+  }
+  const matchInfo = buildMatchChipsHtml(p);
+  const chevronSvg = '<svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
+  const todayPct = (todayFractionOfYear(today) * 100).toFixed(2);
+  const trackHtml = '<div class="season-track">' + seasonBarsHtml(p, active) + '<div class="season-today-line" style="left:' + todayPct + '%;"></div></div>';
+  return '<div class="recipe-row season-row' + (isExpanded ? ' expanded' : '') + (active ? ' is-active-row' : '') + '" data-seasonal-id="' + id + '">'
+    + '<div class="season-head" onclick="toggleSeasonalExpand(\'' + id + '\')">'
+    + '<div class="season-icon">' + p.icon + '</div>'
+    + '<div class="recipe-title-wrap"><div class="recipe-title">' + escapeHtml(p.name) + '</div>'
+    + '<div class="recipe-desc">' + metaBits.join(' · ') + '</div></div>'
+    + trackHtml
+    + '<div class="season-count-meta">' + (matchInfo.count ? matchInfo.count + ' use' + (matchInfo.count !== 1 ? 's' : '') : '') + '</div>'
+    + '<div class="row-actions"><button class="icon-btn" title="Toggle uses" onclick="event.stopPropagation();toggleSeasonalExpand(\'' + id + '\')" aria-label="Toggle uses">' + chevronSvg + '</button></div>'
+    + '</div>'
+    + '<div class="recipe-expand">' + matchInfo.html + '</div>'
+    + '</div>';
+}
+
+function nextMonthNumber(currentMonth) { return (currentMonth % 12) + 1; }
+
+function seasonalFilteredSortedItems(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const nextMonth = nextMonthNumber(currentMonth);
+  const q2 = (q || '').toLowerCase();
+  let items = SEASONAL_PRODUCE.filter(p => !q2 || p.name.toLowerCase().includes(q2));
+  if (seasonalTab === 'veg') items = items.filter(p => p.type === 'veg');
+  else if (seasonalTab === 'fruit') items = items.filter(p => p.type === 'fruit');
+  else if (seasonalTab === 'nextmonth') items = items.filter(p => p.startMonth === nextMonth);
+  return sortByActiveThenSoon(items, currentMonth);
+}
+
+function setSeasonalTab(tab) {
+  if (seasonalTab === tab) return;
+  seasonalTab = tab;
+  render();
+}
+function renderSeasonalTabBar(nextMonthName) {
+  const tabs = [
+    { id: 'veg', label: 'Veg' },
+    { id: 'fruit', label: 'Fruit' },
+    { id: 'nextmonth', label: 'Coming in ' + nextMonthName.slice(0, 3) },
+  ];
+  return '<div class="spirit-filter">' + tabs.map(t =>
+    '<button class="spirit-btn' + (seasonalTab === t.id ? ' active' : '') + '" onclick="setSeasonalTab(\'' + t.id + '\')">' + t.label + '</button>'
+  ).join('') + '</div>';
+}
+
+function renderSeasonalCard(p) {
+  return '<div class="season-card">'
+    + '<div class="season-card-icon">' + p.icon + '</div>'
+    + '<div class="season-card-name">' + escapeHtml(p.name) + '</div>'
+    + '<div class="season-card-range">' + seasonRangeLabel(p) + '</div>'
+    + '</div>';
+}
+function groupCards(label, arr) {
+  if (!arr.length) return '';
+  return '<div class="section-block"><div class="section-header"><h2>' + label + '</h2><span class="section-count">' + arr.length + '</span></div>'
+    + '<div class="season-card-grid">' + arr.map(renderSeasonalCard).join('') + '</div></div>';
+}
+
+function renderSeasonalSection(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const nextMonthName = MONTH_NAMES[nextMonthNumber(currentMonth) - 1];
+  const introText = seasonalTab === 'fruit'
+    ? 'Fruit in season across the year, anchored on today’s date. Solid bars are in season now.'
+    : seasonalTab === 'nextmonth'
+    ? 'Newly coming into season in ' + nextMonthName + ' — not in season yet, but on the way.'
+    : 'Vegetables in season across the year, anchored on today’s date. Solid bars are in season now.';
+  const introHtml = '<p class="season-intro">' + introText + '</p>';
+  const tabBarHtml = renderSeasonalTabBar(nextMonthName);
+  const items = seasonalFilteredSortedItems(q);
+  const vegItems = items.filter(p => p.type === 'veg');
+  const fruitItems = items.filter(p => p.type === 'fruit');
+  const emptyText = seasonalTab === 'nextmonth'
+    ? 'Nothing new comes into season in ' + nextMonthName + (q ? ' matching your search' : '') + '.'
+    : 'No produce matches your search.';
+  const emptyMsg = !items.length ? '<div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;">' + emptyText + '</div>' : '';
+
+  if (seasonalTab === 'nextmonth') {
+    const body = groupCards('Veg', vegItems) + groupCards('Fruit', fruitItems);
+    return introHtml + tabBarHtml + body + emptyMsg;
+  }
+
+  const axisHtml = renderSeasonAxisHeader(today);
+  const body = renderTimelineGroup('Veg', vegItems, today, currentMonth) + renderTimelineGroup('Fruit', fruitItems, today, currentMonth);
+  return introHtml + tabBarHtml + axisHtml + body + emptyMsg;
+}
+function seasonalCountBarText(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const items = seasonalFilteredSortedItems(q);
+  if (seasonalTab === 'nextmonth') {
+    const nextMonthName = MONTH_NAMES[nextMonthNumber(currentMonth) - 1];
+    return items.length + ' coming into season in ' + nextMonthName;
+  }
+  const activeCount = items.filter(p => isInSeasonForMonth(p, currentMonth)).length;
+  return activeCount + ' in season now · ' + items.length + ' shown';
+}
+
+// ── Foraging page ──
+function foragingFilteredSortedItems(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const q2 = (q || '').toLowerCase();
+  const items = FORAGING_ITEMS.filter(p => !q2 || p.name.toLowerCase().includes(q2));
+  return sortByActiveThenSoon(items, currentMonth);
+}
+function renderForagingSection(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const introHtml = '<p class="season-intro">Wild food realistically found around Leeds and the wider Yorkshire countryside — woodland edges, hedgerows, riverbanks and Dales/Pennine moorland. Solid bars are in season now.</p>'
+    + '<p class="season-intro" style="margin-top:-0.75rem;">Only pick what you can identify with complete confidence — several UK fungi have toxic look-alikes. Get permission before foraging on private land, avoid roadside verges and dog-walking routes, and take only what you need.</p>';
+  const axisHtml = renderSeasonAxisHeader(today);
+  const items = foragingFilteredSortedItems(q);
+  const body = FORAGING_GROUPS.map(g => renderTimelineGroup(g.label, items.filter(p => p.type === g.id), today, currentMonth)).join('');
+  const emptyMsg = !items.length ? '<div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;">Nothing matches your search.</div>' : '';
+  return introHtml + axisHtml + body + emptyMsg;
+}
+function foragingCountBarText(q) {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const items = foragingFilteredSortedItems(q);
+  const activeCount = items.filter(p => isInSeasonForMonth(p, currentMonth)).length;
+  return activeCount + ' foraging now · ' + items.length + ' shown';
+}
+
+render();
+setupScrollspy();
+</script>
+</body></html>

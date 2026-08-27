@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WY Food — Markets and food events around West Yorkshire</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm-white: #faf8f4;
+    --forest: #2d4a3e;
+    --sage: #7a9e8e;
+    --earth: #8b6f47;
+    --rust: #c4622d;
+    --amber: #d4a853;
+    --charcoal: #2a2a2a;
+    --mid-grey: #888;
+    --light-border: rgba(45,74,62,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .site-logo-text {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.5rem, 9vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--forest);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+header {
+    background: linear-gradient(160deg, #f5f0e8 0%, #e8e0d2 100%);
+    color: #1f352a;
+    padding: 3rem 1.5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+header::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: rgba(255,255,255,0.22);
+}
+header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(255,255,255,0.45);
+}
+ header p {
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+    color: #2d4a3e;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 2;
+}
+header .header-blurb {
+    margin-top: 1rem;
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: #23382d;
+    font-weight: 400;
+    position: relative;
+    z-index: 2;
+}
+.site-logo {
+    width: 120px;
+    max-width: 28vw;
+    height: auto;
+    display: block;
+    margin: 0 auto 1rem auto;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.18));
+}
+  /* LOCATION BAR */
+  .location-bar {
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--light-border);
+    padding: 0.7rem 1rem;
+    font-size: 0.78rem;
+    color: var(--charcoal);
+  }
+  .location-bar-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .location-status {
+    flex: 1;
+    min-width: 140px;
+    color: var(--mid-grey);
+  }
+  .location-status strong {
+    color: var(--forest);
+    font-weight: 500;
+  }
+  .location-bar input,
+  .location-bar select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 5px;
+    border: 1px solid var(--light-border);
+    background: white;
+    color: var(--charcoal);
+  }
+  .location-bar input.postcode-input { width: 92px; text-transform: uppercase; }
+  .location-bar input.radius-input { width: 56px; }
+  .location-bar button.loc-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.74rem;
+    padding: 0.32rem 0.7rem;
+    border-radius: 5px;
+    border: none;
+    background: var(--forest);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .location-bar button.loc-btn:hover { opacity: 0.9; }
+  .location-bar button.loc-btn.secondary {
+    background: transparent;
+    color: var(--forest);
+    border: 1px solid var(--forest);
+  }
+  .location-error {
+    color: var(--rust);
+    font-size: 0.74rem;
+    width: 100%;
+    margin-top: 0.3rem;
+  }
+  .location-hint {
+    max-width: 680px;
+    margin: 0.4rem auto 0;
+    font-size: 0.74rem;
+    color: var(--mid-grey);
+    font-style: italic;
+  }
+  .location-hint.hidden { display: none; }
+
+  /* OUT-OF-WY NOTICE */
+  .scope-notice {
+    background: #fff8e6;
+    border-bottom: 1px solid #e8d5a0;
+    padding: 0.7rem 1rem;
+    font-size: 0.78rem;
+    color: #7a6020;
+    text-align: center;
+  }
+  .scope-notice strong { font-weight: 600; }
+
+  /* WEEKEND BANNER */
+  .weekend-banner {
+    background: var(--rust);
+    color: white;
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+  .weekend-banner h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 0.6rem;
+    opacity: 0.9;
+  }
+  .weekend-day-group { margin-bottom: 0.6rem; }
+  .weekend-day-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 0.3rem;
+  }
+  .weekend-events {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .weekend-event {
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+  }
+  .weekend-event strong {
+    font-weight: 500;
+  }
+  .weekend-event span {
+    opacity: 0.85;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  .weekend-note {
+    margin-top: 0.7rem;
+    font-size: 0.75rem;
+    opacity: 0.75;
+    font-style: italic;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--forest);
+    padding: 0 1rem 0;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--sage);
+    padding: 0.75rem 1.2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+  .tab-btn:hover:not(.active) {
+    color: var(--cream);
+  }
+
+  /* CONTENT AREA */
+  .content {
+    padding: 1.2rem 1rem 3rem;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---- UPCOMING VIEW ---- */
+  .month-group { margin-bottom: 1.5rem; }
+  .month-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--earth);
+    padding: 0 0.2rem 0.4rem;
+    border-bottom: 1px solid var(--light-border);
+    margin-bottom: 0.6rem;
+  }
+  .event-row {
+    display: flex;
+    gap: 0.8rem;
+    padding: 0.7rem 0.5rem;
+    border-bottom: 1px solid var(--light-border);
+    align-items: flex-start;
+  }
+  .event-row:last-child { border-bottom: none; }
+  .event-date-col {
+    min-width: 46px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .event-day-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--forest);
+    font-weight: 700;
+  }
+  .event-day-name {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mid-grey);
+    font-weight: 500;
+  }
+  .event-info { flex: 1; min-width: 0; }
+  .event-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+  }
+  .event-sub {
+    font-size: 0.78rem;
+    color: var(--mid-grey);
+    margin-top: 0.1rem;
+  }
+  .event-distance {
+    font-size: 0.72rem;
+    background: var(--sage);
+    color: white;
+    border-radius: 20px;
+    padding: 0.1rem 0.5rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+  .event-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+  .btn-small {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .btn-confirm { background: var(--forest); color: white; }
+  .btn-map { background: var(--amber); color: var(--charcoal); }
+  .btn-small:hover { opacity: 0.85; }
+
+  /* ---- CALENDAR VIEW ---- */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .cal-nav button {
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .cal-month-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--forest);
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  .cal-header-cell {
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    padding: 0.3rem 0;
+  }
+  .cal-cell {
+    background: white;
+    border-radius: 6px;
+    min-height: 52px;
+    padding: 0.3rem;
+    position: relative;
+    cursor: default;
+  }
+  .cal-cell.empty { background: transparent; }
+  .cal-cell.today { outline: 2px solid var(--rust); }
+  .cal-day-num {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--charcoal);
+    line-height: 1;
+  }
+  .cal-cell.today .cal-day-num { color: var(--rust); font-weight: 700; }
+  .cal-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 3px;
+  }
+  .cal-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+    position: relative;
+  }
+  .cal-dot:hover { transform: scale(1.4); }
+  .cal-legend {
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
+    background: white;
+    border-radius: 8px;
+    display: none;
+  }
+  .cal-legend.visible { display: block; }
+  .cal-legend-heading {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--earth);
+    margin-bottom: 0.6rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--charcoal);
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--light-border);
+  }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+  .legend-item-detail { flex: 1; }
+  .legend-item-name { font-weight: 500; }
+  .legend-item-times { font-size: 0.75rem; color: var(--mid-grey); margin-top: 0.1rem; }
+  .cal-cell { cursor: pointer; }
+  .cal-cell.selected { outline: 2px solid var(--forest); }
+
+  /* ---- MARKETS INFO VIEW ---- */
+  .market-card {
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .market-card-header {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    gap: 0.8rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .market-dot-large {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .market-card-title {
+    flex: 1;
+    font-weight: 500;
+    font-size: 0.92rem;
+  }
+  .market-card-when {
+    font-size: 0.75rem;
+    color: var(--mid-grey);
+  }
+  .market-chevron {
+    color: var(--mid-grey);
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+  }
+  .market-card.expanded .market-chevron { transform: rotate(180deg); }
+  .market-card-body {
+    display: none;
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--light-border);
+  }
+  .market-card.expanded .market-card-body { display: block; }
+  .market-detail-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    font-size: 0.82rem;
+  }
+  .market-detail-label {
+    color: var(--mid-grey);
+    min-width: 65px;
+    font-size: 0.75rem;
+    padding-top: 0.05rem;
+  }
+  .market-detail-val { flex: 1; color: var(--charcoal); }
+  .market-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    flex-wrap: wrap;
+  }
+  .btn-medium {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+  .btn-medium.btn-confirm { background: var(--forest); color: white; }
+  .btn-medium.btn-map { background: var(--amber); color: var(--charcoal); }
+
+  .data-note {
+    background: #fff8e6;
+    border: 1px solid #e8d5a0;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-size: 0.78rem;
+    color: #7a6020;
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+  .data-note strong { font-weight: 600; }
+
+  /* ---- PROSE PANELS (About, Contact) ---- */
+  .prose-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 1.2rem 1.2rem 1.4rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .prose-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 0.8rem;
+  }
+  .prose-panel p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--charcoal);
+    margin-bottom: 0.8rem;
+  }
+  .prose-panel p:last-child { margin-bottom: 0; }
+  .prose-panel a {
+    color: var(--rust);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(196,98,45,0.3);
+  }
+  .prose-panel a:hover { border-bottom-color: var(--rust); }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:6px 12px;border-radius:999px;background:rgba(45,74,62,0.92);color:#f5f0e8;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,0.18);backdrop-filter:blur(4px);
+transition:background .15s ease}
+#mohome-back:hover{background:#2d4a3e}
+@media print{#mohome-back{display:none}}
+</style>
+
+
+<header>
+
+  <h1 class="site-logo-text">WY&nbsp;Food</h1>
+
+  <p>Because we&rsquo;re hungry.</p>
+
+  <p class="header-blurb">
+    Farmers markets and food events around West Yorkshire.
+  
+  </p>
+
+</header>
+
+<!-- LOCATION BAR -->
+<div class="location-bar">
+  <div class="location-bar-inner">
+    <div class="location-status" id="location-status">Showing events near <strong>Leeds</strong></div>
+    <input type="text" class="postcode-input" id="postcode-input" placeholder="LS1 1AA" maxlength="8" autocomplete="postal-code">
+    <input type="number" class="radius-input" id="radius-input" min="1" max="100" step="1" title="Radius (miles)">
+    <span style="color:var(--mid-grey);font-size:0.74rem">mi</span>
+    <button class="loc-btn" id="apply-location">Apply</button>
+    <button class="loc-btn secondary" id="use-my-location" title="Use my current location">Use my location</button>
+    <div class="location-error" id="location-error" style="display:none"></div>
+  </div>
+  <div class="location-hint" id="location-hint">Tip: enter your postcode above to see events near you.</div>
+</div>
+
+<!-- OUT-OF-WY NOTICE (shown only when user is outside West Yorkshire) -->
+<div class="scope-notice" id="scope-notice" style="display:none"></div>
+
+<!-- WEEKEND BANNER (populated by buildWeekendBanner) -->
+<div class="weekend-banner" id="weekend-banner"></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('upcoming')">Upcoming</button>
+  <button class="tab-btn" onclick="showTab('calendar')">Calendar</button>
+  <button class="tab-btn" onclick="showTab('markets')">Festivals</button>
+  <button class="tab-btn" onclick="showTab('about')">About</button>
+  <button class="tab-btn" onclick="showTab('contact')">Contact</button>
+</div>
+
+<div class="content">
+
+<!-- ======= UPCOMING ======= -->
+<div id="tab-upcoming" class="tab-panel active">
+  <div class="data-note">
+    <strong>Data confidence:</strong> All dates sourced from official organiser websites. Always tap "Check dates" before travelling — schedules can change.
+  </div>
+  <div id="upcoming-list"></div>
+</div>
+
+<!-- ======= CALENDAR ======= -->
+<div id="tab-calendar" class="tab-panel">
+  <div class="cal-nav">
+    <button onclick="calPrev()">‹</button>
+    <span class="cal-month-title" id="cal-title"></span>
+    <button onclick="calNext()">›</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="cal-legend" id="cal-legend"></div>
+</div>
+
+<!-- ======= FESTIVALS ======= -->
+<div id="tab-markets" class="tab-panel">
+  <div id="markets-list"></div>
+</div>
+
+<!-- ======= ABOUT ======= -->
+<div id="tab-about" class="tab-panel">
+  <div class="prose-panel">
+    <h2>About WY Food</h2>
+    <p>A source-verified guide to farmers markets and food events within reach of West Yorkshire. Built so you can answer "is there a market this weekend?" in two taps, without trawling half a dozen organiser websites.</p>
+    <p>Schedules still change, though. Always confirm before travelling — every market has a "Check dates" button that links straight to the organiser's site.</p>
+    <p>This is a personal project, not an official directory. Spotted something wrong, or know a market or festival that should be on here? Drop a line via Contact.</p>
+    <p style="font-size:0.78rem;color:var(--mid-grey)">A note on privacy: when you enter a postcode, it's looked up via <a href="https://postcodes.io" target="_blank" rel="noopener">postcodes.io</a>, a free public-data service. The site itself has no analytics or tracking.</p>
+  </div>
+</div>
+
+<!-- ======= CONTACT ======= -->
+<div id="tab-contact" class="tab-panel">
+  <div class="prose-panel">
+    <h2>Contact</h2>
+    <p>Spotted a wrong date, know a market we're missing, or just want to say hello?</p>
+    <p>Email: <a href="mailto:ben@lawdy.co.uk">ben@lawdy.co.uk</a></p>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+
+<script>
+// =============================================
+// MARKET DATA — source verified April 2026
+// =============================================
+const MARKETS = [
+  {
+    id: 'horsforth',
+    name: 'Horsforth Farmers Market',
+    color: '#2d4a3e',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.8474, lng: -1.6353 },
+    recurrence: '1st Saturday',
+    times: '9am – 12:30pm',
+    location: "St Margaret's Primary School, Town Street, Horsforth, LS18 5BL",
+    mapQuery: "St Margaret's Primary School Town Street Horsforth Leeds",
+    source: 'Leeds City Council Markets',
+    sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
+    notes: 'Free to attend. Small but well-established community market.',
+    dates2026: [
+      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02',
+      '2026-06-06','2026-07-04','2026-08-01','2026-09-05','2026-10-03',
+      '2026-11-07','2026-12-05'
+    ]
+  },
+  {
+    id: 'headingley',
+    name: 'Headingley Farmers Market',
+    color: '#5c8a6e',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.8202, lng: -1.5808 },
+    recurrence: '2nd Saturday',
+    times: '9:30am – 12:30pm',
+    location: 'Rose Garden, North Lane, Headingley, LS6 3JJ',
+    mapQuery: 'Rose Garden North Lane Headingley Leeds',
+    source: 'Leeds City Council Markets',
+    sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
+    notes: 'Over 20 food stalls in season. Brings in plants in spring/summer.',
+    dates2026: [
+      '2026-01-10','2026-02-14','2026-03-14','2026-04-11','2026-05-09',
+      '2026-06-13','2026-07-11','2026-08-08','2026-09-12','2026-10-10',
+      '2026-11-14','2026-12-12'
+    ]
+  },
+  {
+    id: 'oakwood',
+    name: 'Oakwood Farmers Market',
+    color: '#8b6f47',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.8260, lng: -1.5117 },
+    recurrence: '3rd Saturday only',
+    times: '9am – 12:30pm',
+    location: 'Oakwood Clock, Leeds, LS8',
+    mapQuery: 'Oakwood Clock Leeds LS8',
+    source: 'Oakwood Farmers Market Instagram',
+    sourceUrl: 'https://www.instagram.com/oakwoodfmarket/',
+    notes: '3rd Saturday ONLY — not 1st Saturday. Check Instagram before going.',
+    dates2026: [
+      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16',
+      '2026-06-20','2026-07-18','2026-08-15','2026-09-19','2026-10-17',
+      '2026-11-21','2026-12-19'
+    ]
+  },
+  {
+    id: 'farsley',
+    name: 'Farsley Farmers Market',
+    color: '#c4622d',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.8175, lng: -1.6748 },
+    recurrence: '4th Saturday (exc. August)',
+    times: '9:30am – 1pm',
+    location: "St John's Hall & Grounds, New Street, Farsley, LS28 5DJ",
+    mapQuery: "St John's Hall New Street Farsley Leeds",
+    source: 'Leeds City Council Markets',
+    sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
+    notes: 'No market in August.',
+    dates2026: [
+      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23',
+      '2026-06-27','2026-07-25',
+      '2026-09-26','2026-10-24','2026-11-28','2026-12-26'
+    ]
+  },
+  {
+    id: 'chapel',
+    name: 'Chapel Allerton Market',
+    color: '#d4a853',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.8270, lng: -1.5390 },
+    recurrence: '1st Sunday',
+    times: '10am – 3pm',
+    location: 'Town Centre, Chapel Allerton, Leeds',
+    mapQuery: 'Chapel Allerton town centre Leeds',
+    source: 'Reet Yorkshire Food / Visit Leeds',
+    sourceUrl: 'https://reetyorkshirefood.co.uk/pages/shows',
+    notes: 'Confirmed 1st Sunday monthly. Check organiser for winter dates.',
+    dates2026: [
+      '2026-01-04','2026-02-01','2026-03-01','2026-04-05','2026-05-03',
+      '2026-06-07','2026-07-05','2026-08-02','2026-09-06','2026-10-04',
+      '2026-11-01','2026-12-06'
+    ]
+  },
+  {
+    id: 'otley',
+    name: 'Otley Farmers Market',
+    color: '#7a9e8e',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.9050, lng: -1.6919 },
+    recurrence: 'Last Sunday + 2nd Sunday',
+    times: '9am – 1pm',
+    location: 'Otley Market Square, LS21 3AQ',
+    mapQuery: 'Otley Market Square LS21 3AQ',
+    source: 'Real Markets / Otley Town Council',
+    sourceUrl: 'https://realmarkets.co.uk/market/otley/',
+    notes: 'Now runs twice monthly — last Sunday + 2nd Sunday. Confirmed 2026 dates from Real Markets.',
+    dates2026: [
+      '2026-01-25','2026-02-22','2026-03-29','2026-04-26','2026-05-31',
+      '2026-06-28','2026-07-26','2026-08-30','2026-09-27','2026-10-25',
+      '2026-11-29',
+      '2026-02-08','2026-03-08','2026-04-12','2026-05-10','2026-06-14',
+      '2026-07-12','2026-08-09','2026-09-13','2026-10-11','2026-11-08',
+      '2026-12-13'
+    ]
+  },
+  {
+    id: 'ilkley',
+    name: 'Ilkley Real Food Market',
+    color: '#9b7bb5',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.9252, lng: -1.8266 },
+    recurrence: '1st Sunday (exc. January)',
+    times: '10am – 3pm',
+    location: 'The Grove, Ilkley, LS29',
+    mapQuery: 'The Grove Ilkley West Yorkshire',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/ilkley/',
+    notes: 'No January market. Extra festive market in December. Confirmed 2026 dates on Real Markets website.',
+    dates2026: [
+      '2026-03-01','2026-04-05','2026-05-03','2026-06-07',
+      '2026-07-05','2026-08-02','2026-09-06','2026-10-04',
+      '2026-11-01','2026-12-06','2026-12-20'
+    ]
+  },
+  {
+    id: 'harrogate',
+    name: 'Harrogate Farmers Market',
+    color: '#c4896a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.9931, lng: -1.5402 },
+    recurrence: '2nd Thursday',
+    times: '10am – 4pm',
+    location: 'Cambridge Street, Harrogate, HG1 1RW',
+    mapQuery: 'Cambridge Street Harrogate HG1 1RW',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/harrogate/',
+    notes: 'Weekday market — 2nd Thursday monthly. Confirmed dates from Real Markets.',
+    dates2026: [
+      '2026-04-09','2026-05-14','2026-06-11',
+      '2026-07-09','2026-08-13','2026-09-10','2026-10-08',
+      '2026-11-12','2026-12-17'
+    ]
+  },
+  {
+    id: 'saltaire',
+    name: 'Saltaire Farmers Market',
+    color: '#5e8aae',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.842, lng: -1.787 },
+    recurrence: '2nd Sunday (excl. Sept)',
+    times: '10am – 3pm',
+    location: 'The Promenade, Roberts Park, Saltaire, BD18',
+    mapQuery: 'Roberts Park Saltaire Shipley',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/saltaire/',
+    notes: 'Bradford district. Confirmed 2026 dates from Real Markets — Apr through Dec, no September market.',
+    dates2026: [
+      '2026-04-12','2026-05-10','2026-06-14','2026-07-12','2026-08-09',
+      '2026-10-11','2026-11-08','2026-12-13'
+    ]
+  },
+  {
+    id: 'halifax',
+    name: 'Halifax Farmers Market',
+    color: '#2d6e5e',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7235, lng: -1.8612 },
+    recurrence: '3rd Saturday',
+    times: '9am – 2pm',
+    location: 'Precinct outside Victorian Borough Market, Halifax town centre, HX1',
+    mapQuery: 'Halifax Borough Market Calderdale',
+    source: 'Calderdale Council',
+    sourceUrl: 'https://new.calderdale.gov.uk/communities/calderdale-markets/food-produce-and-craft-markets',
+    notes: 'Calderdale. Held in the precinct outside the Victorian Borough Market. Times approximate — confirm before travelling.',
+    dates2026: [
+      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16',
+      '2026-06-20','2026-07-18','2026-08-15','2026-09-19','2026-10-17',
+      '2026-11-21','2026-12-19'
+    ]
+  },
+  {
+    id: 'hebden',
+    name: 'Hebden Bridge Farmers Market',
+    color: '#b8504c',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7416, lng: -2.0140 },
+    recurrence: '1st & 3rd Sunday',
+    times: '9am – 4:30pm',
+    location: "Lees Yard, off St George's Square, Hebden Bridge, HX7 5AA",
+    mapQuery: "Hebden Bridge Market Lees Yard St George's Square",
+    source: 'Visit Calderdale',
+    sourceUrl: 'https://www.visitcalderdale.com/see-and-do/shopping/hebden-bridge-open-market/',
+    notes: 'Calderdale. Sits within the wider Hebden Bridge Open Market (Thu–Sun). Local produce focus on the 1st & 3rd Sundays.',
+    dates2026: [
+      '2026-01-04','2026-01-18','2026-02-01','2026-02-15','2026-03-01','2026-03-15',
+      '2026-04-05','2026-04-19','2026-05-03','2026-05-17','2026-06-07','2026-06-21',
+      '2026-07-05','2026-07-19','2026-08-02','2026-08-16','2026-09-06','2026-09-20',
+      '2026-10-04','2026-10-18','2026-11-01','2026-11-15','2026-12-06','2026-12-20'
+    ]
+  },
+  {
+    id: 'baildon',
+    name: 'Baildon Farmers Market',
+    color: '#6e8a4c',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.853, lng: -1.768 },
+    recurrence: '4th Saturday',
+    times: '9am – 1pm',
+    location: 'Ian Clough car park, Baildon village centre, BD17',
+    mapQuery: 'Ian Clough car park Baildon',
+    source: 'Baildon Farmers Market',
+    sourceUrl: 'https://baildonfarmersmarket.org/',
+    notes: 'Bradford district. ~30 stalls of fresh Yorkshire food. Verify any month-skipping with organiser.',
+    dates2026: [
+      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23',
+      '2026-06-27','2026-07-25','2026-08-22','2026-09-26','2026-10-24',
+      '2026-11-28','2026-12-26'
+    ]
+  },
+  {
+    id: 'bingley',
+    name: 'Bingley Farmers Market',
+    color: '#8a4c8a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.847, lng: -1.838 },
+    recurrence: '1st Saturday',
+    times: '10am – 2pm',
+    location: 'Bingley Town Square, Main Street, Bingley, BD16 2LZ',
+    mapQuery: 'Bingley Town Square BD16 2LZ',
+    source: 'Bingley Town Council',
+    sourceUrl: 'https://www.bingleytowncouncil.gov.uk/markets',
+    notes: 'Bradford district. The regular artisan market does not trade on the 1st Saturday — Farmers Market replaces it.',
+    dates2026: [
+      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02',
+      '2026-06-06','2026-07-04','2026-08-01','2026-09-05','2026-10-03',
+      '2026-11-07','2026-12-05'
+    ]
+  },
+  {
+    id: 'wakefield-rhubarb',
+    name: 'Wakefield Rhubarb Festival',
+    color: '#c43d7a',
+    eventType: 'food-festival',
+    cost: 'Free entry',
+    coords: { lat: 53.683, lng: -1.499 },
+    recurrence: 'Annual (February)',
+    times: 'Fri/Sat 10am–5pm, Sun 10am–4pm',
+    location: 'Wakefield City Centre, WF1',
+    mapQuery: 'Wakefield City Centre WF1',
+    source: 'Wakefield Council',
+    sourceUrl: 'https://experiencewakefield.co.uk/event/rhubarb-festival/',
+    notes: 'Annual three-day rhubarb festival with 50+ chalets, chef demos, live music. Free to attend; food/drink for sale.',
+    dates2026: [ '2026-02-20','2026-02-21','2026-02-22' ]
+  },
+  {
+    id: 'bradford-beer-saltaire',
+    name: 'Bradford Beer & Cider Festival (Saltaire)',
+    color: '#8a5f3d',
+    eventType: 'beer-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.839, lng: -1.790 },
+    recurrence: 'Annual (February)',
+    times: 'Various session times',
+    location: 'Victoria Hall, Saltaire, BD18',
+    mapQuery: 'Victoria Hall Saltaire',
+    source: 'CAMRA Leeds',
+    sourceUrl: 'https://leeds.camra.org.uk/viewnode.php?id=266469',
+    notes: 'CAMRA festival held at Grade II-listed Victoria Hall. ~110 cask varieties at start of each session.',
+    dates2026: [ '2026-02-26','2026-02-27','2026-02-28' ]
+  },
+  {
+    id: 'hop-city',
+    name: 'Hop City 26',
+    color: '#3d4a8e',
+    eventType: 'beer-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.792, lng: -1.547 },
+    recurrence: 'Annual (May)',
+    times: 'Various sessions',
+    location: 'Northern Monk Refectory (Old Flax Store), Marshall Street, Holbeck, Leeds, LS11',
+    mapQuery: 'Northern Monk Refectory Marshall Street Holbeck Leeds',
+    source: 'Visit Leeds',
+    sourceUrl: 'https://www.visitleeds.co.uk/whats-on/all-events/hop-city-2026/',
+    notes: '~35 breweries from around the world plus live music, street food, natural wine and cocktails.',
+    dates2026: [ '2026-05-15','2026-05-16' ]
+  },
+  {
+    id: 'gbf-harewood',
+    name: 'Great British Food Festival — Harewood House',
+    color: '#9c8030',
+    eventType: 'food-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.892, lng: -1.531 },
+    recurrence: 'Annual (May)',
+    times: 'See organiser',
+    location: 'Harewood House, Leeds, LS17 9LG',
+    mapQuery: 'Harewood House Leeds',
+    source: 'Great British Food Festival',
+    sourceUrl: 'https://greatbritishfoodfestival.com/harewood-house',
+    notes: 'Three-day food festival on the grounds of Harewood House. Tickets via organiser.',
+    dates2026: [ '2026-05-23','2026-05-24','2026-05-25' ]
+  },
+  {
+    id: 'ilkley-food',
+    name: 'Ilkley Food and Drink Festival',
+    color: '#7a3d50',
+    eventType: 'food-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.927, lng: -1.823 },
+    recurrence: 'Annual (June)',
+    times: 'See organiser',
+    location: 'East Holmes Field, Ilkley, LS29',
+    mapQuery: 'East Holmes Field Ilkley',
+    source: 'Yorkshire Food Guide',
+    sourceUrl: 'https://yorkshirefoodguide.co.uk/blog/yorkshire-food-festivals/',
+    notes: 'Two-day food and drink festival in Ilkley. Different organiser from Ilkley Real Food Market.',
+    dates2026: [ '2026-06-13','2026-06-14' ]
+  },
+  {
+    id: 'harrogate-food-stray',
+    name: 'Harrogate Food & Drink Festival (The Stray)',
+    color: '#b85a3d',
+    eventType: 'food-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.992, lng: -1.541 },
+    recurrence: 'Annual (June)',
+    times: 'See organiser',
+    location: 'The Stray, Harrogate, HG1',
+    mapQuery: 'The Stray Harrogate',
+    source: 'Harrogate Food & Drink Festival',
+    sourceUrl: 'https://harrogatefoodfestival.com/',
+    notes: 'Summer edition on The Stray. Sister event to August Ripley Castle date.',
+    dates2026: [ '2026-06-27','2026-06-28' ]
+  },
+  {
+    id: 'harrogate-food-ripley',
+    name: 'Harrogate Food & Drink Festival (Ripley Castle)',
+    color: '#a8453d',
+    eventType: 'food-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 54.039, lng: -1.563 },
+    recurrence: 'Annual (August)',
+    times: 'See organiser',
+    location: 'Ripley Castle, Ripley, near Harrogate, HG3 3AY',
+    mapQuery: 'Ripley Castle Harrogate',
+    source: 'Harrogate Food & Drink Festival',
+    sourceUrl: 'https://harrogatefoodfestival.com/',
+    notes: 'Late-summer edition at Ripley Castle. Sister event to June Stray date.',
+    dates2026: [ '2026-08-22','2026-08-23' ]
+  },
+  {
+    id: 'holmfirth-food',
+    name: 'Holmfirth Food and Drink Festival',
+    color: '#3d6e6a',
+    eventType: 'food-festival',
+    cost: 'Free entry',
+    coords: { lat: 53.572, lng: -1.787 },
+    recurrence: 'Annual (September)',
+    times: 'Sat 10am–6pm (Towngate stalls until 8pm), Sun 10am–5pm',
+    location: 'Holmfirth town centre, HD9',
+    mapQuery: 'Holmfirth town centre',
+    source: 'Holmfirth Food and Drink Festival',
+    sourceUrl: 'https://holmfirthfoodanddrink.org/',
+    notes: 'Kirklees. Free street festival with food stalls, demos and entertainment. Conflicting dates in some listings — confirm with organiser.',
+    dates2026: [ '2026-09-05','2026-09-06' ]
+  },
+  {
+    id: 'leeds-beer',
+    name: 'Leeds International Beer Festival',
+    color: '#1a3d6e',
+    eventType: 'beer-festival',
+    cost: 'Paid entry — see organiser',
+    coords: { lat: 53.823, lng: -1.604 },
+    recurrence: 'Annual (September)',
+    times: 'See organiser',
+    location: 'Kirkstall Abbey, Abbey Road, Leeds, LS5 3EH',
+    mapQuery: 'Kirkstall Abbey Leeds',
+    source: 'Leeds International Beer Festival',
+    sourceUrl: 'https://www.leedsbeer.com/',
+    notes: '13th edition (2026). Four-day craft beer festival with street food, live music. Tickets via organiser.',
+    dates2026: [ '2026-09-03','2026-09-04','2026-09-05','2026-09-06' ]
+  }
+];
+
+// =============================================
+// SHARED HELPERS
+// =============================================
+function fmtISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${da}`;
+}
+
+function haversineMiles(a, b) {
+  const R = 3958.8;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat/2)**2 +
+            Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+// =============================================
+// USER LOCATION + SCOPE
+// =============================================
+const WEST_YORKS_DISTRICTS = ['Leeds', 'Bradford', 'Wakefield', 'Kirklees', 'Calderdale'];
+const DEFAULT_LOCATION = {
+  label: 'LS16 8DE',
+  postcode: 'LS16 8DE',
+  coords: { lat: 53.866, lng: -1.582 },
+  inWestYorks: true
+};
+const LS_KEY = 'wyfood:userLocation:v2';
+const LS_RADIUS_KEY = 'wyfood:radius:v2';
+
+let userLocation = loadUserLocation();
+let userRadius = loadUserRadius();
+
+function loadUserLocation() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return { ...DEFAULT_LOCATION };
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.coords && typeof parsed.coords.lat === 'number') return parsed;
+  } catch (e) {}
+  return { ...DEFAULT_LOCATION };
+}
+function saveUserLocation() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(userLocation)); } catch (e) {}
+}
+function loadUserRadius() {
+  try {
+    const v = parseInt(localStorage.getItem(LS_RADIUS_KEY), 10);
+    if (v >= 1 && v <= 100) return v;
+  } catch (e) {}
+  return 25;
+}
+function saveUserRadius() {
+  try { localStorage.setItem(LS_RADIUS_KEY, String(userRadius)); } catch (e) {}
+}
+
+function marketsInRange() {
+  return MARKETS.map(m => ({
+    ...m,
+    distanceMi: haversineMiles(userLocation.coords, m.coords)
+  })).filter(m => m.distanceMi <= userRadius);
+}
+function fmtDistance(mi) {
+  if (mi < 10) return mi.toFixed(1) + ' mi';
+  return Math.round(mi) + ' mi';
+}
+
+async function lookupPostcode(raw) {
+  const pc = raw.trim().toUpperCase().replace(/\s+/g, '');
+  if (!/^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(pc)) {
+    throw new Error('That doesn\u2019t look like a UK postcode.');
+  }
+  const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
+  if (!r.ok) throw new Error('Postcode not found.');
+  const j = await r.json();
+  if (!j.result) throw new Error('Postcode not found.');
+  const district = j.result.admin_district || '';
+  return {
+    label: j.result.admin_district || j.result.parish || pc,
+    postcode: pc,
+    coords: { lat: j.result.latitude, lng: j.result.longitude },
+    inWestYorks: WEST_YORKS_DISTRICTS.includes(district)
+  };
+}
+
+async function lookupCoords(lat, lng) {
+  const r = await fetch(`https://api.postcodes.io/postcodes?lon=${lng}&lat=${lat}`);
+  if (!r.ok) throw new Error('Couldn\u2019t identify location.');
+  const j = await r.json();
+  const hit = j.result && j.result[0];
+  if (!hit) {
+    return {
+      label: 'Your location',
+      postcode: '',
+      coords: { lat, lng },
+      inWestYorks: false
+    };
+  }
+  const district = hit.admin_district || '';
+  return {
+    label: district || hit.parish || 'Your location',
+    postcode: hit.postcode || '',
+    coords: { lat: hit.latitude, lng: hit.longitude },
+    inWestYorks: WEST_YORKS_DISTRICTS.includes(district)
+  };
+}
+
+function setUserLocation(loc) {
+  userLocation = loc;
+  saveUserLocation();
+  syncLocationUI();
+  rebuildAllViews();
+}
+
+function setUserRadius(r) {
+  userRadius = Math.max(1, Math.min(100, r));
+  saveUserRadius();
+  syncLocationUI();
+  rebuildAllViews();
+}
+
+function syncLocationUI() {
+  document.getElementById('location-status').innerHTML =
+    `Showing events near <strong>${userLocation.label}</strong>`;
+  document.getElementById('postcode-input').value = userLocation.postcode || '';
+  document.getElementById('radius-input').value = userRadius;
+  const notice = document.getElementById('scope-notice');
+  if (!userLocation.inWestYorks) {
+    notice.innerHTML = `<strong>Heads up:</strong> WY Food currently covers West Yorkshire and the surrounding area. We'll keep showing what we have, but coverage is best for users based around West Yorks. Expanding soon.`;
+    notice.style.display = 'block';
+  } else {
+    notice.style.display = 'none';
+  }
+  const hint = document.getElementById('location-hint');
+  const onDefault = userLocation.postcode === DEFAULT_LOCATION.postcode &&
+                    userLocation.label === DEFAULT_LOCATION.label;
+  hint.classList.toggle('hidden', !onDefault);
+}
+
+function rebuildAllViews() {
+  buildWeekendBanner();
+  buildUpcoming();
+  buildCalendar();
+  buildMarkets();
+}
+
+function showLocationError(msg) {
+  const el = document.getElementById('location-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+function wireLocationControls() {
+  const apply = async () => {
+    const pc = document.getElementById('postcode-input').value;
+    const r = parseInt(document.getElementById('radius-input').value, 10);
+    if (r >= 1 && r <= 100 && r !== userRadius) {
+      userRadius = r;
+      saveUserRadius();
+    }
+    if (pc.trim()) {
+      try {
+        const loc = await lookupPostcode(pc);
+        setUserLocation(loc);
+      } catch (e) {
+        showLocationError(e.message);
+        return;
+      }
+    } else {
+      syncLocationUI();
+      rebuildAllViews();
+    }
+  };
+  document.getElementById('apply-location').addEventListener('click', apply);
+  document.getElementById('postcode-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') apply();
+  });
+  document.getElementById('radius-input').addEventListener('change', apply);
+
+  document.getElementById('use-my-location').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      showLocationError('Geolocation isn\u2019t supported in this browser.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async pos => {
+      try {
+        const loc = await lookupCoords(pos.coords.latitude, pos.coords.longitude);
+        setUserLocation(loc);
+      } catch (e) {
+        showLocationError(e.message);
+      }
+    }, () => showLocationError('Couldn\u2019t get your location.'), { timeout: 8000 });
+  });
+}
+
+// =============================================
+// WEEKEND BANNER
+// =============================================
+function buildWeekendBanner() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const day = today.getDay(); // 0=Sun, 6=Sat
+
+  const sat = new Date(today);
+  if (day === 0) sat.setDate(sat.getDate() - 1);
+  else sat.setDate(sat.getDate() + (6 - day));
+  const sun = new Date(sat); sun.setDate(sun.getDate() + 1);
+
+  const satKey = fmtISODate(sat);
+  const sunKey = fmtISODate(sun);
+
+  const satEvents = [];
+  const sunEvents = [];
+  marketsInRange().forEach(m => {
+    m.dates2026.forEach(d => {
+      if (d === satKey) satEvents.push(m);
+      else if (d === sunKey) sunEvents.push(m);
+    });
+  });
+
+  const fmtDay = d => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
+  const heading = `This weekend \u2014 ${fmtDay(sat)} &amp; ${fmtDay(sun)}`;
+
+  function renderDayGroup(label, events) {
+    if (events.length === 0) return '';
+    const eventsHtml = events.map(m => `
+      <div class="weekend-event">
+        <strong>${m.name}</strong>
+        <span>${m.times} \u00b7 ${fmtDistance(m.distanceMi)}</span>
+      </div>`).join('');
+    return `<div class="weekend-day-group">
+      <div class="weekend-day-label">${label}</div>
+      <div class="weekend-events">${eventsHtml}</div>
+    </div>`;
+  }
+
+  const satHtml = renderDayGroup(sat.toLocaleDateString('en-GB', { weekday: 'long' }), satEvents);
+  const sunHtml = renderDayGroup(sun.toLocaleDateString('en-GB', { weekday: 'long' }), sunEvents);
+
+  const noEvents = satEvents.length === 0 && sunEvents.length === 0;
+  const bodyHtml = noEvents
+    ? `<div class="weekend-event"><span style="opacity:0.85">No markets this weekend within ${userRadius} miles</span></div>`
+    : satHtml + sunHtml;
+
+  document.getElementById('weekend-banner').innerHTML = `
+    <h2>${heading}</h2>
+    ${bodyHtml}
+    <div class="weekend-note">Always confirm before travelling \u2014 tap \u201cCheck dates\u201d on any market</div>
+  `;
+}
+
+// =============================================
+// UPCOMING VIEW
+// =============================================
+function buildUpcoming() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const cutoff = new Date(today);
+  cutoff.setMonth(cutoff.getMonth() + 4);
+
+  let events = [];
+  marketsInRange().forEach(m => {
+    m.dates2026.forEach(d => {
+      const dt = new Date(d);
+      if (dt >= today && dt <= cutoff) {
+        events.push({ date: dt, market: m, dateStr: d });
+      }
+    });
+  });
+  events.sort((a,b) => a.date - b.date);
+
+  const months = {};
+  events.forEach(ev => {
+    const key = ev.date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    if (!months[key]) months[key] = [];
+    months[key].push(ev);
+  });
+
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let html = '';
+  Object.entries(months).forEach(([month, evs]) => {
+    html += `<div class="month-group"><div class="month-label">${month}</div>`;
+    evs.forEach(ev => {
+      const dayNum = ev.date.getDate();
+      const dayName = DAY_NAMES[ev.date.getDay()];
+      const m = ev.market;
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.mapQuery)}`;
+      html += `
+        <div class="event-row">
+          <div class="event-date-col">
+            <div class="event-day-num">${dayNum}</div>
+            <div class="event-day-name">${dayName}</div>
+          </div>
+          <div class="event-info">
+            <div class="event-name">
+              <span style="display:inline-block;width:10px;height:10px;background:${m.color};border-radius:50%;margin-right:5px;vertical-align:middle"></span>
+              ${m.name}
+            </div>
+            <div class="event-sub">${m.times} \u00b7 ${fmtDistance(m.distanceMi)}</div>
+          </div>
+          <div class="event-actions">
+            <a class="btn-small btn-confirm" href="${m.sourceUrl}" target="_blank">Check dates</a>
+            <a class="btn-small btn-map" href="${mapsUrl}" target="_blank">Directions</a>
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('upcoming-list').innerHTML = html;
+}
+
+// =============================================
+// CALENDAR VIEW — Mon–Sun layout
+// =============================================
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function buildCalendar() {
+  const monthName = new Date(calYear, calMonth, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  document.getElementById('cal-title').textContent = monthName;
+
+  // getDay() returns 0=Sun…6=Sat. For Mon-first layout, shift so Mon=0…Sun=6.
+  const firstDayJS = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const firstDayMon = (firstDayJS + 6) % 7; // Mon=0, Tue=1, … Sun=6
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const inRange = marketsInRange();
+  const dateMap = {};
+  inRange.forEach(m => {
+    m.dates2026.forEach(d => {
+      const dt = new Date(d);
+      if (dt.getFullYear() === calYear && dt.getMonth() === calMonth) {
+        const key = dt.getDate();
+        if (!dateMap[key]) dateMap[key] = [];
+        dateMap[key].push(m);
+      }
+    });
+  });
+
+  // Mon-first headers
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = days.map(d => `<div class="cal-header-cell">${d}</div>`).join('');
+
+  // Leading empty cells (Mon-first offset)
+  for (let i = 0; i < firstDayMon; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const isToday = (new Date(calYear, calMonth, day).getTime() === today.getTime());
+    html += `<div class="cal-cell${isToday?' today':''}" onclick="selectCalDay(${day})">
+      <div class="cal-day-num">${day}</div>
+      <div class="cal-dots">`;
+    if (dateMap[day]) {
+      dateMap[day].forEach(m => {
+        html += `<div class="cal-dot" style="background:${m.color}"></div>`;
+      });
+    }
+    html += `</div></div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+  const legend = document.getElementById('cal-legend');
+  legend.classList.remove('visible');
+  legend.innerHTML = '';
+}
+
+function selectCalDay(day) {
+  document.querySelectorAll('#cal-grid .cal-cell.selected').forEach(c => c.classList.remove('selected'));
+  const grid = document.getElementById('cal-grid');
+  const firstDayJS = new Date(calYear, calMonth, 1).getDay();
+  const firstDayMon = (firstDayJS + 6) % 7;
+  const cellIndex = firstDayMon + day - 1 + 7;
+  const cell = grid.children[cellIndex];
+  if (cell) cell.classList.add('selected');
+
+  const inRange = marketsInRange();
+  const dateKey = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+  const dayMarkets = inRange.filter(m => m.dates2026.includes(dateKey));
+
+  const legend = document.getElementById('cal-legend');
+  const dateLabel = new Date(calYear, calMonth, day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  if (dayMarkets.length === 0) {
+    legend.innerHTML = '<div class="cal-legend-heading">' + dateLabel + '</div><span style="color:var(--mid-grey);font-size:0.82rem">No markets on this day</span>';
+  } else {
+    const items = dayMarkets.map(m =>
+      '<div class="legend-item">' +
+        '<div class="legend-dot" style="background:' + m.color + '"></div>' +
+        '<div class="legend-item-detail">' +
+          '<div class="legend-item-name">' + m.name + '</div>' +
+          '<div class="legend-item-times">' + m.times + ' \u00b7 ' + m.location.split(',')[0] + '</div>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+    legend.innerHTML = '<div class="cal-legend-heading">' + dateLabel + '</div>' + items;
+  }
+  legend.classList.add('visible');
+}
+
+function calPrev() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  buildCalendar();
+}
+function calNext() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  buildCalendar();
+}
+
+// =============================================
+// FESTIVALS VIEW — food + beer festivals only
+// =============================================
+function buildMarkets() {
+  const festivalTypes = ['food-festival', 'beer-festival'];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const inRange = marketsInRange()
+    .filter(m => festivalTypes.includes(m.eventType))
+    .filter(m => m.dates2026.some(d => new Date(d) >= today))
+    .sort((a,b) => {
+      // Sort by next upcoming date, then distance
+      const aNext = m => m.dates2026.map(d => new Date(d)).filter(d => d >= today).sort((x,y) => x-y)[0];
+      const an = aNext(a), bn = aNext(b);
+      if (an && bn && an.getTime() !== bn.getTime()) return an - bn;
+      return a.distanceMi - b.distanceMi;
+    });
+
+  if (inRange.length === 0) {
+    document.getElementById('markets-list').innerHTML =
+      `<div class="data-note">No festivals within ${userRadius} miles of your location. Try increasing the radius.</div>`;
+    return;
+  }
+
+  let html = '';
+  inRange.forEach(m => {
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.mapQuery)}`;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const next = m.dates2026
+      .map(d => new Date(d))
+      .filter(d => d >= today)
+      .sort((a,b) => a-b)[0];
+    const nextStr = next
+      ? next.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})
+      : 'No more 2026 dates';
+
+    html += `
+      <div class="market-card" id="mc-${m.id}">
+        <div class="market-card-header" onclick="toggleCard('${m.id}')">
+          <div class="market-dot-large" style="background:${m.color}"></div>
+          <div style="flex:1">
+            <div class="market-card-title">${m.name}</div>
+            <div class="market-card-when">Next: ${nextStr} \u00b7 ${fmtDistance(m.distanceMi)}</div>
+          </div>
+          <div class="market-chevron">\u25bc</div>
+        </div>
+        <div class="market-card-body">
+          <div class="market-detail-row"><span class="market-detail-label">When</span><span class="market-detail-val">${m.recurrence} \u00b7 ${m.times}</span></div>
+          <div class="market-detail-row"><span class="market-detail-label">Where</span><span class="market-detail-val">${m.location}</span></div>
+          ${m.cost && m.cost !== 'Free' ? `<div class="market-detail-row"><span class="market-detail-label">Cost</span><span class="market-detail-val">${m.cost}</span></div>` : ''}
+          <div class="market-detail-row"><span class="market-detail-label">Note</span><span class="market-detail-val">${m.notes}</span></div>
+          <div class="market-detail-row"><span class="market-detail-label">Source</span><span class="market-detail-val">${m.source}</span></div>
+          <div class="market-card-actions">
+            <a class="btn-medium btn-confirm" href="${m.sourceUrl}" target="_blank">Check dates \u2197</a>
+            <a class="btn-medium btn-map" href="${mapsUrl}" target="_blank">Directions \u2197</a>
+          </div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('markets-list').innerHTML = html;
+}
+
+function toggleCard(id) {
+  document.getElementById('mc-'+id).classList.toggle('expanded');
+}
+
+// =============================================
+// TABS
+// =============================================
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// =============================================
+// INIT
+// =============================================
+syncLocationUI();
+wireLocationControls();
+buildWeekendBanner();
+buildUpcoming();
+buildCalendar();
+buildMarkets();
+</script>
+</body>
+</html>
