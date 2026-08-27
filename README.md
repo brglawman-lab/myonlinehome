@@ -4,10 +4,15 @@ Source for **myonlinehome.co.uk** — Ben Lawman's personal site.
 
 ## Repository layout
 
-    public/      everything served as a static file (this is the Pages build output directory)
-    functions/   Cloudflare Pages Functions — the API. MUST stay outside public/,
-                 otherwise Pages serves the source as text instead of running it.
-    db/          schema.sql and the Cloudflare setup instructions (not served)
+    wrangler.toml   Worker config — assets directory, D1 binding
+    src/            the Worker: src/index.js routes, src/api.js handles
+    public/         everything served as a static file
+    db/             schema.sql and the Cloudflare setup instructions (not served)
+
+This is a **Worker with static assets**, not a classic Pages project. There is
+no "build output directory" setting and the Pages `functions/` convention does
+not apply — routing is in `src/index.js`. The dashboard deploy command is
+`npx wrangler deploy`, which reads `wrangler.toml`.
 
 ## URL layout
 

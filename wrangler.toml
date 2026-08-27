@@ -1,0 +1,26 @@
+# Cloudflare Worker config. `npx wrangler deploy` (the deploy command set in the
+# dashboard) reads this file on every push.
+#
+# This project is a Worker with static assets — NOT a classic Pages project.
+# That means there is no "build output directory" setting and the Pages
+# `functions/` convention does not apply. Routing lives in src/index.js.
+
+name = "myonlinehome"
+main = "src/index.js"
+compatibility_date = "2026-08-26"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+
+# Static assets are matched first. Anything with no matching file — /api/…,
+# /private/api/… — falls through to the Worker in src/index.js.
+
+# Uncomment once the D1 database exists (db/SETUP.md step 1) and paste its id.
+# Until then env.DB is undefined and the API answers 503 rather than crashing.
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "myonlinehome"
+# database_id = "PASTE_DATABASE_ID_HERE"

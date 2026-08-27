@@ -20,19 +20,18 @@ and `recipes`.
 
 ## 3. Bind the database to the site
 
-Pages project **myonlinehome** → **Settings** → **Functions** → **D1 database
-bindings** → **Add binding**.
+This project is a **Worker with static assets**, not a classic Pages project,
+so the binding lives in `wrangler.toml` at the repo root rather than in the
+dashboard. Uncomment the block at the bottom of that file and paste in the
+Database ID from step 1:
 
-| Field | Value |
-|---|---|
-| Variable name | `DB` |
-| D1 database | `myonlinehome` |
+    [[d1_databases]]
+    binding = "DB"
+    database_name = "myonlinehome"
+    database_id = "<the id from step 1>"
 
-The variable name must be exactly `DB` — that is what the code reads.
-
-Add it for **Production** (and Preview, if you want previews to work). Then
-redeploy, because bindings only attach on a new deployment: Deployments →
-latest → **Retry deployment**.
+The binding name must be exactly `DB` — that is what the code reads. Pushing
+the change redeploys automatically.
 
 Sanity check: <https://myonlinehome.co.uk/api/sightings> should return `[]`
 rather than an error.
