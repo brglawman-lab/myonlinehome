@@ -1,0 +1,20 @@
+# NOT active — renamed to .example on purpose.
+# A real wrangler.toml at the repo root would OVERRIDE the Pages dashboard
+# settings, and the placeholder database_id below would break the deploy.
+# Use the dashboard binding (db/SETUP.md step 3) instead, or fill in the real
+# id here and rename it to wrangler.toml at the root.
+
+# Cloudflare Pages project config.
+# The D1 binding can be set here or in the dashboard
+# (Pages project → Settings → Functions → D1 database bindings).
+# Whichever you use, the binding name must be DB — that is what the
+# functions in /functions read from `env.DB`.
+
+name = "myonlinehome"
+compatibility_date = "2026-08-27"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "myonlinehome"
+database_id = "REPLACE_WITH_DATABASE_ID"

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private — My Online Home</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.6; padding:3rem 1.5rem; }
+  .wrap { max-width:620px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.5rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:2.5rem; }
+  .box { background:var(--warm-white); border:1px solid var(--border); border-radius:14px;
+         padding:1.5rem; margin-bottom:1rem; }
+  .box h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.2rem; color:var(--forest);
+            margin-bottom:0.4rem; }
+  .box p { font-size:0.92rem; color:var(--mid-grey); }
+  .stat { font-size:2rem; font-weight:500; color:var(--forest); font-family:'Playfair Display',serif; }
+  a.home { display:inline-block; margin-top:2rem; color:var(--rust); text-decoration:none;
+           font-size:0.9rem; }
+  code { background:rgba(45,74,62,0.07); padding:1px 5px; border-radius:4px; font-size:0.85em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Private</h1>
+  <p class="sub">You're signed in. This area is only reachable by the email addresses on the Access policy.</p>
+
+  <div class="box">
+    <h2>Sightings in the database</h2>
+    <p class="stat" id="count">…</p>
+    <p id="latest"></p>
+  </div>
+
+  <div class="box">
+    <h2>What this page is for</h2>
+    <p>A landing spot behind the login, and a quick check that the database is
+       reachable. Anything that shouldn't be public goes under <code>/private/</code>.</p>
+  </div>
+
+  <a class="home" href="/">&larr; Back to the site</a>
+</div>
+
+<script>
+fetch('/api/sightings')
+  .then(r => r.json())
+  .then(d => {
+    if (!Array.isArray(d)) throw new Error(d.error || 'unexpected response');
+    document.getElementById('count').textContent = d.length;
+    const l = d[0];
+    document.getElementById('latest').textContent = l
+      ? 'Most recent: ' + l.date + (l.locationName ? ' — ' + l.locationName : '')
+      : 'Nothing logged yet.';
+  })
+  .catch(e => {
+    document.getElementById('count').textContent = '—';
+    document.getElementById('latest').textContent = 'Could not reach the database: ' + e.message;
+  });
+</script>
+</body>
+</html>
