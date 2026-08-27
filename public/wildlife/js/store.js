@@ -137,7 +137,12 @@ const Store = (() => {
       status.needsSignIn = false;
       status.lastError = null;
     } catch (e) {
-      status.needsSignIn = Boolean(e.needsSignIn);
+      // A cross-origin redirect to the Access login page surfaces as a
+      // TypeError, not a response we can read. If we are online and a write
+      // failed at the network level, the cause is almost always a missing
+      // Access session.
+      const networkLevel = e instanceof TypeError;
+      status.needsSignIn = Boolean(e.needsSignIn) || (navigator.onLine && networkLevel);
       status.lastError = e.message;
       console.warn("Sync failed, keeping changes queued.", e);
     }
@@ -169,8 +174,9 @@ const Store = (() => {
     const plural = n === 1 ? "change" : "changes";
     if (status.needsSignIn) {
       el.innerHTML =
-        `<strong style="color:#c4622d">${n} ${plural} not yet saved</strong><br>` +
-        `Saved on this device. <a href="/private/" style="color:#2d4a3e">Sign in</a> to sync.`;
+        `<strong style="color:#c4622d">${n} ${plural} saved on this device</strong><br>` +
+        `<a href="/private/" style="color:#2d4a3e" target="_blank" rel="noopener">Sign in</a>` +
+        ` to sync ${n === 1 ? "it" : "them"} to the database.`;
     } else if (!navigator.onLine) {
       el.innerHTML = `<strong>Offline</strong><br>${n} ${plural} will sync when you're back online.`;
     } else {
