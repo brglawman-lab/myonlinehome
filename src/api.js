@@ -80,8 +80,8 @@ export async function listCustomSpecies(env) {
 /* ---------- writes ---------- */
 
 export async function createSightings(request, env) {
-  if (!env.DB) return noDb();
   if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
 
   let body;
   try {
@@ -141,8 +141,8 @@ export async function createSightings(request, env) {
 }
 
 export async function deleteSighting(request, env, id) {
-  if (!env.DB) return noDb();
   if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
   if (!id) return json({ error: "Missing id" }, 400);
 
   const res = await env.DB.prepare(
@@ -155,8 +155,8 @@ export async function deleteSighting(request, env, id) {
 }
 
 export async function createCustomSpecies(request, env) {
-  if (!env.DB) return noDb();
   if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
 
   let body;
   try {
