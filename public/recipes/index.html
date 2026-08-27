@@ -845,6 +845,7 @@ function confirmDelete(id) {
 function closeAdd(e) {
   if (!e || e.target === document.getElementById('addOverlay')) {
     document.getElementById('addOverlay').classList.remove('open');
+    editingId = null;   // abandoning an edit must not leave the form armed
   }
 }
 function saveRecipe() {
