@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef Claude — Meal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --red: #8B2E2E; --red-light: #F5EAEA;
+    --amber: #8B5E1A; --amber-light: #FBF2E3;
+    --blue: #1A3D6B; --blue-light: #E8EEF5;
+    --teal: #1A5050; --teal-light: #E5F0F0;
+    --pink: #6B2A4A; --pink-light: #F5EAF0;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* ---- header, matched to the recipe book ---- */
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+  .menu-wrap { position: relative; flex-shrink: 0; }
+  .menu-btn { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; }
+  .menu-btn:hover { background: var(--surface2); }
+  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.09); padding: 5px; z-index: 60; }
+  .menu-dropdown.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; text-decoration: none; transition: background 0.15s; }
+  .menu-item:hover { background: var(--surface2); }
+  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  .header-right { flex-shrink: 0; }
+  .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
+  .ghost-link:hover { background: var(--surface2); color: var(--text); }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+
+  /* ---- intro ---- */
+  .intro { margin-bottom: 1.75rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
+  .intro p { color: var(--text-muted); max-width: 62ch; }
+
+  /* ---- controls ---- */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.25rem 1.35rem; margin-bottom: 1.75rem; }
+  .panel-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.6rem; }
+  .course-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.1rem; }
+  .toggle { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); font-size: 14px; color: var(--text-muted); cursor: pointer; user-select: none; transition: all 0.14s; }
+  .toggle:hover { border-color: var(--border-strong); color: var(--text); }
+  .toggle.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+  .toggle .tick { width: 13px; height: 13px; }
+  .toggle.on .tick { opacity: 1; }
+  .toggle .tick { opacity: 0.35; }
+  .toggle.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .options-row { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: flex-end; }
+  .opt { display: flex; flex-direction: column; gap: 5px; }
+  .opt label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+  select { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; cursor: pointer; min-width: 170px; }
+  select:focus { border-color: var(--border-strong); background: #fff; }
+  .checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-muted); cursor: pointer; user-select: none; padding-bottom: 9px; }
+  .checkbox input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  .spacer { flex: 1; }
+  .generate-btn { padding: 11px 26px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .generate-btn:hover { opacity: 0.88; }
+  .generate-btn:disabled { opacity: 0.45; cursor: default; }
+
+  /* ---- meal ---- */
+  .meal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .meal-summary { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+  .text-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--accent); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .text-btn:hover { opacity: 0.75; }
+
+  .course-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; margin-bottom: 12px; }
+  .course-card.locked { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-light); }
+  .course-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+  .course-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; }
+  .course-meta { font-size: 12px; color: var(--text-faint); }
+  .course-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; line-height: 1.25; margin-bottom: 4px; }
+  .course-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 8px; }
+  .why { font-size: 13px; color: var(--accent-text); background: var(--accent-light); border-radius: var(--radius); padding: 7px 10px; margin-bottom: 10px; display: inline-block; }
+  .why.neutral { color: var(--text-muted); background: var(--surface2); }
+  .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mini-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.14s; }
+  .mini-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .mini-btn.is-on { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+  .empty-note { text-align: center; padding: 3.5rem 1.5rem; color: var(--text-muted); font-style: italic; background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); }
+  .warn { background: var(--surface2); color: var(--text-muted); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+
+  /* ---- modal ---- */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,23,20,0.45); z-index: 100; padding: 2rem 1rem; overflow-y: auto; }
+  .modal-overlay.open { display: block; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); max-width: 720px; margin: 0 auto; padding: 2rem; position: relative; }
+  .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; line-height: 1; padding: 4px 8px; border-radius: var(--radius); }
+  .modal-close:hover { background: var(--surface2); color: var(--text); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 27px; font-weight: 400; line-height: 1.2; margin-bottom: 0.35rem; padding-right: 2rem; }
+  .modal .m-meta { font-size: 13px; color: var(--text-faint); margin-bottom: 1.1rem; }
+  .modal h3 { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin: 1.4rem 0 0.6rem; }
+  .ing-line { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .ing-line .amt { color: var(--text-muted); }
+  .steps { padding-left: 1.15rem; }
+  .steps li { margin-bottom: 0.7rem; font-size: 14px; }
+  .note-box { background: var(--surface2); border-radius: var(--radius); padding: 12px 14px; font-size: 13.5px; color: var(--text-muted); margin-top: 0.5rem; white-space: pre-wrap; }
+  .list-group { margin-bottom: 1.5rem; }
+  .list-group h4 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; margin-bottom: 0.4rem; }
+
+  .loading { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+
+  @media (max-width: 640px) {
+    .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .header-inner { gap: 0.75rem; }
+    .header-right { display: none; }   /* the menu already leads back to the book */
+    .intro h1 { font-size: 27px; }
+    .options-row { flex-direction: column; align-items: stretch; }
+    .opt, select { width: 100%; }
+    .generate-btn { width: 100%; }
+    .ing-line { grid-template-columns: 88px 1fr; gap: 8px; }
+    .modal { padding: 1.5rem 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="menu-wrap">
+      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
+        <span>Meal Builder</span>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="menu-dropdown" id="mainMenuDropdown">
+        <a class="menu-item" href="/recipes/">Recipes</a>
+        <a class="menu-item active" href="/recipes/combinator/">Meal Builder</a>
+      </div>
+    </div>
+    <div class="logo">Chef <span>Claude</span></div>
+    <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="intro">
+    <h1>Meal Builder</h1>
+    <p>Pick the courses you want and it puts a meal together out of the recipe book — matching things that actually belong on the same table. Shawarma roast chicken comes with yogurt flatbreads and hummus, not dauphinois.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label">Courses</div>
+    <div class="course-toggles" id="courseToggles"></div>
+    <div class="options-row">
+      <div class="opt">
+        <label for="mood">Mood</label>
+        <select id="mood"></select>
+      </div>
+      <div class="opt">
+        <label for="anchor">Build around</label>
+        <select id="anchor"></select>
+      </div>
+      <label class="checkbox"><input type="checkbox" id="quick"> Nothing over 45 minutes</label>
+      <label class="checkbox"><input type="checkbox" id="noAlcohol"> Alcohol-free drinks</label>
+      <div class="spacer"></div>
+      <button class="generate-btn" id="generateBtn" onclick="generate()" disabled>Build a meal</button>
+    </div>
+  </div>
+
+  <div id="output"><div class="loading">Reading the recipe book…</div></div>
+</main>
+
+<div class="modal-overlay" id="detailOverlay" onclick="closeModal(event)">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<script>
+/* ===========================================================================
+ * Chef Claude — Meal Builder
+ *
+ * The recipe book stays the single source of truth. This page fetches
+ * /recipes/ and lifts DEFAULT_RECIPES and the cocktail list straight out of
+ * it, then merges the database overlay the same way the recipe book does, so
+ * anything Ben adds or edits on the site shows up here too.
+ *
+ * What lives here and nowhere else is MEAL_TAGS: the course role, cuisine and
+ * signature pairings for each recipe. A recipe with no entry still works — it
+ * falls back to its section for a role and pairs as "neutral".
+ * ======================================================================== */
+
+/* --- course roles ------------------------------------------------------- */
+const COURSES = [
+  { id: 'starter', label: 'Starter',  color: 'teal',  on: false },
+  { id: 'main',    label: 'Main',     color: 'red',   on: true  },
+  { id: 'side',    label: 'Side',     color: 'accent',on: true  },
+  { id: 'bread',   label: 'Bread',    color: 'amber', on: false },
+  { id: 'sweet',   label: 'Something sweet', color: 'pink', on: false },
+  { id: 'drink',   label: 'Drink',    color: 'blue',  on: true  },
+];
+const COURSE_TINT = {
+  teal:   'background:var(--teal-light);color:var(--teal);',
+  red:    'background:var(--red-light);color:var(--red);',
+  accent: 'background:var(--accent-light);color:var(--accent-text);',
+  amber:  'background:var(--amber-light);color:var(--amber);',
+  pink:   'background:var(--pink-light);color:var(--pink);',
+  blue:   'background:var(--blue-light);color:var(--blue);',
+};
+
+/* --- cuisines and how well they sit together ---------------------------- */
+const CUISINE_LABEL = {
+  british: 'British', french: 'French', american: 'American', mexican: 'Mexican',
+  levantine: 'Middle Eastern', spanish: 'Spanish', italian: 'Italian',
+  asian: 'Asian', med: 'Mediterranean', neutral: 'goes with anything',
+};
+const AFFINITY = {
+  british:   { british:3, french:2, american:2, neutral:2, med:1, italian:1 },
+  french:    { french:3, british:2, american:2, neutral:2, med:2, italian:1, spanish:1 },
+  american:  { american:3, british:2, mexican:2, neutral:2, french:1 },
+  mexican:   { mexican:3, american:2, neutral:2, spanish:1 },
+  spanish:   { spanish:3, med:2, neutral:2, italian:1, mexican:1, french:1 },
+  italian:   { italian:3, med:2, neutral:2, french:1, spanish:1 },
+  levantine: { levantine:3, med:2, neutral:2, spanish:1 },
+  med:       { med:3, levantine:2, spanish:2, italian:2, french:2, neutral:2, british:1 },
+  asian:     { asian:3, neutral:2 },
+  neutral:   { neutral:2, british:2, french:2, american:2, mexican:2, spanish:2, italian:2, levantine:2, med:2, asian:2 },
+};
+function affinity(a, b) {
+  if (!a || !b) return 1;
+  const x = (AFFINITY[a] && AFFINITY[a][b]) || 0;
+  const y = (AFFINITY[b] && AFFINITY[b][a]) || 0;
+  return Math.max(x, y);
+}
+
+/* --- the tag table ------------------------------------------------------
+ * roles      which courses a recipe can fill
+ * cuisine    used for the affinity matrix above
+ * hasBread   the dish already comes in bread, so no bread course is offered
+ * whole      a complete plate on its own — a side is optional, not required
+ * family     starch or base — two dishes from the same family never meet
+ * avoid      never put these two on the same table
+ * ---------------------------------------------------------------------- */
+const MEAL_TAGS = {
+  'baked-mac-cheese':                  { roles:['main','side'], cuisine:'american', family:'pasta' },
+  'kewpie-prawn-baguette':             { roles:['main'], cuisine:'neutral', hasBread:true, family:'prawn' },
+  'salmon-rice-bowls':                 { roles:['main'], cuisine:'asian', whole:true, family:'rice' },
+  'thomas-straker-salmon-slaw':        { roles:['main'], cuisine:'neutral' },
+  'beef-short-rib':                    { roles:['main'], cuisine:'french', whole:true, family:'potato' },
+  'gambas-al-ajillo':                  { roles:['starter'], cuisine:'spanish', family:'prawn' },
+  'cajun-chicken-nachos':              { roles:['main','starter'], cuisine:'american', family:'cajun-chicken' },
+  'sundried-tomato-chickpea-stew':     { roles:['main'], cuisine:'med' },
+  'red-pepper-pepperoni-orzotto':      { roles:['main'], cuisine:'italian', whole:true, family:'pasta' },
+  'smashed-potatoes-pancetta-raclette':{ roles:['side','main'], cuisine:'french', family:'potato' },
+  'leek-potato-soup':                  { roles:['starter'], cuisine:'french' },
+  'roast-beef-christmas':              { roles:['main'], cuisine:'british' },
+  'spiced-red-cabbage':                { roles:['side'], cuisine:'british' },
+  'pork-belly-carnitas':               { roles:['main'], cuisine:'mexican', hasBread:true },
+  'chorizo-al-vino':                   { roles:['main','starter'], cuisine:'spanish', family:'potato' },
+  'chipotle-black-bean-halloumi-tacos':{ roles:['main'], cuisine:'mexican', hasBread:true },
+  'creamy-harissa-butter-beans':       { roles:['main','side'], cuisine:'levantine' },
+  'spicy-bean-enchiladas':             { roles:['main'], cuisine:'mexican' },
+  'cajun-chicken-wraps':               { roles:['main'], cuisine:'american', hasBread:true, family:'cajun-chicken' },
+  'steak-peppercorn':                  { roles:['main'], cuisine:'french' },
+  'dauphinois':                        { roles:['side'], cuisine:'french', family:'potato' },
+  'mash':                              { roles:['side'], cuisine:'british', family:'potato' },
+  'hash-browns':                       { roles:['side'], cuisine:'american', family:'potato' },
+  'roasties':                          { roles:['side'], cuisine:'british', family:'potato' },
+  'pad-thai':                          { roles:['main'], cuisine:'asian', whole:true, family:'noodles', avoid:['coconut-rice'] },
+  'dirty-wedges':                      { roles:['side'], cuisine:'american', family:'potato' },
+  'cheesy-bean-burritos':              { roles:['main'], cuisine:'mexican', hasBread:true },
+  'lemon-drizzle':                     { roles:['sweet'], cuisine:'neutral' },
+  'wild-salmon-beetroot-labneh':       { roles:['main'], cuisine:'levantine' },
+  'chicken-caesar':                    { roles:['main'], cuisine:'american', whole:true },
+  'shawarma-roast-chicken':            { roles:['main'], cuisine:'levantine' },
+  'yogurt-flatbreads':                 { roles:['bread','side'], cuisine:'levantine' },
+  'thomas-straker-burgers':            { roles:['main'], cuisine:'american', hasBread:true },
+  'gruyere-dijon-palmiers':            { roles:['starter'], cuisine:'french' },
+  'tahini-soy-mushroom-bagel':         { roles:['starter'], cuisine:'asian' },
+  'coconut-rice':                      { roles:['side'], cuisine:'asian', family:'rice' },
+  'rhubarb-shrub':                     { roles:['drink'], cuisine:'neutral' },
+  'caramelised-asian-pulled-pork':     { roles:['main'], cuisine:'asian' },
+  'rump-steak-ciabatta':               { roles:['main'], cuisine:'neutral', hasBread:true },
+  'black-bean-cheddar-quesadillas':    { roles:['starter','main'], cuisine:'mexican' },
+  'creamed-spinach':                   { roles:['side'], cuisine:'american' },
+  'bbq-corn-smoky-garlic-butter':      { roles:['side'], cuisine:'american', family:'corn' },
+  'grilled-herb-chicken-sandwich':     { roles:['main'], cuisine:'med', hasBread:true },
+  'classic-pizza-dough':               { roles:['bread'], cuisine:'italian' },
+  'sirloin-baguette-caramelised-onion':{ roles:['main'], cuisine:'french', hasBread:true },
+  'tuna-cannellini-bean-salad':        { roles:['starter','side'], cuisine:'italian' },
+  'cheese-stuffed-arepas':             { roles:['bread','side','starter'], cuisine:'mexican' },
+  'roast-tomato-whipped-feta-toast':   { roles:['starter'], cuisine:'med' },
+  'bbq-salmon-dill-creme-fraiche':     { roles:['main'], cuisine:'neutral' },
+  'gambas-pil-pil-bbq':                { roles:['starter'], cuisine:'spanish', family:'prawn' },
+  'bbq-corn-chipotle-lime-butter':     { roles:['side'], cuisine:'mexican', family:'corn' },
+  'bbq-courgettes-asparagus':          { roles:['side'], cuisine:'neutral' },
+  'smooth-hummus':                     { roles:['starter','side'], cuisine:'levantine' },
+};
+
+/* Pairings worth naming — the ones that are obviously right rather than
+ * merely compatible. Keyed on the main. */
+const SIGNATURE = {
+  'shawarma-roast-chicken':            ['yogurt-flatbreads','smooth-hummus','bbq-courgettes-asparagus','roast-tomato-whipped-feta-toast'],
+  'creamy-harissa-butter-beans':       ['yogurt-flatbreads','smooth-hummus'],
+  'sundried-tomato-chickpea-stew':     ['yogurt-flatbreads','smooth-hummus'],
+  'wild-salmon-beetroot-labneh':       ['smooth-hummus','yogurt-flatbreads','bbq-courgettes-asparagus'],
+  'steak-peppercorn':                  ['dauphinois','creamed-spinach','mash'],
+  'roast-beef-christmas':              ['roasties','spiced-red-cabbage','dauphinois','creamed-spinach'],
+  'beef-short-rib':                    ['spiced-red-cabbage','creamed-spinach','bbq-courgettes-asparagus'],
+  'thomas-straker-burgers':            ['dirty-wedges','hash-browns','bbq-corn-smoky-garlic-butter'],
+  'caramelised-asian-pulled-pork':     ['coconut-rice'],
+  'pork-belly-carnitas':               ['bbq-corn-chipotle-lime-butter','cheese-stuffed-arepas','black-bean-cheddar-quesadillas'],
+  'chipotle-black-bean-halloumi-tacos':['bbq-corn-chipotle-lime-butter','smooth-hummus'],
+  'spicy-bean-enchiladas':             ['bbq-corn-chipotle-lime-butter','cheese-stuffed-arepas'],
+  'cheesy-bean-burritos':              ['bbq-corn-chipotle-lime-butter','dirty-wedges'],
+  'bbq-salmon-dill-creme-fraiche':     ['bbq-corn-smoky-garlic-butter','bbq-courgettes-asparagus','smashed-potatoes-pancetta-raclette'],
+  'grilled-herb-chicken-sandwich':     ['dirty-wedges','bbq-courgettes-asparagus'],
+  'rump-steak-ciabatta':               ['dirty-wedges','hash-browns'],
+  'sirloin-baguette-caramelised-onion':['dirty-wedges','hash-browns'],
+  'cajun-chicken-nachos':              ['bbq-corn-chipotle-lime-butter'],
+  'cajun-chicken-wraps':               ['dirty-wedges','bbq-corn-smoky-garlic-butter'],
+  'red-pepper-pepperoni-orzotto':      ['bbq-courgettes-asparagus'],
+  'baked-mac-cheese':                  ['bbq-courgettes-asparagus','creamed-spinach'],
+  'thomas-straker-salmon-slaw':        ['smashed-potatoes-pancetta-raclette','bbq-courgettes-asparagus'],
+  'chorizo-al-vino':                   ['bbq-courgettes-asparagus','gambas-al-ajillo'],
+  'kewpie-prawn-baguette':             ['hash-browns'],
+  'smashed-potatoes-pancetta-raclette':['bbq-courgettes-asparagus'],
+};
+
+/* Which spirits belong to which table. Anything unlisted is neutral. */
+const SPIRIT_CUISINE = {
+  tequila: 'mexican', mezcal: 'mexican', cachaça: 'mexican', cachaca: 'mexican',
+  gin: 'british', bourbon: 'american', whisky: 'british', whiskey: 'american', scotch: 'british',
+  brandy: 'french', cognac: 'french', 'cherry brandy': 'french',
+  campari: 'italian', amaretto: 'italian', sarti: 'italian', 'sarti rosa': 'italian',
+  rum: 'neutral', vodka: 'neutral', kahlúa: 'neutral', kahlua: 'neutral', baileys: 'neutral',
+  chartreuse: 'french', 'benedictine': 'french', peach: 'neutral', everything: 'neutral', brennivín: 'neutral',
+};
+
+const PROTEIN_SECTIONS = ['chicken', 'beef', 'pork', 'fish'];
+
+/* --- fallback role by recipe-book section ------------------------------- */
+const SECTION_ROLES = {
+  starters: ['starter'], fish: ['main'], beef: ['main'], pork: ['main'],
+  chicken: ['main'], veg: ['main','side'], sides: ['side'],
+  baking: ['sweet'], 'soft-drinks': ['drink'],
+};
+
+/* ===========================================================================
+ * Loading the library
+ * ======================================================================== */
+let RECIPES = [];
+let COCKTAILS = [];
+let loadError = null;
+
+function extractArray(html, marker) {
+  const at = html.indexOf(marker);
+  if (at < 0) return null;
+  const open = at + marker.length - 1;          // the '[' itself
+  const close = html.indexOf('\n];', open);
+  if (close < 0) return null;
+  try { return (new Function('return ' + html.slice(open, close + 2) + ';'))(); }
+  catch (e) { console.warn('Could not parse ' + marker, e); return null; }
+}
+
+function mergeById(base, overlay) {
+  const map = new Map(base.map(r => [r.id, r]));
+  for (const r of overlay) map.set(r.id, r);
+  return [...map.values()];
+}
+
+async function loadLibrary() {
+  let html = '';
+  try {
+    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    html = await res.text();
+  } catch (e) {
+    loadError = 'Could not read the recipe book.';
+    return;
+  }
+  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
+  const drinks = extractArray(html, 'const drinks = [');
+  if (!seed) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
+  COCKTAILS = drinks || [];
+
+  // Same overlay the recipe book uses: the database wins by id, and deleted
+  // ids are filtered out so nothing the seed still holds comes back to life.
+  let merged = seed;
+  try {
+    const [a, b] = await Promise.all([
+      fetch('/api/recipes', { cache: 'no-store' }),
+      fetch('/api/recipes/deleted', { cache: 'no-store' })
+    ]);
+    if (a.ok) { const j = await a.json(); if (Array.isArray(j)) merged = mergeById(merged, j); }
+    if (b.ok) { const j = await b.json(); if (Array.isArray(j)) { const gone = new Set(j); merged = merged.filter(r => !gone.has(r.id)); } }
+  } catch (e) { /* offline is fine — the seed is enough */ }
+
+  RECIPES = merged.filter(r => !r.noRecipe);
+}
+
+/* --- normalising ------------------------------------------------------- */
+function tagsFor(r) {
+  const t = MEAL_TAGS[r.id];
+  if (t) return t;
+  return { roles: SECTION_ROLES[r.section] || ['side'], cuisine: 'neutral' };
+}
+function rolesOf(r) { return tagsFor(r).roles || []; }
+function cuisineOf(r) { return tagsFor(r).cuisine || 'neutral'; }
+
+function minutesOf(t) {
+  if (!t) return null;
+  const s = String(t).toLowerCase();
+  let total = 0, found = false;
+  const h = s.match(/([\d.]+)\s*(?:[–-]\s*[\d.]+)?\s*\+?\s*(?:hr|hour)/);
+  if (h) { total += parseFloat(h[1]) * 60; found = true; }
+  const m = s.match(/([\d.]+)\s*(?:[–-]\s*[\d.]+)?\s*(?:min)/);
+  if (m) { total += parseFloat(m[1]); found = true; }
+  return found ? total : null;
+}
+function fmtMinutes(mins) {
+  if (!mins) return '';
+  if (mins < 60) return Math.round(mins) + ' mins';
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return h + ' hr' + (h > 1 ? 's' : '') + (m ? ' ' + m + ' mins' : '');
+}
+
+/* Cocktails wear a different shape. Give them one the page can render. */
+function cocktailToItem(c, i) {
+  const spirits = (c.spirits && c.spirits.length ? c.spirits : [c.spirit || ''])
+    .map(s => String(s).toLowerCase().trim());
+  let cuisine = 'neutral';
+  for (const s of spirits) { if (SPIRIT_CUISINE[s]) { cuisine = SPIRIT_CUISINE[s]; break; } }
+  return {
+    id: 'cocktail-' + i,
+    kind: 'cocktail',
+    title: c.name,
+    section: 'drinks',
+    description: (c.spirit ? c.spirit : '') + (c.rating ? ' · ' + c.rating : ''),
+    ingredients: (c.ingredients || []).map(line => ({ amount: '', item: line })),
+    steps: [c.method].filter(Boolean).concat(c.garnish ? ['Garnish with ' + c.garnish.toLowerCase() + '.'] : []),
+    notes: c.notes || '',
+    time: '',        // a cocktail is not cooking — keep it out of the total
+    serves: '',
+    _cuisine: cuisine,
+  };
+}
+
+/* ===========================================================================
+ * Choosing
+ * ======================================================================== */
+const state = {
+  courses: {},
+  mood: 'any',
+  anchor: 'any',
+  quick: false,
+  noAlcohol: false,
+  meal: {},
+  locked: {},
+  reasons: {},
+};
+COURSES.forEach(c => { state.courses[c.id] = c.on; });
+
+function candidatesFor(course) {
+  if (course === 'drink') {
+    const soft = RECIPES.filter(r => rolesOf(r).indexOf('drink') !== -1)
+      .map(r => Object.assign({}, r, { kind: 'recipe', _cuisine: cuisineOf(r) }));
+    if (state.noAlcohol) return soft;
+    return soft.concat(COCKTAILS.map(cocktailToItem));
+  }
+  return RECIPES.filter(r => rolesOf(r).indexOf(course) !== -1)
+    .map(r => Object.assign({}, r, { kind: 'recipe', _cuisine: cuisineOf(r) }));
+}
+
+function score(item, course, chosen, relaxMood) {
+  const anchors = Object.keys(chosen).map(k => chosen[k]).filter(Boolean);
+
+  // Hard rejections first.
+  const itemTags = MEAL_TAGS[item.id] || {};
+  for (const a of anchors) {
+    if (a.id === item.id) return -1;
+    const at = MEAL_TAGS[a.id] || {};
+    if (at.avoid && at.avoid.indexOf(item.id) !== -1) return -1;
+    if (itemTags.avoid && itemTags.avoid.indexOf(a.id) !== -1) return -1;
+    // Two potato dishes, or two rice dishes, is not a meal.
+    if (at.family && itemTags.family && at.family === itemTags.family) return -1;
+  }
+  if (state.quick) {
+    const m = minutesOf(item.time);
+    if (m !== null && m > 45) return -1;
+  }
+  // A mood means that cuisine, plus the dishes that belong anywhere. If that
+  // leaves a course with nothing, pick() asks again with the rule relaxed.
+  if (state.mood !== 'any') {
+    // The main has to actually be that cuisine. Everything else may also be a
+    // dish that belongs anywhere.
+    const strictOk = item._cuisine === state.mood || (course !== 'main' && item._cuisine === 'neutral');
+    if (!strictOk && !(relaxMood && affinity(item._cuisine, state.mood) >= 2)) return -1;
+  }
+
+  if (!anchors.length) return 2 + Math.random();
+
+  // The main sets the table. A neutral side must not become a back door for a
+  // starter that has nothing to do with what everyone is actually eating.
+  const main = chosen.main;
+  if (main && course !== 'sweet' && course !== 'drink') {
+    const named = (SIGNATURE[main.id] || []).indexOf(item.id) !== -1
+               || (SIGNATURE[item.id] || []).indexOf(main.id) !== -1;
+    const floor = course === 'bread' ? 2 : 1;   // bread has to belong, not merely not clash
+    if (!named && affinity(item._cuisine, main._cuisine) < floor) return -1;
+    // Chicken twice, or beef twice, is a repeat rather than a meal.
+    if (PROTEIN_SECTIONS.indexOf(main.section) !== -1 && item.section === main.section) return -1;
+  }
+
+  let best = 0;
+  for (const a of anchors) {
+    let s = affinity(item._cuisine, a._cuisine);
+    const sig = SIGNATURE[a.id] || [];
+    if (sig.indexOf(item.id) !== -1) s += 8;
+    const backSig = SIGNATURE[item.id] || [];
+    if (backSig.indexOf(a.id) !== -1) s += 8;
+    if (s > best) best = s;
+  }
+  // Pudding and a drink are not held to the same rule as the food — a lemon
+  // traybake follows anything.
+  if (best <= 0) return (course === 'sweet' || course === 'drink') ? 1 + Math.random() * 0.5 : -1;
+  return best + Math.random() * 0.9;
+}
+
+function pick(course, chosen) {
+  const pool0 = candidatesFor(course);
+  let scored = pool0.map(item => ({ item, s: score(item, course, chosen, false) })).filter(x => x.s > 0);
+  // A mood the book only has one dish for would return the same meal forever,
+  // so widen to neighbouring cuisines when the strict pool is thin.
+  if (scored.length < 2 && state.mood !== 'any') {
+    scored = pool0.map(item => ({ item, s: score(item, course, chosen, true) })).filter(x => x.s > 0);
+  }
+  if (!scored.length) return null;
+  scored.sort((a, b) => b.s - a.s);
+  // Favour the best without always landing on it: weight by score cubed.
+  const pool = scored.slice(0, Math.max(3, Math.ceil(scored.length * 0.35)));
+  let total = 0;
+  for (const c of pool) total += Math.pow(c.s, 3);
+  let r = Math.random() * total;
+  for (const c of pool) { r -= Math.pow(c.s, 3); if (r <= 0) return c.item; }
+  return pool[0].item;
+}
+
+function reasonFor(item, chosen, course) {
+  if (course === 'main' || !Object.keys(chosen).length) {
+    return { text: 'The anchor for this meal.', strong: false };
+  }
+  // The main is the thing worth naming, so it gets asked first.
+  const anchors = ['main'].concat(ORDER.filter(k => k !== 'main'))
+    .map(k => chosen[k]).filter(Boolean);
+  for (const a of anchors) {
+    const sig = SIGNATURE[a.id] || [], back = SIGNATURE[item.id] || [];
+    if (sig.indexOf(item.id) !== -1 || back.indexOf(a.id) !== -1) {
+      return { text: 'A natural fit with ' + a.title + '.', strong: true };
+    }
+  }
+  const main = chosen.main || anchors[0];
+  if (main && item._cuisine === main._cuisine && item._cuisine !== 'neutral') {
+    return { text: 'Both ' + CUISINE_LABEL[item._cuisine] + ' — same table.', strong: true };
+  }
+  if (item._cuisine === 'neutral' || (main && main._cuisine === 'neutral')) {
+    return { text: 'Goes with anything on the table.', strong: false };
+  }
+  if (main) {
+    return { text: CUISINE_LABEL[item._cuisine] + ' beside ' + CUISINE_LABEL[main._cuisine] + ' — close enough neighbours.', strong: false };
+  }
+  return { text: '', strong: false };
+}
+
+const ORDER = ['main', 'bread', 'side', 'starter', 'sweet', 'drink'];
+
+function generate() {
+  const chosen = {};
+  // Locked courses stay put and act as anchors for everything else.
+  for (const id of ORDER) {
+    if (state.courses[id] && state.locked[id] && state.meal[id]) chosen[id] = state.meal[id];
+  }
+  // A forced anchor recipe takes the main slot.
+  if (state.anchor !== 'any' && state.courses.main && !chosen.main) {
+    const forced = RECIPES.find(r => r.id === state.anchor);
+    if (forced) chosen.main = Object.assign({}, forced, { kind: 'recipe', _cuisine: cuisineOf(forced) });
+  }
+  const reasons = {};
+  for (const id of ORDER) {
+    if (!state.courses[id] || chosen[id]) continue;
+    if (id === 'bread') {
+      const m = chosen.main;
+      if (m && MEAL_TAGS[m.id] && MEAL_TAGS[m.id].hasBread) continue;   // it already is a sandwich
+    }
+    const item = pick(id, chosen);
+    if (item) chosen[id] = item;
+  }
+  for (const id of ORDER) if (chosen[id]) reasons[id] = reasonFor(chosen[id], omit(chosen, id), id);
+  state.meal = chosen;
+  state.reasons = reasons;
+  renderMeal();
+}
+
+function omit(obj, key) {
+  const out = {};
+  for (const k in obj) if (k !== key) out[k] = obj[k];
+  return out;
+}
+
+function reroll(course) {
+  const chosen = omit(state.meal, course);
+  const item = pick(course, chosen);
+  if (!item) return;
+  state.meal[course] = item;
+  state.reasons[course] = reasonFor(item, chosen, course);
+  renderMeal();
+}
+
+function toggleLock(course) {
+  state.locked[course] = !state.locked[course];
+  renderMeal();
+}
+
+/* ===========================================================================
+ * Rendering
+ * ======================================================================== */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function renderControls() {
+  document.getElementById('courseToggles').innerHTML = COURSES.map(c =>
+    '<button class="toggle' + (state.courses[c.id] ? ' on' : '') + '" onclick="toggleCourse(\'' + c.id + '\')">'
+    + '<svg class="tick" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>'
+    + esc(c.label) + '</button>'
+  ).join('');
+
+  const moods = ['any'].concat(Object.keys(CUISINE_LABEL).filter(k => k !== 'neutral'));
+  document.getElementById('mood').innerHTML = moods.map(m =>
+    '<option value="' + m + '"' + (state.mood === m ? ' selected' : '') + '>' + (m === 'any' ? 'Anything' : esc(CUISINE_LABEL[m])) + '</option>'
+  ).join('');
+
+  const mains = RECIPES.filter(r => rolesOf(r).indexOf('main') !== -1)
+    .sort((a, b) => a.title.localeCompare(b.title));
+  document.getElementById('anchor').innerHTML = '<option value="any">Surprise me</option>'
+    + mains.map(r => '<option value="' + esc(r.id) + '"' + (state.anchor === r.id ? ' selected' : '') + '>' + esc(r.title) + '</option>').join('');
+}
+
+function toggleCourse(id) {
+  state.courses[id] = !state.courses[id];
+  if (!state.courses[id]) { delete state.meal[id]; delete state.locked[id]; }
+  renderControls();
+  if (Object.keys(state.meal).length) renderMeal();
+}
+
+function renderMeal() {
+  const out = document.getElementById('output');
+  const active = ORDER.filter(id => state.courses[id]);
+  if (!active.length) {
+    out.innerHTML = '<div class="empty-note">Pick at least one course above.</div>';
+    return;
+  }
+  const filled = active.filter(id => state.meal[id]);
+  if (!filled.length) {
+    out.innerHTML = '<div class="empty-note">Nothing built yet — press <strong>Build a meal</strong>.</div>';
+    return;
+  }
+
+  let totalMins = 0, anyTime = false;
+  filled.forEach(id => { const m = minutesOf(state.meal[id].time); if (m) { totalMins += m; anyTime = true; } });
+
+  let missing = active.filter(id => !state.meal[id]);
+  const mainTags = state.meal.main ? (MEAL_TAGS[state.meal.main.id] || {}) : {};
+  const breadSkipped = missing.indexOf('bread') !== -1 && mainTags.hasBread;
+  if (breadSkipped) missing = missing.filter(id => id !== 'bread');
+  let warn = '';
+  if (breadSkipped) {
+    warn += '<div class="warn">No bread course — the ' + esc(state.meal.main.title) + ' already comes in bread.</div>';
+  }
+  if (missing.length) {
+    const names = missing.map(id => (COURSES.find(c => c.id === id) || {}).label.toLowerCase());
+    warn += '<div class="warn">Nothing in the book fits the ' + esc(names.join(' or '))
+      + ' slot alongside this meal. Try loosening the mood or the time limit.</div>';
+  }
+
+  const cards = filled.map(id => {
+    const c = COURSES.find(x => x.id === id);
+    const item = state.meal[id];
+    const reason = state.reasons[id] || { text: '', strong: false };
+    const meta = [item.serves && item.serves !== '—' ? 'Serves ' + item.serves : '', item.time && item.time !== '—' ? item.time : '']
+      .filter(Boolean).join(' · ');
+    const wholeNote = (id === 'side' && state.meal.main && MEAL_TAGS[state.meal.main.id] && MEAL_TAGS[state.meal.main.id].whole)
+      ? '<div class="why neutral">The ' + esc(state.meal.main.title) + ' is a full plate on its own — treat this as optional.</div>' : '';
+    return '<div class="course-card' + (state.locked[id] ? ' locked' : '') + '">'
+      + '<div class="course-top">'
+      +   '<span class="course-tag" style="' + COURSE_TINT[c.color] + '">' + esc(c.label) + '</span>'
+      +   (meta ? '<span class="course-meta">' + esc(meta) + '</span>' : '')
+      + '</div>'
+      + '<div class="course-title">' + esc(item.title) + '</div>'
+      + (item.description ? '<div class="course-desc">' + esc(item.description) + '</div>' : '')
+      + (reason.text ? '<div class="why' + (reason.strong ? '' : ' neutral') + '">' + esc(reason.text) + '</div>' : '')
+      + wholeNote
+      + '<div class="card-actions">'
+      +   '<button class="mini-btn" onclick="openRecipe(\'' + esc(id) + '\')">View recipe</button>'
+      +   '<button class="mini-btn" onclick="reroll(\'' + esc(id) + '\')"' + (state.locked[id] ? ' disabled style="opacity:.4"' : '') + '>Swap</button>'
+      +   '<button class="mini-btn' + (state.locked[id] ? ' is-on' : '') + '" onclick="toggleLock(\'' + esc(id) + '\')">' + (state.locked[id] ? 'Locked' : 'Lock') + '</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  out.innerHTML =
+    '<div class="meal-head">'
+    + '<div class="meal-summary">' + filled.length + ' course' + (filled.length !== 1 ? 's' : '')
+    + (anyTime ? ' · about ' + fmtMinutes(totalMins) + ' of cooking' : '') + '</div>'
+    + '<button class="text-btn" onclick="openShoppingList()">Shopping list</button>'
+    + '</div>'
+    + warn + cards;
+}
+
+/* --- modals ------------------------------------------------------------- */
+function openRecipe(course) {
+  const item = state.meal[course];
+  if (!item) return;
+  const meta = item.kind === 'cocktail' ? (item.description || 'Cocktail') : [
+    item.serves && item.serves !== '—' ? 'Serves ' + item.serves : '',
+    item.time && item.time !== '—' ? item.time : '',
+    item.calories ? item.calories + ' cal per serving' : ''
+  ].filter(Boolean).join(' · ');
+  const ings = (item.ingredients || []).map(i =>
+    '<div class="ing-line"><span class="amt">' + esc(i.amount || '') + '</span><span>' + esc(i.item || '') + '</span></div>').join('');
+  const steps = (item.steps || []).map(s => '<li>' + esc(s) + '</li>').join('');
+  document.getElementById('detailModal').innerHTML =
+    '<button class="modal-close" onclick="closeModal()">✕</button>'
+    + '<h2>' + esc(item.title) + '</h2>'
+    + (meta ? '<div class="m-meta">' + esc(meta) + '</div>' : '')
+    + (item.description && item.kind !== 'cocktail' ? '<p style="color:var(--text-muted);">' + esc(item.description) + '</p>' : '')
+    + (ings ? '<h3>Ingredients</h3>' + ings : '')
+    + (steps ? '<h3>Method</h3><ol class="steps">' + steps + '</ol>' : '')
+    + (item.notes ? '<h3>Notes</h3><div class="note-box">' + esc(item.notes) + '</div>' : '');
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openShoppingList() {
+  const groups = ORDER.filter(id => state.meal[id]).map(id => {
+    const item = state.meal[id];
+    const lines = (item.ingredients || []).map(i =>
+      '<div class="ing-line"><span class="amt">' + esc(i.amount || '') + '</span><span>' + esc(i.item || '') + '</span></div>').join('');
+    return '<div class="list-group"><h4>' + esc(item.title) + '</h4>' + (lines || '<div style="color:var(--text-muted);font-size:14px;">No ingredients listed.</div>') + '</div>';
+  }).join('');
+  document.getElementById('detailModal').innerHTML =
+    '<button class="modal-close" onclick="closeModal()">✕</button>'
+    + '<h2>Shopping list</h2>'
+    + '<div class="m-meta">Everything for this meal, kept grouped by dish so the quantities still make sense.</div>'
+    + groups;
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('detailOverlay')) return;
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function toggleMainMenu(e) {
+  e.stopPropagation();
+  document.getElementById('mainMenuDropdown').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('mainMenuDropdown').classList.remove('open'));
+
+/* --- wiring ------------------------------------------------------------- */
+document.getElementById('mood').addEventListener('change', e => { state.mood = e.target.value; });
+document.getElementById('anchor').addEventListener('change', e => { state.anchor = e.target.value; });
+document.getElementById('quick').addEventListener('change', e => { state.quick = e.target.checked; });
+document.getElementById('noAlcohol').addEventListener('change', e => { state.noAlcohol = e.target.checked; });
+
+(async function init() {
+  await loadLibrary();
+  const out = document.getElementById('output');
+  if (loadError || !RECIPES.length) {
+    out.innerHTML = '<div class="empty-note">' + esc(loadError || 'No recipes found.')
+      + '<br><br><a href="/recipes/" style="color:var(--accent);">Open the recipe book</a></div>';
+    return;
+  }
+  renderControls();
+  document.getElementById('generateBtn').disabled = false;
+  generate();
+})();
+</script>
+</body></html>

@@ -98,10 +98,50 @@ was found by counting rows against the header total.
    the comma placement correct.
 5. Check the file still parses. Extracting the `<script>` block and running
    `node --check` on it catches a stray comma or quote immediately.
-6. Commit and push to `main`. Cloudflare redeploys in about a minute.
-7. Verify on the live page: the header count should have gone up by one, and
+6. Add a `MEAL_TAGS` entry for the new recipe in
+   `public/recipes/combinator/index.html` — see below. Optional, but a recipe
+   without one is treated as going with anything.
+7. Commit and push to `main`. Cloudflare redeploys in about a minute.
+8. Verify on the live page: the header count should have gone up by one, and
    the recipe should appear under the right section. If the count says
    "52 RECIPES · 51 SHOWN", the `section` value is wrong.
+
+## Tagging it for the Meal Builder
+
+`/recipes/combinator/` builds meals out of the same recipes. It reads them
+straight from `public/recipes/index.html`, so a new recipe appears there with
+no extra work — but untagged it falls back to its section for a course role
+and pairs as cuisine `neutral`, meaning it will be offered alongside anything.
+
+To do better, add one line to `MEAL_TAGS` in
+`public/recipes/combinator/index.html`:
+
+```js
+'yogurt-flatbreads':  { roles:['bread','side'], cuisine:'levantine' },
+```
+
+- **roles** — any of `starter`, `main`, `side`, `bread`, `sweet`, `drink`.
+  More than one is fine.
+- **cuisine** — `british`, `french`, `american`, `mexican`, `levantine`,
+  `spanish`, `italian`, `asian`, `med`, or `neutral` for something that
+  genuinely goes anywhere. Do not reach for `neutral` out of indecision; it
+  makes the pairings worse.
+- **family** — optional starch or main ingredient (`potato`, `rice`, `pasta`,
+  `corn`, `prawn`). Two dishes with the same family are never served together.
+- **hasBread: true** — a sandwich, wrap or taco, so no bread course is offered
+  beside it.
+- **whole: true** — a complete plate on its own; a side is marked optional.
+- **avoid: ['id', …]** — never serve with these.
+
+If the recipe has an obviously right partner already in the book, add it to
+`SIGNATURE` too, keyed on the main:
+
+```js
+'shawarma-roast-chicken': ['yogurt-flatbreads','smooth-hummus'],
+```
+
+That is what produces "A natural fit with Shawarma Roast Chicken with Slaw"
+rather than a merely compatible guess.
 
 ## Style
 
