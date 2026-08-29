@@ -20,9 +20,9 @@ Three separate projects were merged into one website at
 
 Everything now lives in one repository, **`brglawman-lab/myonlinehome`**:
 
-    public/recipes/index.html     Chef Claude — the recipe book
+    public/recipes/index.html     Recipe Book
     public/wildlife/              Yorkshire Wildlife Tracker
-    public/wyfood/index.html      WY Food — markets and festivals
+    public/wyfood/index.html      WY Farmer's Markets — markets and festivals
     src/                          the API
     db/                           database schema and setup notes
 
@@ -98,6 +98,7 @@ A recipe is a JavaScript object in the `DEFAULT_RECIPES` array in
 | `chicken` | Chicken |
 | `veg` | Veg |
 | `sides` | Sides |
+| `dips` | Dips |
 | `baking` | Baking |
 | `soft-drinks` | Soft Drinks |
 

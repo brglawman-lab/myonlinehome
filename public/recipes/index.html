@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chef Claude — Recipe Book</title>
+<title>Recipe Book</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
@@ -98,6 +98,12 @@
   .ingredient-list li { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .ingredient-list li:last-child { border-bottom: none; }
   .ingredient-list li .amt { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
+  .scale-row { display: flex; align-items: center; gap: 8px; margin: -0.75rem 0 1.25rem; font-size: 13px; color: var(--text-muted); }
+  .scale-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background 0.15s; }
+  .scale-btn:hover { background: var(--border); }
+  .scale-btn:disabled { opacity: 0.4; cursor: default; background: var(--surface2); }
+  .scale-value { min-width: 22px; text-align: center; font-weight: 500; color: var(--text); }
+  @media print { .scale-btn { display: none !important; } .scale-row { margin: 0 0 8pt; } }
   .steps { list-style: none; counter-reset: steps; }
   .steps li { counter-increment: steps; padding: 8px 0 8px 2.25rem; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.65; position: relative; }
   .steps li:last-child { border-bottom: none; }
@@ -119,6 +125,7 @@
   .tag-chicken { background: var(--amber-light); color: var(--amber); }
   .tag-veg { background: var(--accent-light); color: var(--accent-text); }
   .tag-sides { background: var(--surface2); color: var(--text-muted); }
+  .tag-dips { background: #EDE4F5; color: #5A3A8A; }
   .tag-baking { background: var(--pink-light); color: var(--pink); }
   .tag-soft-drinks { background: #e5f4ee; color: #1a5c3a; }
   .tag-beef { background: var(--red-light); color: var(--red); }
@@ -247,7 +254,7 @@ transition:background .15s ease,color .15s ease}
         <button class="menu-item" data-page="foraging" onclick="switchToPage('foraging')">Foraging</button>
       </div>
     </div>
-    <div class="logo">Chef <span>Claude</span></div>
+    <div class="logo">Recipe <span>Book</span></div>
     <div class="header-controls">
       <div class="search-wrap">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"></circle><path d="M11 11l3 3"></path></svg>
@@ -356,6 +363,14 @@ const DEFAULT_RECIPES = [
   { id: 'gambas-pil-pil-bbq', section: 'fish', title: 'Gambas al Pil Pil (BBQ)', category: 'fish', serves: '7', time: '15 mins', calories: '250', description: 'King prawns grilled in a holed foil tray with garlic, chilli and olive oil — the informal BBQ take on the Spanish classic.', ingredients: [{ amount: '1.2kg', item: 'raw peeled king prawns' }, { amount: '250ml', item: 'extra virgin olive oil' }, { amount: '10', item: 'garlic cloves, thinly sliced' }, { amount: '1.5 tsp', item: 'chilli flakes (or 5 dried red chillies, broken)' }, { amount: '1 tsp', item: 'sea salt flakes' }, { amount: '1 tbsp', item: 'flat-leaf parsley, roughly chopped' }], steps: ['Pat the prawns dry. Toss with the olive oil, garlic, chilli flakes and salt.', 'Spread in a single layer in a holed foil grilling tray.', 'Place over direct heat on the BBQ with the lid closed. Cook for 3–4 minutes, tossing once halfway, until the prawns are pink and just curled.', 'Scatter over the parsley and serve immediately straight from the tray.'], notes: 'For the traditional version, cook in a cast iron skillet directly over the BBQ: get the oil ripping hot, add garlic and chilli for 30 seconds, then prawns for 2–3 minutes. Carry to the table still bubbling with crusty bread to mop.' },
   { id: 'bbq-corn-chipotle-lime-butter', section: 'sides', title: 'BBQ Corn with Chipotle-Lime Butter', category: 'sides', serves: '7', time: '30 mins', calories: '400', description: 'Charred corn on the cob with a smoky compound butter made with chipotle, smoked paprika and lime.', ingredients: [{ amount: '8', item: 'corn on the cob' }, { amount: '200g', item: 'unsalted butter, softened' }, { amount: '30g', item: 'chipotle in adobo, finely chopped (approx. 2 tbsp)' }, { amount: '1 tsp', item: 'smoked paprika' }, { amount: '2', item: 'limes, zested' }, { amount: '0.5 tsp', item: 'sea salt flakes' }], steps: ['Make the compound butter: beat softened butter with a fork until smooth. Add chipotle, smoked paprika, lime zest and salt. Mix well. Tip onto cling film, shape into a log, roll tightly and refrigerate for at least 1 hour until firm.', 'Grill corn over direct heat on the BBQ with the lid closed, rotating every 5–7 minutes, for 15–20 minutes total until charred and cooked through.', 'Slice cold discs of compound butter onto hot corn and let it melt at the table.'], notes: 'Chili crisp works well in place of chipotle — same quantity, use oil and solids together. It gives heat and umami rather than smokiness so keep the smoked paprika. The butter can be made days ahead and keeps well in the fridge.' },
   { id: 'bbq-courgettes-asparagus', section: 'veg', title: 'Grilled Courgettes and Asparagus', category: 'veg', serves: '7', time: '15 mins', calories: '120', description: 'Simple grilled summer veg — courgette planks and asparagus with olive oil, salt and lemon.', ingredients: [{ amount: '4–5', item: 'courgettes' }, { amount: '2 bunches', item: 'asparagus' }, { amount: '2 tbsp', item: 'olive oil' }, { amount: '1 tsp', item: 'sea salt flakes' }, { amount: '1', item: 'lemon, for squeezing' }], steps: ['Slice courgettes lengthways into planks about 1cm thick. Snap the woody ends off the asparagus by bending each spear until it snaps naturally.', 'Toss courgette planks in olive oil and salt. Toss asparagus in olive oil and salt separately.', 'Grill courgettes directly on the grates over direct heat for 4–5 minutes per side until charred and tender.', 'Spread asparagus in a single layer in a holed foil grilling tray. Grill over direct heat for 4–5 minutes, shaking once halfway.', 'Squeeze lemon over both and serve.'], notes: 'Both can be prepped and tossed in oil hours ahead and left on a tray in the fridge covered with cling film.' },
+
+  { id: 'kewpie-sriracha-mayo', section: 'dips', title: 'Kewpie Sriracha Mayo', category: 'dips', serves: '2', time: '5 mins', calories: '90', description: 'Kewpie mayo whipped with sriracha into a punchy, umami-sweet dipping sauce — the finishing drizzle on Dirty Wedges, tacos and burgers.', ingredients: [{ amount: '2 tbsp', item: 'Kewpie mayo' }, { amount: '1 tbsp', item: 'sriracha' }], steps: ['Mix the Kewpie mayo and sriracha together in a small bowl until smooth.', 'Taste and adjust the ratio — more sriracha for heat, more mayo to mellow it.'], notes: 'Doubles or triples easily. Also good stirred through slaw or spread on a burger bun.' },
+  { id: 'chipotle-mayo', section: 'dips', title: 'Chipotle Mayo', category: 'dips', serves: '4', time: '10 mins', calories: '140', description: 'A smoky, tangy blended mayo built around chipotles in adobo — the mayo used in the Rump Steak Ciabatta and, in a simpler form, Chorizo al Vino.', ingredients: [{ amount: '100ml', item: 'Kewpie or Japanese-style mayo' }, { amount: '2–3', item: 'chipotles in adobo' }, { amount: '1', item: 'lime, juiced' }, { amount: '1', item: 'garlic clove' }, { amount: '1 tsp', item: 'Dijon mustard' }, { amount: 'few drops', item: 'Worcestershire sauce' }, { amount: 'pinch', item: 'salt' }], steps: ['Blend the mayo, chipotles in adobo, lime juice, garlic clove, Dijon and Worcestershire sauce with a pinch of salt until smooth.', 'Taste and adjust — start mild, you can always add more chipotle but you can\'t take it out.'], notes: 'For a quicker version, just blend 1–2 chipotles in adobo straight into 3 tbsp mayonnaise — that\'s the version used in Chorizo al Vino.' },
+  { id: 'whipped-feta', section: 'dips', title: 'Whipped Feta', category: 'dips', serves: '2–3', time: '15 mins', calories: '160', description: 'Lemony whipped feta, thick and smooth enough to spread — the base of the Roast Tomato & Whipped Feta Toast.', ingredients: [{ amount: '150g', item: 'feta' }, { amount: '75g', item: 'Greek yoghurt' }, { amount: '½', item: 'unwaxed lemon, zested' }, { amount: 'to taste', item: 'black pepper' }, { amount: 'splash', item: 'olive oil, to loosen (optional)' }], steps: ['Pat the feta dry thoroughly on kitchen paper and leave for 10 minutes.', 'Put in a food processor with the yoghurt, lemon zest and black pepper. Pulse in stages, scraping down the sides, until thick and smooth — add a splash of olive oil if needed to loosen.'], notes: 'Can be made up to 12 hours ahead — keep chilled. Good on toast, alongside roasted veg, or as a dip with crudités.' },
+  { id: 'labneh', section: 'dips', title: 'Labneh', category: 'dips', serves: '4', time: '10 mins (plus overnight straining)', calories: '110', description: 'Thick strained yoghurt, tangy and spreadable — dotted over the Wild Alaskan Salmon platter or served as a dip on its own with olive oil.', ingredients: [{ amount: '400g', item: 'full-fat Greek yogurt' }, { amount: 'pinch', item: 'salt' }], steps: ['Line a sieve with muslin or a clean tea towel and set it over a bowl.', 'Season the yogurt with a pinch of salt and tip it into the muslin. Tie up and hang, or leave sitting in the sieve, over the bowl in the fridge overnight.', 'Discard the whey that drains off and transfer the labneh to a container.'], notes: 'Shop-bought labneh is increasingly available (Waitrose, M&S, Ocado) if you want to skip the straining. Finish with olive oil, za\'atar or chilli flakes to serve.' },
+  { id: 'smoky-garlic-butter', section: 'dips', title: 'Smoky Garlic Butter', category: 'dips', serves: '3', time: '10 mins', calories: '240', description: 'A soft, smoky compound butter for slathering over hot corn — the finish for BBQ Corn on the Cob.', ingredients: [{ amount: '100g', item: 'unsalted butter, softened' }, { amount: '1 tsp', item: 'smoked paprika' }, { amount: '1', item: 'garlic clove, finely grated' }, { amount: '½ tsp', item: 'sea salt flakes' }, { amount: '1', item: 'lime, juiced' }], steps: ['Mash the smoked paprika, grated garlic and sea salt flakes into the softened butter with a fork until combined.', 'Refrigerate until needed, then take it out 20 minutes before serving so it\'s spreadable. Squeeze over the lime just before serving.'], notes: 'Add a pinch of cayenne for heat. Also good melted over jacket potatoes or steak.' },
+  { id: 'chipotle-lime-butter', section: 'dips', title: 'Chipotle-Lime Butter', category: 'dips', serves: '7', time: '15 mins (plus 1 hr chilling)', calories: '210', description: 'A firmer compound butter rolled into a log and sliced onto hot corn — smoky, sharp with lime, from the BBQ Corn with Chipotle-Lime Butter recipe.', ingredients: [{ amount: '200g', item: 'unsalted butter, softened' }, { amount: '30g', item: 'chipotle in adobo, finely chopped (approx. 2 tbsp)' }, { amount: '1 tsp', item: 'smoked paprika' }, { amount: '2', item: 'limes, zested' }, { amount: '½ tsp', item: 'sea salt flakes' }], steps: ['Beat the softened butter with a fork until smooth. Add the chipotle, smoked paprika, lime zest and salt. Mix well.', 'Tip onto cling film, shape into a log, roll tightly and refrigerate for at least 1 hour until firm.', 'Slice into discs to serve.'], notes: 'Chilli crisp works well in place of chipotle — same quantity, use the oil and solids together. Keeps well in the fridge for days.' },
+  { id: 'dill-creme-fraiche', section: 'dips', title: 'Dill Crème Fraîche', category: 'dips', serves: '7', time: '10 mins', calories: '90', description: 'A cold, herby sauce of crème fraîche, dill, lemon and mustard — served alongside BBQ Salmon.', ingredients: [{ amount: '300g', item: 'crème fraîche' }, { amount: '10g', item: 'fresh dill, stalks removed' }, { amount: '45ml', item: 'lemon juice (approx. 1 lemon)' }, { amount: '5g', item: 'Dijon mustard' }, { amount: 'to taste', item: 'salt' }], steps: ['Combine the crème fraîche, dill, lemon juice and mustard.', 'Blitz briefly with a stick blender for a smooth green sauce, or stir and chop the dill finely for a more rustic version.', 'Season with salt. Cover and refrigerate until needed.'], notes: 'Can be made several hours ahead and is better for it. Good with any grilled fish, not just salmon.' },
 ];
 
 function loadRecipes() {
@@ -555,15 +570,87 @@ const SECTIONS_ORDER = [
   { id: 'chicken',     label: 'Chicken' },
   { id: 'veg',         label: 'Veg' },
   { id: 'sides',       label: 'Sides' },
+  { id: 'dips',        label: 'Dips' },
   { id: 'baking',      label: 'Baking' },
   { id: 'soft-drinks', label: 'Soft Drinks' },
 ];
 function sectionLabel(s) { const sec = SECTIONS_ORDER.find(x => x.id === s); return sec ? sec.label : (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Other'); }
-function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
+function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', dips:'tag-dips', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
 function tagLabel(s) { return sectionLabel(s); }
 
 const expanded = new Set();
 let activeSection = null;
+
+// ── Ingredient scaling ──
+let scaleRecipeId = null;
+let scaleBaseServes = null;
+let scaleCurrentServes = null;
+const UNICODE_FRACTIONS = { '¼':0.25, '½':0.5, '¾':0.75, '⅓':1/3, '⅔':2/3, '⅕':0.2, '⅖':0.4, '⅗':0.6, '⅘':0.8, '⅙':1/6, '⅚':5/6, '⅛':0.125, '⅜':0.375, '⅝':0.625, '⅞':0.875 };
+const NICE_FRACTIONS = [[0.125,'⅛'],[0.25,'¼'],[1/3,'⅓'],[0.375,'⅜'],[0.5,'½'],[0.625,'⅝'],[2/3,'⅔'],[0.75,'¾'],[0.875,'⅞']];
+
+function parseBaseServes(serves) {
+  if (!serves) return null;
+  const m = String(serves).match(/\d+(?:\.\d+)?/);
+  if (!m) return null;
+  const n = parseFloat(m[0]);
+  return n > 0 ? n : null;
+}
+
+function formatScaledNumber(n) {
+  if (Math.abs(n - Math.round(n)) < 0.01) return String(Math.round(n));
+  const whole = Math.floor(n);
+  const frac = n - whole;
+  for (const [val, sym] of NICE_FRACTIONS) {
+    if (Math.abs(frac - val) < 0.04) return (whole > 0 ? whole + ' ' : '') + sym;
+  }
+  return (Math.round(n * 100) / 100).toString();
+}
+
+function scaleAmountString(amt, factor) {
+  if (!amt || factor === 1) return amt;
+  const fracKeys = Object.keys(UNICODE_FRACTIONS).join('');
+  const mixed = amt.match(new RegExp('^(\\d+(?:\\.\\d+)?)\\s*([' + fracKeys + '])(.*)$'));
+  const single = amt.match(new RegExp('^([' + fracKeys + '])(.*)$'));
+  const range = amt.match(/^(\d+(?:\.\d+)?)\s*[–-]\s*(\d+(?:\.\d+)?)(.*)$/);
+  const plain = amt.match(/^(\d+(?:\.\d+)?)(.*)$/);
+
+  if (mixed) {
+    const val = (parseFloat(mixed[1]) + UNICODE_FRACTIONS[mixed[2]]) * factor;
+    return formatScaledNumber(val) + mixed[3];
+  }
+  if (single) {
+    const val = UNICODE_FRACTIONS[single[1]] * factor;
+    return formatScaledNumber(val) + single[2];
+  }
+  if (range) {
+    const lo = formatScaledNumber(parseFloat(range[1]) * factor);
+    const hi = formatScaledNumber(parseFloat(range[2]) * factor);
+    return lo + '–' + hi + range[3];
+  }
+  if (plain) {
+    const val = parseFloat(plain[1]) * factor;
+    return formatScaledNumber(val) + plain[2];
+  }
+  return amt;
+}
+
+function renderScaledIngredients() {
+  const r = recipes.find(x => x.id === scaleRecipeId);
+  if (!r) return;
+  const factor = scaleCurrentServes / scaleBaseServes;
+  const ingHtml = (r.ingredients || []).map(i => '<li><span class="amt">' + escapeHtml(scaleAmountString(i.amount, factor)) + '</span>' + escapeHtml(i.item) + '</li>').join('');
+  const list = document.getElementById('ingList');
+  if (list) list.innerHTML = ingHtml;
+  const valEl = document.getElementById('scaleValue');
+  if (valEl) valEl.textContent = formatScaledNumber(scaleCurrentServes);
+  const minusBtn = document.getElementById('scaleMinus');
+  if (minusBtn) minusBtn.disabled = scaleCurrentServes <= 1;
+}
+
+function adjustServes(delta) {
+  scaleCurrentServes = Math.max(1, scaleCurrentServes + delta);
+  renderScaledIngredients();
+}
 let currentPage = 'recipes'; // 'recipes' | 'drinks' | 'seasonal' | 'foraging'
 const PAGE_LABELS = { recipes: 'Recipes', drinks: 'Drinks', seasonal: 'Seasonal Produce', foraging: 'Foraging' };
 
@@ -727,7 +814,15 @@ function openDetail(id) {
       + '<h2>' + escapeHtml(r.title) + '</h2>'
       + '<div class="no-recipe-box">No recipe saved yet.<br><br>Cook this dish and add the recipe using the + Add button.</div>';
   } else {
-    const meta = buildDetailMeta(r);
+    scaleRecipeId = r.id;
+    scaleBaseServes = parseBaseServes(r.serves);
+    scaleCurrentServes = scaleBaseServes;
+    const meta = scaleBaseServes
+      ? [r.time && r.time !== '—' ? r.time : '', r.calories ? r.calories + ' cal per serving' : ''].filter(Boolean).join(' · ')
+      : buildDetailMeta(r);
+    const scaleHtml = scaleBaseServes
+      ? '<div class="scale-row">Servings <button class="scale-btn" id="scaleMinus" onclick="adjustServes(-1)">−</button><span class="scale-value" id="scaleValue">' + formatScaledNumber(scaleBaseServes) + '</span><button class="scale-btn" onclick="adjustServes(1)">+</button></div>'
+      : '';
     const ingHtml = (r.ingredients||[]).map(i => '<li><span class="amt">' + escapeHtml(i.amount) + '</span>' + escapeHtml(i.item) + '</li>').join('');
     const stepsHtml = (r.steps||[]).map(s => '<li>' + escapeHtml(s) + '</li>').join('');
     const notesHtml = r.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(r.notes) + '</div>' : '';
@@ -737,9 +832,10 @@ function openDetail(id) {
       + '<span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span>'
       + '<h2>' + escapeHtml(r.title) + '</h2>'
       + (meta ? '<div class="modal-meta">' + meta + '</div>' : '')
+      + scaleHtml
       + (r.image ? '<img class="modal-image" src="' + escapeHtml(r.image) + '" alt="' + escapeHtml(r.title) + '">' : '')
       + '<div class="print-recipe-body">'
-      + '<div><p class="section-label">Ingredients</p><ul class="ingredient-list">' + ingHtml + '</ul></div>'
+      + '<div><p class="section-label">Ingredients</p><ul class="ingredient-list" id="ingList">' + ingHtml + '</ul></div>'
       + '<div><p class="section-label">Method</p><ol class="steps">' + stepsHtml + '</ol></div>'
       + '</div>'
       + notesHtml
