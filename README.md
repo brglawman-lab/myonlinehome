@@ -22,6 +22,7 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
 | `/recipes/` | Recipe Book — 58 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
+| `/gallery/` | Wildlife Photography — portfolio gallery | authored here |
 | `/assets/` | Photographs (Ben's own) and site favicon | — |
 
 ## Hosting
