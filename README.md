@@ -20,8 +20,8 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 |---|---|---|
 | `/` | Landing page | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
-| `/recipes/` | Chef Claude recipe book — 51 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
-| `/wyfood/` | WY Food — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
+| `/recipes/` | Recipe Book — 58 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
+| `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
 | `/assets/` | Photographs (Ben's own) and site favicon | — |
 
 ## Hosting
@@ -45,7 +45,7 @@ The wildlife tracker is offline-first: the database is the source of truth,
 localStorage is a cache, and writes made with no signal or no login are queued
 and flushed automatically. See `db/SETUP.md` for the Cloudflare steps.
 
-The recipe book works the same way. The 51 recipes in
+The recipe book works the same way. The 58 recipes in
 `public/recipes/index.html` stay in the file as a seed — they render instantly
 and work offline — and the database holds the overlay: recipes added through
 the form, edits to seeded ones, and deletions. The database wins by id.
@@ -54,7 +54,7 @@ it straight back on the next load.
 
 ## Changes from the original sources
 
-- WY Food: header logo image replaced with a text wordmark and the header
+- WY Farmer's Markets: header logo image replaced with a text wordmark and the header
   background image removed — `images/wylogo1.png` and `images/header-hills2.png`
   no longer exist anywhere. Favicon repointed to `/assets/favicon.svg`.
 - All three sub-pages: a small fixed "Home" link added at top-left.

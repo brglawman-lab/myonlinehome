@@ -1,14 +1,14 @@
 ---
 name: add-recipe
 description: >
-  Use this skill any time Ben wants to add, update, or fill in a recipe in the Chef Claude recipe
-  book at myonlinehome.co.uk/recipes. Trigger whenever the user says things like "add this recipe
+  Use this skill any time Ben wants to add, update, or fill in a recipe in the Recipe Book
+  at myonlinehome.co.uk/recipes. Trigger whenever the user says things like "add this recipe
   to my recipe book", "save this recipe", "update the recipe book", "fill in the recipe for X", or
   pastes a recipe they developed in Claude Chat. Also trigger if the user asks to add a "no recipe
   saved" placeholder for a dish they haven't developed yet.
 ---
 
-# Add a recipe to the Chef Claude recipe book
+# Add a recipe to the Recipe Book
 
 ## Where the recipe book actually is
 
@@ -62,6 +62,7 @@ there is in the database and overrides the file.
 | `chicken` | Chicken |
 | `veg` | Veg |
 | `sides` | Sides |
+| `dips` | Dips |
 | `baking` | Baking |
 | `soft-drinks` | Soft Drinks |
 
