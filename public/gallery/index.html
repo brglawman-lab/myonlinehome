@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ben Lawman — Wildlife Photography</title>
+<meta name="description" content="A wildlife photography portfolio — birds and animals of Yorkshire and further afield.">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0b;
+    --bg-raised: #16150f;
+    --text: #f1ede3;
+    --text-dim: #a8a196;
+    --text-faint: #6f6a60;
+    --accent: #cc9c4c;
+    --accent-soft: rgba(204,156,76,0.14);
+    --line: rgba(241,237,227,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  ::selection { background: var(--accent-soft); color: var(--text); }
+
+  /* ---------- back-to-home ---------- */
+  #mohome-back {
+    position: fixed; top: 14px; left: 14px; z-index: 999;
+    display: inline-block; padding: 7px 14px; border-radius: 999px;
+    background: rgba(12,12,11,0.72); color: var(--text);
+    font: 500 13px/1.2 'DM Sans', sans-serif; text-decoration: none;
+    border: 1px solid rgba(241,237,227,0.18);
+    backdrop-filter: blur(8px);
+    transition: background .15s ease, border-color .15s ease;
+  }
+  #mohome-back:hover { background: rgba(12,12,11,0.92); border-color: var(--accent); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background: #000;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center 45%;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero-bg.loaded { opacity: 1; }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(6,6,5,0.55) 0%, rgba(6,6,5,0.25) 30%, rgba(6,6,5,0.55) 70%, rgba(6,6,5,0.95) 100%);
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 46rem; }
+  .hero-eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 1.1rem;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.02;
+    text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+  }
+  .hero-role {
+    margin-top: 0.9rem;
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+  .hero-tagline {
+    margin-top: 1.4rem;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    color: var(--text-dim);
+    max-width: 34rem;
+    margin-left: auto; margin-right: auto;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    z-index: 1; color: var(--text-dim); opacity: 0.75;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
+
+  /* ---------- filter bar ---------- */
+  .filter-bar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(12,12,11,0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    padding: 0 1.5rem;
+  }
+  .filter-bar-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0.5rem;
+    height: 56px; overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-bar-inner::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    background: none; border: 1px solid transparent; color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.04em;
+    text-transform: uppercase; font-weight: 500;
+    padding: 6px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .filter-pill:hover { color: var(--text); }
+  .filter-pill.active { color: var(--bg); background: var(--accent); }
+  .filter-count {
+    margin-left: auto; font-size: 0.72rem; color: var(--text-faint);
+    letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; padding-left: 1rem;
+  }
+
+  /* ---------- gallery grid ---------- */
+  .gallery-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-auto-flow: dense;
+    gap: 6px;
+  }
+  .tile {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--bg-raised);
+  }
+  .tile.wide { aspect-ratio: 8 / 5; grid-column: span 2; }
+  @media (max-width: 640px) { .tile.wide { grid-column: span 1; aspect-ratio: 4/5; } }
+  .tile img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .6s cubic-bezier(.2,.7,.3,1), filter .6s ease;
+    filter: saturate(0.96);
+  }
+  .tile:hover img { transform: scale(1.06); }
+  .tile-veil {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(6,6,5,0) 45%, rgba(6,6,5,0.88) 100%);
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .tile:hover .tile-veil { opacity: 1; }
+  .tile-caption {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 1.1rem 1.1rem 1rem;
+    transform: translateY(10px); opacity: 0; transition: transform .3s ease, opacity .3s ease;
+  }
+  .tile:hover .tile-caption { transform: translateY(0); opacity: 1; }
+  .tile-title {
+    font-family: 'Playfair Display', Georgia, serif; font-size: 1.05rem; font-weight: 600;
+  }
+  .tile-species {
+    font-size: 0.74rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--accent); margin-top: 0.2rem;
+  }
+  .empty-state {
+    text-align: center; padding: 5rem 1rem; color: var(--text-faint);
+    font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 1.1rem;
+  }
+
+  /* ---------- lightbox ---------- */
+  .lightbox {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: var(--bg);
+    padding: 4vh 2rem; overflow-y: auto;
+  }
+  .lightbox.open { display: block; }
+  .lightbox-inner {
+    max-width: 1180px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 320px; gap: 2.5rem; align-items: start;
+  }
+  @media (max-width: 860px) { .lightbox-inner { grid-template-columns: 1fr; } }
+  .lightbox-img-wrap { position: relative; }
+  .lightbox-img-wrap img {
+    width: 100%; height: auto; max-height: 84vh; object-fit: contain; display: block; background: #000;
+  }
+  .lightbox-meta { padding-top: 0.5rem; }
+  .lightbox-species {
+    font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 500;
+  }
+  .lightbox-title {
+    font-family: 'Playfair Display', Georgia, serif; font-size: 1.9rem; font-weight: 700;
+    margin-top: 0.4rem; line-height: 1.15;
+  }
+  .lightbox-facts { margin-top: 1rem; font-size: 0.82rem; color: var(--text-dim); }
+  .lightbox-facts div { padding: 0.3rem 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; }
+  .lightbox-facts div:last-child { border-bottom: none; }
+  .lightbox-facts span:first-child { color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.7rem; }
+  .lightbox-caption {
+    margin-top: 1.2rem; font-family: 'Playfair Display', Georgia, serif; font-style: italic;
+    color: var(--text-dim); font-size: 0.98rem; line-height: 1.7;
+  }
+  .lightbox-close, .lightbox-nav {
+    position: fixed; z-index: 510; background: rgba(20,19,15,0.6); color: var(--text);
+    border: 1px solid var(--line); border-radius: 50%; width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .lightbox-close:hover, .lightbox-nav:hover { background: rgba(204,156,76,0.18); border-color: var(--accent); }
+  .lightbox-close { top: 18px; right: 18px; }
+  .lightbox-nav.prev { left: 18px; top: 50%; transform: translateY(-50%); }
+  .lightbox-nav.next { right: 18px; top: 50%; transform: translateY(-50%); }
+  @media (max-width: 640px) { .lightbox-nav { display: none; } }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2.5rem 1.5rem 3rem;
+    text-align: center;
+  }
+  footer .footer-name {
+    font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: var(--text-dim); font-size: 1rem;
+  }
+  footer .footer-contact { margin-top: 0.6rem; font-size: 0.82rem; color: var(--text-faint); }
+  footer .footer-contact a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(204,156,76,0.35); }
+  footer .footer-contact a:hover { border-bottom-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+
+<header class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Wildlife Photography</div>
+    <h1>Ben Lawman</h1>
+    <p class="hero-role">Yorkshire &amp; beyond — birds, mammals, and the moments in between</p>
+    <p class="hero-tagline" id="heroTagline"></p>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+  </div>
+</header>
+
+<nav class="filter-bar">
+  <div class="filter-bar-inner" id="filterBar"></div>
+</nav>
+
+<main class="gallery-wrap">
+  <div class="grid" id="grid"></div>
+</main>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l12 12M14 2 2 14"/></svg>
+  </button>
+  <button class="lightbox-nav prev" onclick="stepLightbox(-1)" aria-label="Previous photo">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg>
+  </button>
+  <button class="lightbox-nav next" onclick="stepLightbox(1)" aria-label="Next photo">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3l5 5-5 5"/></svg>
+  </button>
+  <div class="lightbox-inner" id="lightboxInner"></div>
+</div>
+
+<footer>
+  <div class="footer-name">Ben Lawman</div>
+  <div class="footer-contact">Prints &amp; usage enquiries — <a href="mailto:ben@lawdy.co.uk">ben@lawdy.co.uk</a></div>
+</footer>
+
+<script>
+// =============================================
+// PHOTO DATA
+// =============================================
+const PHOTOS = [
+  { id: 'osprey-post-catch', src: '/gallery/photos/osprey-post-catch.jpg', title: 'The Catch', species: 'Osprey', tags: ['birds-of-prey'], location: '', date: '', size: 'wide', hero: true,
+    caption: 'An osprey pauses atop a weathered post, fish still gripped in its talons moments after a successful dive — feathers dark and slicked with water, head bowed low in that brief stillness before the first bite.' },
+  { id: 'puffin-bempton-daisies', src: '/gallery/photos/puffin-bempton-daisies.jpg', title: 'Among the Daisies', species: 'Atlantic Puffin', tags: ['seabirds'], location: 'Bempton Cliffs, North Yorkshire', date: '',
+    caption: 'Half-hidden in a drift of sea mayweed on the cliff face, an Atlantic puffin pauses at its burrow entrance — its unmistakable striped bill catching the last of the light.' },
+];
+
+const TAG_LABELS = {
+  'birds-of-prey': 'Birds of Prey',
+  'seabirds': 'Seabirds',
+  'waders': 'Waders & Waterfowl',
+  'mammals': 'Mammals',
+  'garden-birds': 'Garden Birds',
+};
+
+let activeTag = 'all';
+let lightboxIndex = -1;
+
+function tagLabel(t) { return TAG_LABELS[t] || (t.charAt(0).toUpperCase() + t.slice(1).replace(/-/g, ' ')); }
+
+function filteredPhotos() {
+  if (activeTag === 'all') return PHOTOS;
+  return PHOTOS.filter(p => p.tags && p.tags.includes(activeTag));
+}
+
+function renderFilterBar() {
+  const tagSet = new Set();
+  PHOTOS.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
+  const tags = ['all', ...Array.from(tagSet)];
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = tags.map(t => {
+    const label = t === 'all' ? 'All Photos' : tagLabel(t);
+    const count = t === 'all' ? PHOTOS.length : PHOTOS.filter(p => p.tags && p.tags.includes(t)).length;
+    return '<button class="filter-pill' + (activeTag === t ? ' active' : '') + '" onclick="setTag(\'' + t + '\')">' + label + '</button>';
+  }).join('') + '<span class="filter-count">' + filteredPhotos().length + ' of ' + PHOTOS.length + '</span>';
+}
+
+function setTag(t) { activeTag = t; renderFilterBar(); renderGrid(); }
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function renderGrid() {
+  const list = filteredPhotos();
+  const grid = document.getElementById('grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state">No photographs in this collection yet.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(p => {
+    const idx = PHOTOS.indexOf(p);
+    return '<div class="tile' + (p.size === 'wide' ? ' wide' : '') + '" onclick="openLightbox(' + idx + ')">'
+      + '<img src="' + escapeHtml(p.src) + '" alt="' + escapeHtml(p.title) + ' — ' + escapeHtml(p.species) + '" loading="lazy">'
+      + '<div class="tile-veil"></div>'
+      + '<div class="tile-caption"><div class="tile-title">' + escapeHtml(p.title) + '</div><div class="tile-species">' + escapeHtml(p.species) + '</div></div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderLightbox() {
+  const p = PHOTOS[lightboxIndex];
+  if (!p) return;
+  const facts = [];
+  if (p.location) facts.push(['Location', p.location]);
+  if (p.date) facts.push(['Date', p.date]);
+  if (p.camera) facts.push(['Camera', p.camera]);
+  const factsHtml = facts.length
+    ? '<div class="lightbox-facts">' + facts.map(f => '<div><span>' + escapeHtml(f[0]) + '</span><span>' + escapeHtml(f[1]) + '</span></div>').join('') + '</div>'
+    : '';
+  document.getElementById('lightboxInner').innerHTML =
+    '<div class="lightbox-img-wrap"><img src="' + escapeHtml(p.src) + '" alt="' + escapeHtml(p.title) + '"></div>'
+    + '<div class="lightbox-meta">'
+    + '<div class="lightbox-species">' + escapeHtml(p.species) + '</div>'
+    + '<h2 class="lightbox-title">' + escapeHtml(p.title) + '</h2>'
+    + factsHtml
+    + '<p class="lightbox-caption">' + escapeHtml(p.caption || '') + '</p>'
+    + '</div>';
+}
+
+function openLightbox(idx) {
+  lightboxIndex = idx;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function stepLightbox(delta) {
+  const list = filteredPhotos();
+  const currentId = PHOTOS[lightboxIndex].id;
+  const posInFiltered = list.findIndex(p => p.id === currentId);
+  const nextPos = (posInFiltered + delta + list.length) % list.length;
+  lightboxIndex = PHOTOS.indexOf(list[nextPos]);
+  renderLightbox();
+}
+
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') stepLightbox(-1);
+  if (e.key === 'ArrowRight') stepLightbox(1);
+});
+
+// =============================================
+// HERO
+// =============================================
+(function initHero() {
+  const heroPhoto = PHOTOS.find(p => p.hero) || PHOTOS[0];
+  if (heroPhoto) {
+    const bg = document.getElementById('heroBg');
+    bg.style.backgroundImage = "url('" + heroPhoto.src + "')";
+    const img = new Image();
+    img.onload = () => bg.classList.add('loaded');
+    img.src = heroPhoto.src;
+    document.getElementById('heroTagline').textContent = '“' + heroPhoto.caption + '”';
+  }
+})();
+
+renderFilterBar();
+renderGrid();
+</script>
+</body>
+</html>
