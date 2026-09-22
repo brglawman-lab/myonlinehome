@@ -48,7 +48,8 @@ there is in the database and overrides the file.
   description:'One or two sentences for the list view.',
   ingredients:[{amount:'250g',item:'macaroni'},{amount:'1 tsp',item:'Dijon mustard'}],
   steps:['Step one text.','Step two text.'],
-  notes:'Optional tips, substitutions, make-ahead advice.' },
+  notes:'Optional tips, substitutions, make-ahead advice.',
+  storage:{fridge:'Up to 3 days, sealed container.', freezer:'Freezes well for up to 3 months.', reheat:'Microwave 2 mins, or oven 15 mins at 180°C.'} },
 ```
 
 ### `section` — only these nine values exist
@@ -87,6 +88,13 @@ was found by counting rows against the header total.
 - **notes** — omit the field entirely rather than leaving it empty.
 - **noRecipe: true** — placeholder for a dish with no recipe yet. Include only
   when true, alongside empty `ingredients:[]` and `steps:[]`.
+- **storage** — optional `{fridge, freezer, reheat}` object with specific
+  storage/reheating advice for this dish. **Omit it entirely unless Ben gives
+  you specific guidance to record** (e.g. "this only keeps a day" or "reheats
+  badly, best fresh") — every recipe without one already gets sensible
+  category-based default advice (see `defaultStorageAdvice()` in
+  `public/recipes/index.html`), so an omitted field is not a gap. Any of the
+  three keys can be set alone; the others still fall back to the default.
 
 ## Workflow
 

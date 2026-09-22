@@ -44,9 +44,44 @@ CREATE TABLE IF NOT EXISTS recipes (
   steps        TEXT,                    -- JSON array
   notes        TEXT,
   image        TEXT,
+  storage      TEXT,                    -- JSON object: {fridge, freezer, reheat}
   created_at   TEXT NOT NULL,
   updated_at   TEXT NOT NULL,
   deleted_at   TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_recipes_section ON recipes (section);
+
+-- Named rooms Ben monitors for food storage conditions (pantry, garage store, …).
+CREATE TABLE IF NOT EXISTS storage_rooms (
+  id          TEXT PRIMARY KEY,
+  name        TEXT NOT NULL,
+  notes       TEXT,
+  created_at  TEXT NOT NULL,
+  deleted_at  TEXT
+);
+
+-- Individual temperature/humidity readings logged against a room, over time.
+CREATE TABLE IF NOT EXISTS storage_readings (
+  id            TEXT PRIMARY KEY,
+  room_id       TEXT NOT NULL,
+  recorded_at   TEXT NOT NULL,          -- ISO date or datetime the reading was taken
+  temp_c        REAL,
+  humidity_pct  REAL,
+  note          TEXT,
+  logged_at     TEXT NOT NULL,          -- ISO timestamp the reading was saved
+  deleted_at    TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_storage_readings_room ON storage_readings (room_id);
+CREATE INDEX IF NOT EXISTS idx_storage_readings_date ON storage_readings (recorded_at);
+
+-- ---------------------------------------------------------------------------
+-- Migrating an existing database (one already created before the lines above
+-- existed): CREATE TABLE IF NOT EXISTS is safe to re-run, but SQLite has no
+-- "ADD COLUMN IF NOT EXISTS", so the new recipes.storage column needs its own
+-- one-off statement. Run this once, in the D1 console, only if `recipes`
+-- already exists without a storage column (a second run will error, harmlessly):
+--
+--   ALTER TABLE recipes ADD COLUMN storage TEXT;
+-- ---------------------------------------------------------------------------

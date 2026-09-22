@@ -109,6 +109,10 @@
   .steps li:last-child { border-bottom: none; }
   .steps li::before { content: counter(steps); position: absolute; left: 0; top: 10px; font-size: 11px; font-weight: 500; color: var(--text-faint); width: 1.5rem; font-family: 'DM Sans', sans-serif; }
   .notes-box { background: var(--surface2); border-left: 3px solid var(--border-strong); padding: 0.75rem 1rem; font-size: 13px; color: var(--text-muted); line-height: 1.65; border-radius: 0 var(--radius) var(--radius) 0; }
+  .storage-box { background: var(--blue-light); border-left: 3px solid var(--blue); padding: 0.75rem 1rem; font-size: 13px; color: var(--text); line-height: 1.65; border-radius: 0 var(--radius) var(--radius) 0; display: flex; flex-direction: column; gap: 6px; }
+  .storage-box strong { color: var(--blue); font-weight: 500; }
+  .storage-generic-note { font-size: 11.5px; color: var(--text-muted); font-style: italic; padding-top: 4px; border-top: 1px solid rgba(26,61,107,0.15); }
+  .storage-generic-note a { color: var(--blue); }
   .no-recipe-box { text-align: center; padding: 2rem; background: var(--surface2); border-radius: var(--radius-lg); font-size: 14px; color: var(--text-muted); margin: 1.5rem 0; }
   .form-group { margin-bottom: 1rem; }
   .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -222,6 +226,9 @@
     #detailModal .steps li { font-size: 10pt; padding: 5pt 0 5pt 18pt; line-height: 1.55; }
     #detailModal .notes-box { font-size: 9.5pt; margin-top: 14pt; }
     #detailModal .section-label + .notes-box { margin-top: 0; }
+    #detailModal .storage-box { font-size: 9.5pt; margin-top: 14pt; }
+    #detailModal .section-label + .storage-box { margin-top: 0; }
+    #detailModal .storage-generic-note { display: none; }
     @page { margin: 2cm; }
   }
 </style>
@@ -254,6 +261,7 @@ transition:background .15s ease,color .15s ease}
         <button class="menu-item" data-page="seasonal" onclick="switchToPage('seasonal')">Seasonal Produce</button>
         <button class="menu-item" data-page="foraging" onclick="switchToPage('foraging')">Foraging</button>
         <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
+        <a class="menu-item" href="/recipes/storage/">Food Storage</a>
       </div>
     </div>
     <div class="logo">Recipe <span>Book</span></div>
@@ -307,6 +315,12 @@ transition:background .15s ease,color .15s ease}
     </div>
     <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
     <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
+    <div class="form-row three">
+      <div class="form-group"><label>Fridge (optional)</label><input type="text" id="f-storage-fridge" placeholder="e.g. Up to 3 days, airtight container"></div>
+      <div class="form-group"><label>Freezer (optional)</label><input type="text" id="f-storage-freezer" placeholder="e.g. Freezes well, up to 3 months"></div>
+      <div class="form-group"><label>Reheating (optional)</label><input type="text" id="f-storage-reheat" placeholder="e.g. Microwave 2 mins, or oven 15 mins at 180°C"></div>
+    </div>
+    <div class="form-hint" style="margin:-0.5rem 0 1rem;">Leave any of these blank to fall back to general storage guidance for this type of dish.</div>
     <button class="save-btn" id="addSaveBtn" onclick="saveRecipe()">Save recipe</button>
   </div>
 </div>
@@ -587,6 +601,79 @@ function sectionLabel(s) { const sec = SECTIONS_ORDER.find(x => x.id === s); ret
 function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', dips:'tag-dips', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
 function tagLabel(s) { return sectionLabel(s); }
 
+/* ── Storage & reheating guidance ──
+ *
+ * Ben wants every recipe to say how to store leftovers safely and how to
+ * reheat them. Hand-writing that for 58+ recipes would mostly repeat the same
+ * few rules, so a recipe falls back to sensible, category-based guidance
+ * (general UK food-safety advice: cool within 2 hours, fridge for leftovers,
+ * reheat until piping hot, reheat only once) unless it sets its own r.storage
+ * — an optional {fridge, freezer, reheat} object, any of which can override
+ * just that one line while the rest still falls back.
+ */
+function recipeHasRice(r) {
+  return (r.ingredients || []).some(i => /\brice\b/i.test(i.item || '') && !/\brice\s*(vinegar|wine|noodles|paper)\b/i.test(i.item || ''));
+}
+function defaultStorageAdvice(r) {
+  const riceNote = recipeHasRice(r)
+    ? ' Rice reheats less safely than most leftovers: cool it within an hour, keep it no more than a day in the fridge, and make sure it is steaming hot all the way through before eating.'
+    : '';
+  if (r.section === 'dips') {
+    return {
+      fridge: 'Keep in a sealed container in the fridge and use within 2–3 days.',
+      freezer: "Cream, mayonnaise or yoghurt-based dips don't freeze well — the texture splits on thawing.",
+      reheat: "Serve chilled or at room temperature — there's nothing here that needs reheating.",
+    };
+  }
+  if (r.section === 'baking') {
+    return {
+      fridge: 'Store in an airtight container at room temperature for 3–5 days. If it has a fresh cream or fruit filling, keep it in the fridge instead and eat within 2 days.',
+      freezer: 'Wrap tightly and freeze for up to 3 months; thaw at room temperature.',
+      reheat: 'Warm gently in the oven at 160°C for 5–10 minutes to refresh, or microwave a single portion for 15–20 seconds.',
+    };
+  }
+  if (r.section === 'soft-drinks') {
+    return {
+      fridge: 'Keep chilled in a sealed bottle. If it uses fresh juice, herbs or dairy, drink within 2–3 days.',
+      freezer: 'Not suitable for freezing once carbonated.',
+      reheat: null,
+    };
+  }
+  if (r.section === 'fish') {
+    return {
+      fridge: 'Cool within 2 hours of cooking and refrigerate in an airtight container. Fish spoils faster than meat, so use within 1–2 days.' + riceNote,
+      freezer: 'Freezes for up to 2 months in a sealed container; thaw fully in the fridge before reheating.',
+      reheat: 'Reheat gently until piping hot throughout — microwave in short bursts, or oven at 160°C for about 10 minutes. Only reheat once.',
+    };
+  }
+  return {
+    fridge: 'Cool within 2 hours of cooking and refrigerate in an airtight container for up to 2 days.' + riceNote,
+    freezer: 'Freezes well for up to 3 months in a sealed container; thaw fully in the fridge before reheating.',
+    reheat: 'Reheat until piping hot all the way through — steaming hot, or 75°C+ if you use a probe — either in the microwave (covered, stirring halfway) or in the oven at 180°C for about 15–20 minutes. Only reheat once.',
+  };
+}
+function storageFor(r) {
+  const def = defaultStorageAdvice(r);
+  const custom = r.storage || {};
+  return {
+    fridge: custom.fridge || def.fridge,
+    freezer: custom.freezer || def.freezer,
+    reheat: custom.reheat !== undefined ? custom.reheat : def.reheat,
+    isCustom: Boolean(custom.fridge || custom.freezer || custom.reheat),
+  };
+}
+function storageSectionHtml(r) {
+  const sf = storageFor(r);
+  const rows = [
+    sf.fridge ? '<div><strong>Fridge:</strong> ' + escapeHtml(sf.fridge) + '</div>' : '',
+    sf.freezer ? '<div><strong>Freezer:</strong> ' + escapeHtml(sf.freezer) + '</div>' : '',
+    sf.reheat ? '<div><strong>Reheating:</strong> ' + escapeHtml(sf.reheat) + '</div>' : '',
+  ].filter(Boolean).join('');
+  if (!rows) return '';
+  const genericNote = sf.isCustom ? '' : '<div class="storage-generic-note">General guidance for this type of dish — see the <a href="/recipes/storage/">Food Storage</a> page for ingredient-level detail, or edit this recipe to add specifics.</div>';
+  return '<p class="section-label">Storage &amp; Reheating</p><div class="storage-box">' + rows + genericNote + '</div>';
+}
+
 const expanded = new Set();
 let activeSection = null;
 
@@ -835,6 +922,7 @@ function openDetail(id) {
     const ingHtml = (r.ingredients||[]).map(i => '<li><span class="amt">' + escapeHtml(i.amount) + '</span>' + escapeHtml(i.item) + '</li>').join('');
     const stepsHtml = (r.steps||[]).map(s => '<li>' + escapeHtml(s) + '</li>').join('');
     const notesHtml = r.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(r.notes) + '</div>' : '';
+    const storageHtml = storageSectionHtml(r);
     const printSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
     const titleForPrint = escapeHtml(r.title).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
     m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
@@ -848,6 +936,7 @@ function openDetail(id) {
       + '<div><p class="section-label">Method</p><ol class="steps">' + stepsHtml + '</ol></div>'
       + '</div>'
       + notesHtml
+      + storageHtml
       + '<div class="modal-print-actions"><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>';
   }
   document.getElementById('detailOverlay').classList.add('open');
@@ -951,11 +1040,14 @@ function openAddModal(id) {
     set('f-ingredients', (r.ingredients || []).map(i => ((i.amount ? i.amount + ' ' : '') + i.item)).join('\n'));
     set('f-steps', (r.steps || []).join('\n'));
     set('f-notes', r.notes || '');
+    set('f-storage-fridge', (r.storage && r.storage.fridge) || '');
+    set('f-storage-freezer', (r.storage && r.storage.freezer) || '');
+    set('f-storage-reheat', (r.storage && r.storage.reheat) || '');
   } else {
     editingId = null;
     t.textContent = 'Add a recipe';
     btn.textContent = 'Save recipe';
-    ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes'].forEach(f => set(f, ''));
+    ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(f => set(f, ''));
   }
   document.getElementById('addOverlay').classList.add('open');
 }
@@ -996,6 +1088,12 @@ function saveRecipe() {
   const rawSteps = document.getElementById('f-steps').value.trim();
   const ingredients = rawIngredients ? rawIngredients.split('\n').map(parseIngredientLine).filter(Boolean) : [];
   const steps = rawSteps ? rawSteps.split('\n').filter(Boolean) : [];
+  const storageFridge = document.getElementById('f-storage-fridge').value.trim();
+  const storageFreezer = document.getElementById('f-storage-freezer').value.trim();
+  const storageReheat = document.getElementById('f-storage-reheat').value.trim();
+  const storage = (storageFridge || storageFreezer || storageReheat)
+    ? { fridge: storageFridge || undefined, freezer: storageFreezer || undefined, reheat: storageReheat || undefined }
+    : undefined;
   const recipe = {
     // Editing keeps the id, so the database row replaces the old one instead of
     // creating a duplicate — and an edit to a recipe that lives in this file
@@ -1010,8 +1108,9 @@ function saveRecipe() {
     ingredients, steps,
     notes: document.getElementById('f-notes').value.trim(),
     // Fields the form doesn't cover must survive an edit.
-    // The form covers calories now, so a cleared field is a deliberate clear.
+    // The form covers calories and storage now, so a cleared field is a deliberate clear.
     calories: document.getElementById('f-calories').value.trim() || undefined,
+    storage,
     image: existing ? existing.image : undefined
   };
   if (editingId) {
@@ -1025,7 +1124,7 @@ function saveRecipe() {
   editingId = null;
   closeAdd();
   render();
-  ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(id => document.getElementById(id).value = '');
 }
 
 document.addEventListener('keydown', (e) => {

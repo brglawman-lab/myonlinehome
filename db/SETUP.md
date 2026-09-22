@@ -15,8 +15,17 @@ Open the new database → **Console** tab. Paste the whole of
 [`db/schema.sql`](./schema.sql) and run it. It is safe to run more than once —
 every statement is `CREATE TABLE IF NOT EXISTS`.
 
-Check it worked: the Tables list should show `sightings`, `custom_species`
-and `recipes`.
+Check it worked: the Tables list should show `sightings`, `custom_species`,
+`recipes`, `storage_rooms` and `storage_readings`.
+
+**Already have a database from before the storage feature?** Everything above
+is still safe to re-run, except one thing SQLite can't express as "if not
+exists": paste this once, on its own, in the Console tab —
+
+    ALTER TABLE recipes ADD COLUMN storage TEXT;
+
+(Running it twice errors on the second try — that's fine, it just means it's
+already there.)
 
 ## 3. Bind the database to the site
 

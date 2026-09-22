@@ -17,6 +17,12 @@ import {
   listDeletedRecipes,
   saveRecipes,
   deleteRecipe,
+  listStorageRooms,
+  createStorageRooms,
+  deleteStorageRoom,
+  listStorageReadings,
+  createStorageReadings,
+  deleteStorageReading,
 } from "./api.js";
 
 export default {
@@ -47,6 +53,14 @@ export default {
         if (method === "GET") return listDeletedRecipes(env);
         return json({ error: `${method} not allowed here` }, 405);
       }
+      if (path === "/api/storage-rooms") {
+        if (method === "GET") return listStorageRooms(env);
+        return json({ error: "Read-only. Write to /private/api/storage-rooms." }, 405);
+      }
+      if (path === "/api/storage-readings") {
+        if (method === "GET") return listStorageReadings(env);
+        return json({ error: "Read-only. Write to /private/api/storage-readings." }, 405);
+      }
 
       // ---- writes, behind Cloudflare Access ----
       if (path === "/private/api/sightings") {
@@ -69,6 +83,24 @@ export default {
       if (path.startsWith("/private/api/recipes/")) {
         const id = decodeURIComponent(path.slice("/private/api/recipes/".length));
         if (method === "DELETE") return deleteRecipe(request, env, id);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/private/api/storage-rooms") {
+        if (method === "POST") return createStorageRooms(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path.startsWith("/private/api/storage-rooms/")) {
+        const id = decodeURIComponent(path.slice("/private/api/storage-rooms/".length));
+        if (method === "DELETE") return deleteStorageRoom(request, env, id);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/private/api/storage-readings") {
+        if (method === "POST") return createStorageReadings(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path.startsWith("/private/api/storage-readings/")) {
+        const id = decodeURIComponent(path.slice("/private/api/storage-readings/".length));
+        if (method === "DELETE") return deleteStorageReading(request, env, id);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

@@ -21,6 +21,8 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 | `/` | Landing page | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
 | `/recipes/` | Recipe Book — 58 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
+| `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
+| `/recipes/storage/` | Food Storage — ingredient storage lookup + room temperature/humidity monitor | authored here |
 | `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
 | `/gallery/` | Wildlife Photography — portfolio gallery | authored here |
 | `/assets/` | Photographs (Ben's own) and site favicon | — |
@@ -32,15 +34,21 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
 
 ## API
 
-    GET  /api/sightings              public
-    GET  /api/custom-species         public
-    GET  /api/recipes                public
-    GET  /api/recipes/deleted        public
-    POST /private/api/sightings      behind Cloudflare Access
-    DEL  /private/api/sightings/:id  behind Cloudflare Access
-    POST /private/api/custom-species behind Cloudflare Access
-    POST /private/api/recipes        behind Cloudflare Access
-    DEL  /private/api/recipes/:id    behind Cloudflare Access
+    GET  /api/sightings                  public
+    GET  /api/custom-species             public
+    GET  /api/recipes                    public
+    GET  /api/recipes/deleted            public
+    GET  /api/storage-rooms              public
+    GET  /api/storage-readings           public
+    POST /private/api/sightings          behind Cloudflare Access
+    DEL  /private/api/sightings/:id      behind Cloudflare Access
+    POST /private/api/custom-species     behind Cloudflare Access
+    POST /private/api/recipes            behind Cloudflare Access
+    DEL  /private/api/recipes/:id        behind Cloudflare Access
+    POST /private/api/storage-rooms      behind Cloudflare Access
+    DEL  /private/api/storage-rooms/:id  behind Cloudflare Access
+    POST /private/api/storage-readings   behind Cloudflare Access
+    DEL  /private/api/storage-readings/:id behind Cloudflare Access
 
 The wildlife tracker is offline-first: the database is the source of truth,
 localStorage is a cache, and writes made with no signal or no login are queued
@@ -52,6 +60,19 @@ and work offline — and the database holds the overlay: recipes added through
 the form, edits to seeded ones, and deletions. The database wins by id.
 Deleting a seeded recipe writes a tombstone row, otherwise the seed would put
 it straight back on the next load.
+
+Every recipe shows storage and reheating advice for leftovers — either its own
+`storage` field, or sensible category-based default guidance when it doesn't
+have one (see `defaultStorageAdvice()` in `public/recipes/index.html`).
+
+Food Storage (`/recipes/storage/`) has two tabs. **Ingredients** lists every
+distinct ingredient across the book (same seed + database merge as the recipe
+book) and matches it against a hand-written storage guide — general
+food-safety guidance on how to store something once it's opened, not
+product-specific advice. **Room Monitor** is for tracking real conditions:
+named rooms (pantry, garage store, …) with logged temperature/humidity
+readings, trend charts per room, and a CSV export for analysis outside the
+site. It follows the same offline-first pattern as sightings and recipes.
 
 ## Changes from the original sources
 

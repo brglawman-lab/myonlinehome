@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Storage — Chef Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --red: #8B2E2E; --red-light: #F5EAEA;
+    --amber: #8B5E1A; --amber-light: #FBF2E3;
+    --blue: #1A3D6B; --blue-light: #E8EEF5;
+    --teal: #1A5050; --teal-light: #E5F0F0;
+    --pink: #6B2A4A; --pink-light: #F5EAF0;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* ---- header, matched to the recipe book ---- */
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+  .menu-wrap { position: relative; flex-shrink: 0; }
+  .menu-btn { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; }
+  .menu-btn:hover { background: var(--surface2); }
+  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.09); padding: 5px; z-index: 60; }
+  .menu-dropdown.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; text-decoration: none; transition: background 0.15s; }
+  .menu-item:hover { background: var(--surface2); }
+  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  .header-right { flex-shrink: 0; }
+  .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
+  .ghost-link:hover { background: var(--surface2); color: var(--text); }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+  .intro { margin-bottom: 1.5rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
+  .intro p { color: var(--text-muted); max-width: 68ch; }
+
+  /* ---- tabs ---- */
+  .tab-bar { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .tab-btn { background: none; border: none; padding: 10px 4px; margin-right: 20px; font-family: 'DM Sans', sans-serif; font-size: 14.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent-text); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---- shared ---- */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.25rem 1.35rem; margin-bottom: 1.5rem; }
+  .panel-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.6rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-strong); background: white; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-hint { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+  .btn { padding: 9px 16px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .btn:hover { opacity: 0.88; }
+  .btn.secondary { background: none; border: 1px solid var(--border-strong); color: var(--text); }
+  .btn.danger { background: none; border: 1px solid var(--red); color: var(--red); }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .icon-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 5px; border-radius: var(--radius); display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* ---- modal (shared by ingredient detail + room/reading forms) ---- */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,16,12,0.5); z-index: 200; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 560px; padding: 1.75rem; position: relative; margin: auto; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-faint); line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; margin: 0 1.5rem 4px 0; line-height: 1.3; }
+  .modal-meta { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.25rem; }
+  .guide-row { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.55; }
+  .guide-row:last-child { border-bottom: none; }
+  .guide-row .g-label { min-width: 96px; flex-shrink: 0; font-weight: 500; color: var(--blue); }
+  .used-in { margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--text-muted); }
+  .used-in strong { color: var(--text); font-weight: 500; }
+
+  /* ---- ingredients tab ---- */
+  .ing-search { margin-bottom: 1rem; }
+  .ing-count { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 0.85rem; }
+  .ing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+  .ing-card { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: border-color 0.15s, background 0.15s; }
+  .ing-card:hover { border-color: var(--border-strong); background: var(--surface2); }
+  .ing-card .ing-name { font-size: 14px; color: var(--text); text-transform: capitalize; }
+  .ing-card .ing-cat { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+
+  /* ---- room monitor tab ---- */
+  .rooms-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .room-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .room-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 0.5rem; }
+  .room-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; }
+  .room-notes { font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .room-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .chart-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px 6px; }
+  .chart-title { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
+  .chart-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 2rem 0; text-align: center; }
+  .readings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .readings-table th { text-align: left; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .readings-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .readings-table tr:last-child td { border-bottom: none; }
+  .readings-more { font-size: 12px; color: var(--text-faint); margin-top: 6px; }
+  .status-pill { position: fixed; bottom: 14px; right: 14px; z-index: 999; max-width: 280px; padding: 9px 14px; border-radius: 10px; background: rgba(250,248,244,0.97); border: 1px solid rgba(45,74,62,0.22); box-shadow: 0 3px 14px rgba(0,0,0,0.14); font: 400 13px/1.4 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; color: #2a2a2a; }
+  .status-pill a { color: #2d4a3e; }
+
+  @media (max-width: 640px) {
+    .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .header-right { display: none; }
+    .intro h1 { font-size: 27px; }
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .ing-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+</style>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="menu-wrap">
+      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
+        <span>Food Storage</span>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="menu-dropdown" id="mainMenuDropdown">
+        <a class="menu-item" href="/recipes/">Recipes</a>
+        <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
+        <a class="menu-item active" href="/recipes/storage/">Food Storage</a>
+      </div>
+    </div>
+    <div class="logo">Chef <span>Claude</span></div>
+    <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="intro">
+    <h1>Food Storage</h1>
+    <p>Look up how to store any ingredient in the book once it's opened, and keep a running log of temperature and humidity in the places you actually store food — so you can see how much they drift through the year.</p>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabBtnIngredients" onclick="switchTab('ingredients')">Ingredients</button>
+    <button class="tab-btn" id="tabBtnRooms" onclick="switchTab('rooms')">Room Monitor</button>
+  </div>
+
+  <section class="tab-panel active" id="panelIngredients">
+    <div class="ing-search">
+      <input type="text" id="ingSearch" placeholder="Search ingredients…" oninput="renderIngredients()">
+    </div>
+    <div class="ing-count" id="ingCount">Reading the recipe book…</div>
+    <div class="ing-grid" id="ingGrid"></div>
+    <div class="empty" id="ingEmpty" style="display:none;"><p>No ingredients match that search.</p></div>
+  </section>
+
+  <section class="tab-panel" id="panelRooms">
+    <div class="rooms-toolbar">
+      <button class="btn" onclick="openRoomForm()">+ Add a room</button>
+      <button class="btn secondary" onclick="exportAllReadingsCsv()">Export all readings (CSV)</button>
+    </div>
+    <div id="roomsList"></div>
+    <div class="empty" id="roomsEmpty" style="display:none;">
+      <p>No rooms yet. Add one for each place you keep food — pantry, garage store, cellar — and start logging readings.</p>
+    </div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="detailOverlay" onclick="closeModal(event)">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<script>
+/* ===========================================================================
+ * Food Storage — ingredient lookup + room temperature/humidity monitor.
+ *
+ * Ingredients tab: pulls the same recipe list the recipe book and Meal
+ * Builder use (DEFAULT_RECIPES from /recipes/, merged with the database
+ * overlay), lists every distinct ingredient, and matches each one against a
+ * hand-built storage guide — general food-safety guidance (UK FSA-style),
+ * not brand- or product-specific advice.
+ *
+ * Room Monitor tab: named rooms and logged temperature/humidity readings,
+ * backed by /api/storage-rooms and /api/storage-readings the same
+ * offline-first way the wildlife tracker and recipe book handle their data —
+ * readings taken with no signal are queued and sync once back online.
+ * ======================================================================== */
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+function toggleMainMenu(e) { e.stopPropagation(); document.getElementById('mainMenuDropdown').classList.toggle('open'); }
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.menu-wrap');
+  if (wrap && !wrap.contains(e.target)) document.getElementById('mainMenuDropdown').classList.remove('open');
+});
+
+function switchTab(tab) {
+  document.getElementById('tabBtnIngredients').classList.toggle('active', tab === 'ingredients');
+  document.getElementById('tabBtnRooms').classList.toggle('active', tab === 'rooms');
+  document.getElementById('panelIngredients').classList.toggle('active', tab === 'ingredients');
+  document.getElementById('panelRooms').classList.toggle('active', tab === 'rooms');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('detailOverlay')) {
+    document.getElementById('detailOverlay').classList.remove('open');
+  }
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('detailOverlay').classList.remove('open'); });
+
+/* ---------------------------------------------------------------------------
+ * Ingredient storage guide
+ *
+ * General received wisdom, not tied to any particular brand or product.
+ * Categories are checked in order and the first match wins, so more specific
+ * entries (an exclusion, or a narrower phrase like "sour cream") are listed
+ * before broader ones they'd otherwise be swallowed by ("cream").
+ * ------------------------------------------------------------------------- */
+const INGREDIENT_GUIDE = [
+  { label: 'Fresh pasta & noodles', match: ['fresh egg noodles', 'fresh pasta', 'fresh noodles', 'fresh ramen'], rows: [
+    ['Unopened', 'Perishable, not a pantry item — check the use-by date on the pack.'],
+    ['Once opened', 'Reseal tightly and refrigerate.'],
+    ['Fridge', 'Use within 2–3 days of opening, or by the use-by date if sooner.'],
+    ['Freezer', 'Freezes well for up to 3 months — portion it first so you only thaw what you need.'],
+  ]},
+  { label: 'Dried pasta & noodles', match: ['pasta', 'macaroni', 'orzo', 'spaghetti', 'tagliatelle', 'penne', 'fusilli', 'noodles', 'vermicelli', 'linguine', 'lasagne'], rows: [
+    ['Unopened', 'Check the best-before date — dried pasta and noodles keep well past it if stored somewhere cool and dry.'],
+    ['Once opened', "Reseal the bag tightly (a clip works, or decant into an airtight container) and keep in a cool, dry cupboard. It's good for 1–2 years — the real risks are moisture (turns it soft or mouldy) and pantry pests, not time."],
+    ['Fridge / Freezer', "Not needed. Freezing dry pasta or noodles gives no benefit — a sealed cupboard is fine indefinitely as long as it stays dry."],
+  ]},
+  { label: 'Rice (uncooked)', match: ['rice'], exclude: ['vinegar', 'wine', 'noodle', 'paper'], rows: [
+    ['Unopened', 'Check the best-before date; well-stored rice keeps well beyond it.'],
+    ['Once opened', 'Transfer to an airtight container — this keeps out moisture and pantry moths. White rice keeps 1–2 years; brown rice has more natural oils and turns rancid sooner, so use it within about 6 months of opening for best flavour.'],
+    ['Cooked rice — take care', 'Cool it within an hour of cooking, keep it no more than a day in the fridge, and reheat until steaming hot throughout. Spores that survive cooking can multiply at room temperature, which is why rice is treated more cautiously than most leftovers.'],
+  ]},
+  { label: 'Dried pulses, lentils & beans', match: ['dried lentil', 'split peas', 'dried chickpea', 'dried beans', 'dried pulses', 'lentils'], exclude: ['tinned', 'canned', 'drained'], rows: [
+    ['Unopened / opened', 'Keep sealed in a cool, dry cupboard — they last well over a year. Older pulses take longer to cook and soften rather than becoming unsafe, so use the oldest stock first.'],
+  ]},
+  { label: 'Cornflour', match: ['cornflour'], rows: [
+    ['Unopened / opened', "Keep sealed in a dry cupboard — it doesn't really spoil, just clumps if it gets damp. Good for a year or more once opened."],
+  ]},
+  { label: 'Flour', match: ['flour'], rows: [
+    ['Unopened', 'Check the best-before date.'],
+    ['Once opened', 'Reseal or decant into an airtight container and keep in a cool, dry cupboard.'],
+    ['How long', 'White flours keep 6–12 months once opened. Wholemeal flour has more natural oils and turns rancid faster — use within about 3 months of opening.'],
+    ['Fridge / Freezer', 'Not needed, but freezing pauses spoilage entirely and helps stop flour weevils in a warm kitchen — handy if you buy in bulk.'],
+  ]},
+  { label: 'Sugar', match: ['sugar'], rows: [
+    ["Doesn't spoil", 'Keep opened bags sealed in a cool, dry place — moisture (clumping) and strong nearby odours are the only real risks.'],
+    ['Brown sugar', 'Dries out and hardens once opened; keep it airtight, or add a slice of bread or an apple wedge to the container to keep it soft.'],
+  ]},
+  { label: 'Raising agents (baking powder, bicarbonate of soda)', match: ['baking powder', 'bicarbonate of soda', 'baking soda'], rows: [
+    ['Once opened', 'Keep the lid tight in a dry cupboard. It loses potency rather than spoiling outright — usually good for 12–18 months after opening. If in doubt, stir a teaspoon into water: it should fizz.'],
+  ]},
+  { label: 'Yeast', match: ['yeast'], rows: [
+    ['Dried, unopened', 'Keeps until the best-before date in a cool cupboard.'],
+    ['Dried, opened', 'Reseal tightly and refrigerate; keeps a few months in the fridge, or freeze for up to a year.'],
+    ['Fresh yeast', 'Keep refrigerated and use within 1–2 weeks, or freeze in small portions for up to 3 months.'],
+  ]},
+  { label: 'Ground spices & spice blends', match: ['cumin', 'paprika', 'cayenne', 'nutmeg', 'turmeric', 'curry powder', 'ground ginger', 'chilli flakes', 'garlic granules', 'shawarma spice', 'spice blend', 'chiles de árbol', 'dried red chillies'], rows: [
+    ['Storage', "Keep in a sealed jar away from heat, light and steam — not on a shelf right above the hob."],
+    ['How long', "Ground spices don't really \"go off\" so much as fade: expect 6–12 months of good potency and colour after opening, longer if kept somewhere cool and dark. Whole spices (peppercorns, whole cumin) keep well for 2–3 years."],
+  ]},
+  { label: 'Salt', match: ['salt'], exclude: ['salted', 'saltiness'], rows: [
+    ["Doesn't spoil", 'Keep sealed away from moisture — the only real issue is clumping in humid air. No best-before date worth worrying about.'],
+  ]},
+  { label: 'Water', match: ['water'], rows: [
+    ['No storage needed', 'Use straight from the tap (or kettle, for hot/lukewarm water) — nothing to store here.'],
+  ]},
+  { label: 'Anchovies & sundried tomatoes (oil-packed)', match: ['anchovy', 'anchovies', 'sundried tomato'], rows: [
+    ['Once opened', 'Keep submerged in their oil in a sealed container in the fridge — the oil and salt do most of the preserving. Use within 1–2 months, topping up with a little extra oil if needed to keep everything covered.'],
+  ]},
+  { label: 'Fresh herbs', match: ['fresh coriander', 'fresh dill', 'fresh mint', 'fresh parsley', 'flat-leaf parsley', 'rosemary', 'thyme', 'chives'], exclude: ['dried'], rows: [
+    ['Fridge', 'Wrap loosely in damp kitchen paper, or stand woody stems (rosemary, thyme) in a glass of water — either way, use within about a week.'],
+    ['Freezer', 'Chop and freeze in ice-cube trays with a little water or oil; great for cooking, not for garnish.'],
+  ]},
+  { label: 'Dried herbs & bay leaves', match: ['dried oregano', 'bay leaves', 'bouquet garni', 'dried thyme'], rows: [
+    ['Storage', 'Keep sealed in a cool, dark cupboard. Dried herbs fade in flavour well before they become unsafe — expect the best aroma in the first 6–12 months after opening.'],
+  ]},
+  { label: 'Cooking oils', match: ['olive oil', 'vegetable oil', 'groundnut oil', 'rapeseed oil', 'sunflower oil', 'toasted sesame oil', 'high-smoke-point oil', 'oil'], rows: [
+    ['Storage', 'Keep sealed, away from direct heat and light — a cupboard, not next to the hob or on a sunny windowsill. Warmth and light are what turn oil rancid, not time alone.'],
+    ['How long', "Most cooking oils are best for flavour within 3–6 months of opening, though they stay safe well beyond that — a rancid, \"crayon-like\" smell is the sign to bin it. Extra virgin olive oil and nut or sesame oils are more delicate and best used within a couple of months of opening."],
+    ['Fridge', "Not needed for everyday cooking oil (and can turn olive oil cloudy, which is harmless and clears at room temperature). Nut and sesame oils benefit from the fridge once opened."],
+  ]},
+  { label: 'Vinegar', match: ['vinegar'], rows: [
+    ['Storage', "Vinegar's acidity makes it essentially self-preserving. Keep the cap on in a cool cupboard — no need to refrigerate — and it will keep for 1–2 years after opening with little more than a gradual loss of aroma."],
+  ]},
+  { label: 'Tinned & canned goods', match: ['black beans', 'chickpeas', 'cannellini beans', 'butter beans', 'crushed tomatoes', 'tinned tomatoes', 'tinned coconut milk', 'tuna, drained', 'coconut milk'], rows: [
+    ['Unopened', 'Keeps for 1–2+ years past the best-before date if the tin is undamaged (no dents, rust or bulging) — the date is about quality, not sudden spoilage.'],
+    ['Once opened', 'Never leave food in the tin — decant into a sealed container or bowl and refrigerate. Beans, pulses, tomatoes and coconut milk all keep for about 2–3 days this way.'],
+    ['Freezer', 'Beans, pulses, coconut milk and tomato sauces all freeze well for up to 3 months. Coconut milk separates on thawing — just whisk it back together.'],
+  ]},
+  { label: 'Tomato paste / purée', match: ['tomato paste', 'tomato purée', 'tomato puree'], rows: [
+    ['A tube', "Keeps for several months in the fridge once opened — that's what the resealable cap is for."],
+    ['From a tin', "Decant and refrigerate for 2–3 days, or freeze small dollops (a teaspoon at a time, or frozen flat in a bag and snapped into pieces) so a spoonful is always on hand without wasting the rest."],
+  ]},
+  { label: 'Salty & savoury sauces (soy, fish sauce, Worcestershire, sriracha)', match: ['soy sauce', 'fish sauce', 'worcestershire', 'sriracha', 'shaoxing', 'oyster sauce', 'sweet chilli sauce', 'pad thai paste', 'pickle juice'], rows: [
+    ['Storage', "High salt or acid content makes these self-stable for a long time. Most keep their quality for 6–12+ months after opening in a cool cupboard, though the fridge door is fine too and is what some labels ask for — check fish sauce and pad thai paste in particular."],
+  ]},
+  { label: 'Mustard', match: ['mustard'], rows: [
+    ['Storage', 'Keeps in the fridge (or a cool cupboard) for up to a year once opened — mustard rarely spoils, though it mellows and fades in pungency over time.'],
+  ]},
+  { label: 'Mayonnaise', match: ['mayo', 'mayonnaise'], rows: [
+    ['Storage', 'Always refrigerate after opening. Being egg-based, it is less forgiving than most condiments if left out — use within about 2 months of opening, or by the date on the jar if sooner.'],
+  ]},
+  { label: 'Curry paste, harissa & chilli pastes', match: ['curry paste', 'harissa', 'chipotle', 'red curry paste'], rows: [
+    ['Storage', 'Refrigerate once opened and use within a few weeks (check the jar).'],
+    ['Freezer', 'Freezes well in small portions — an ice-cube tray works well — so a spoonful is always ready without the rest going to waste.'],
+  ]},
+  { label: 'Tahini & nut butters', match: ['tahini', 'peanut butter'], rows: [
+    ['Storage', 'Keep in a cool cupboard, tightly sealed. The oil separates on standing — give it a good stir before use, or store the jar upside down occasionally to help redistribute it.'],
+    ['How long', 'Keeps for months once opened. Refrigerating slows separation but makes it firmer to stir.'],
+  ]},
+  { label: 'Honey', match: ['honey'], rows: [
+    ["Doesn't spoil", 'Keep the jar sealed at room temperature. Refrigerating actually speeds up crystallisation; if it crystallises, stand the jar in warm water to bring it back to liquid.'],
+  ]},
+  { label: 'Pickles, capers & jarred vegetables', match: ['capers', 'cornichons', 'pickle,', 'jalapeñ', 'gherkin'], rows: [
+    ['Storage', 'The brine is doing the preserving. Keep the jar topped up with brine, lid on, in the fridge once opened — it will keep for several weeks to a few months.'],
+  ]},
+  { label: 'Jams, jellies & chutneys', match: ['redcurrant jelly', 'jam', 'chutney'], rows: [
+    ['Storage', 'Refrigerate once opened, even if the label doesn\'t insist on it, and use within a few weeks to a couple of months. High-sugar jams are more forgiving than low-sugar or fresh-fruit ones.'],
+  ]},
+  { label: 'Stock cubes & concentrate', match: ['stock cube', 'made from concentrate', 'bouillon'], rows: [
+    ['Unopened', 'Shelf-stable in the cupboard for a long time.'],
+    ['Once opened (jars)', 'Refrigerate concentrate jars and use within the timeframe on the label — typically a few months.'],
+  ]},
+  { label: 'Liquid stock', match: ['beef stock', 'chicken stock', 'vegetable stock', 'chicken or vegetable stock'], rows: [
+    ['Unopened (carton)', 'Keeps in the cupboard until its best-before date.'],
+    ['Opened, or homemade', 'Refrigerate and use within 3–4 days.'],
+    ['Freezer', 'Freezes well in portions (ice-cube trays or bags) for up to 3 months.'],
+  ]},
+  { label: 'Milk', match: ['milk'], exclude: ['coconut milk'], rows: [
+    ['Fridge', 'Keep refrigerated at all times. Once opened, use within about 5–7 days or by the use-by date, whichever comes first — trust your nose over the date once it\'s open.'],
+    ['Freezer', "Freezes reasonably well for up to 3 months if you won't get through it — expect some texture change, which is fine for cooking or baking."],
+  ]},
+  { label: 'Sour cream & crème fraîche', match: ['sour cream', 'soured cream', 'crème fraîche', 'creme fraiche'], rows: [
+    ['Fridge', 'Refrigerate and use within about a week of opening.'],
+    ['Freezer', "Not suitable — the texture splits badly on thawing."],
+  ]},
+  { label: 'Cream', match: ['double cream', 'cream'], exclude: ['sour', 'soured', 'crème fraîche', 'creme fraiche', 'ice cream'], rows: [
+    ['Fridge', 'Refrigerate and use within 3–5 days of opening, or by the use-by date if sooner.'],
+    ['Freezer', "Un-whipped double cream (high fat) freezes reasonably for up to 2 months, though it can separate slightly on thawing — best reserved for cooking rather than serving neat. Already-whipped cream doesn't freeze well."],
+  ]},
+  { label: 'Yoghurt', match: ['yogurt', 'yoghurt'], rows: [
+    ['Fridge', 'Refrigerate and use within about a week of opening, or by the use-by date.'],
+    ['Freezer', 'Can be frozen, though it turns grainy on thawing — best used in smoothies or cooking rather than eaten plain.'],
+  ]},
+  { label: 'Butter', match: ['butter'], exclude: ['butter beans', 'peanut butter'], rows: [
+    ['Fridge', 'Keep refrigerated; well-wrapped butter keeps for several weeks past opening.'],
+    ['Freezer', 'Freezes very well for 6–9 months — handy to buy in bulk when on offer.'],
+  ]},
+  { label: 'Hard cheese (cheddar, parmesan, gruyère…)', match: ['cheddar', 'parmesan', 'gruyère', 'gruyere', 'emmental', 'gouda', 'red leicester', 'double gloucester', 'raclette'], rows: [
+    ['Fridge', 'Wrap in greaseproof paper or foil rather than clingfilm, which traps moisture. Keeps for several weeks once cut; a little surface mould can just be trimmed off with a good margin.'],
+    ['Freezer', 'Freezes reasonably well, best grated for cooking — the texture turns crumbly, so it\'s not ideal for eating on its own.'],
+  ]},
+  { label: 'Soft & fresh cheese (feta, mozzarella, halloumi…)', match: ['feta', 'mozzarella', 'halloumi', 'labneh'], rows: [
+    ['Fridge', 'Refrigerate, ideally in its own brine or liquid if it came with any. Use within about a week of opening — soft cheeses spoil faster than hard ones.'],
+    ['Freezer', 'Works for cooking but firms the texture, so it\'s best avoided if you plan to eat it fresh.'],
+  ]},
+  { label: 'Eggs', match: ['egg'], exclude: ['noodle', 'eggplant'], rows: [
+    ['Fridge', 'Keep refrigerated, pointed end down, in their box — it protects them and stops them absorbing fridge odours. Use by the date on the box, generally 3–5 weeks from laying.'],
+    ['Cooked / leftover', 'Hard-boiled eggs keep about a week refrigerated. Leftover whites or yolks keep 2–3 days in a sealed container, or freeze for up to a year (beat yolks with a pinch of salt or sugar first so they don\'t gel).'],
+  ]},
+  { label: 'Raw beef & pork', match: ['beef mince', 'beef joint', 'beef short ribs', 'pork belly', 'pork shoulder', 'sirloin', 'ribeye', 'rump steak'], rows: [
+    ['Fridge', 'Keep on a plate or in a container to catch drips, on the bottom shelf, away from ready-to-eat food. Use within 2–3 days of purchase (mince within 1–2 days), or by the use-by date.'],
+    ['Freezer', 'Mince freezes well for 3–4 months; whole joints and steaks for up to a year. Always thaw fully in the fridge, never at room temperature.'],
+  ]},
+  { label: 'Raw poultry', match: ['chicken breast', 'whole chicken', 'chicken thigh', 'chicken drumstick', 'grilled herb chicken'], rows: [
+    ['Fridge', 'Keep on the bottom shelf, away from other food. Use within 1–2 days of purchase, or by the use-by date — chicken is one of the more perishable meats.'],
+    ['Freezer', 'Freezes well for up to 9 months. Thaw fully in the fridge before cooking, never at room temperature, and never refreeze raw chicken that\'s already been thawed.'],
+  ]},
+  { label: 'Cured & cooked meats (chorizo, pancetta, pepperoni)', match: ['pancetta', 'chorizo', 'pepperoni'], rows: [
+    ['Fridge', 'Refrigerate and use within the pack\'s use-by date once opened — typically about a week, longer than fresh meat thanks to curing, but check the label.'],
+    ['Freezer', 'Freezes well, sliced or whole, for up to 2 months.'],
+  ]},
+  { label: 'Raw fish & shellfish', match: ['salmon fillet', 'king prawns', 'raw king prawns', 'wild alaskan salmon'], rows: [
+    ['Fridge', 'Keep on the coldest shelf and use on the day of purchase or within 1–2 days at most — fresh fish and shellfish are the most perishable things in the fridge.'],
+    ['Freezer', 'Freezes well for 2–3 months if it wasn\'t previously frozen. Thaw in the fridge, never at room temperature, and cook promptly after thawing.'],
+  ]},
+  { label: 'Smoked fish', match: ['smoked mackerel', 'smoked salmon', 'peppered smoked mackerel'], rows: [
+    ['Fridge', 'Refrigerate and use within the pack\'s use-by date — usually a few days once opened.'],
+    ['Freezer', 'Freezes well, vacuum-packed or wrapped tightly, for up to 2 months.'],
+  ]},
+  { label: 'Cooked / shop-bought seafood', match: ['cooked king prawns', 'shop-bought fish cakes'], rows: [
+    ['Fridge', 'Treat as ready-to-eat and perishable: refrigerate and use within 1–2 days of opening.'],
+    ["Don't refreeze", "Not if it was previously frozen and thawed."],
+  ]},
+  { label: 'Tofu', match: ['tofu'], rows: [
+    ['Unopened', 'Keeps until its best-before date, fridge or cupboard depending on the pack.'],
+    ['Once opened', 'Keep it submerged in fresh water in a sealed container in the fridge, changing the water daily, and use within 3–5 days.'],
+    ['Freezer', 'Freezes well — the texture turns chewier and spongier on thawing, which many people prefer for soaking up marinades.'],
+  ]},
+  { label: 'Leafy greens & salad', match: ['spinach', 'lettuce', 'rocket', 'watercress', 'cabbage', 'romaine', 'bean sprout', 'beansprout'], rows: [
+    ['Fridge', 'Keep in the salad drawer, ideally with a paper towel to absorb excess moisture. Most leafy greens keep 3–7 days; hardier cabbage keeps 1–2 weeks. Bean sprouts are especially perishable — use within 1–2 days.'],
+    ['Freezer', 'Not suitable raw (turns watery on thawing), but cooked or blanched greens freeze fine.'],
+  ]},
+  { label: 'Root veg & alliums (potato, carrot, onion, garlic)', match: ['carrot', 'potato', 'potatoes', 'wilja', 'onion', 'garlic', 'leek', 'shallot'], exclude: ['garlic powder', 'crispy fried shallots'], rows: [
+    ['Storage', 'Best kept somewhere cool, dark and dry rather than the fridge — a cupboard or vegetable rack. Keep onions and potatoes apart, as each makes the other spoil faster.'],
+    ['How long', 'Several weeks to a few months whole. Once cut, refrigerate the rest in a container or bag and use within a few days.'],
+    ['Freezer', 'Most freeze well once chopped and blanched; raw potato doesn\'t (turns watery and grainy).'],
+  ]},
+  { label: 'Other fresh vegetables', match: ['courgette', 'asparagus', 'corn cob', 'corn on the cob', 'pepper', 'mushroom', 'cucumber', 'tomato', 'avocado', 'beetroot'], exclude: ['tomato paste', 'tomato purée', 'tomato puree', 'sundried'], rows: [
+    ['Fridge', 'Keep in the salad drawer — except tomatoes, which taste better at room temperature and are only worth chilling once very ripe. Most keep about a week; mushrooms do best in a paper bag, not plastic.'],
+    ['Freezer', 'Most freeze well once chopped and blanched. Salad vegetables eaten raw (cucumber, tomato) turn watery on thawing, so are best avoided.'],
+  ]},
+  { label: 'Citrus & rhubarb', match: ['lemon', 'lime', 'orange', 'rhubarb'], rows: [
+    ['Whole', '1–2 weeks at room temperature, or up to a month in the fridge.'],
+    ['Cut or juiced', 'Refrigerate and use within a few days. Juice and zest both freeze well in an ice-cube tray for months.'],
+    ['Rhubarb', 'Refrigerate and use within a week, or freeze chopped for several months.'],
+  ]},
+  { label: 'Bread', match: ['baguette', 'sourdough', 'ciabatta', 'burger buns', 'potato buns', 'sesame bagels', 'bread'], rows: [
+    ['Storage', 'Best kept at room temperature in a bread bin or paper bag for 2–4 days — the fridge actually makes bread go stale faster, not slower.'],
+    ['Freezer', 'Freezes very well, sliced or whole, for up to 3 months; toast or reheat from frozen.'],
+  ]},
+  { label: 'Tortillas & wraps', match: ['tortilla'], exclude: ['tortilla chips'], rows: [
+    ['Storage', 'Keep sealed at room temperature until opened. Once opened, reseal tightly and use within about a week, or refrigerate for longer if the pack says so.'],
+    ['Freezer', 'Freezes well, layered with baking paper, for up to 2 months.'],
+  ]},
+  { label: 'Pastry', match: ['puff pastry', 'ready-rolled'], rows: [
+    ['Fridge', 'Keep chilled and use by the pack\'s date once opened — pastry is high in fat and doesn\'t keep long once thawed.'],
+    ['Freezer', 'Freezes well (it\'s often sold frozen). Once thawed raw, don\'t refreeze it — though you can freeze it again once baked.'],
+  ]},
+  { label: 'Breadcrumbs', match: ['breadcrumbs', 'panko'], rows: [
+    ['Storage', 'Keep sealed in a cool cupboard — behaves like a dry good. A few months once opened, freshest within the first couple.'],
+    ['Freezer', 'Freezes well and extends this further.'],
+  ]},
+  { label: 'Tortilla chips & crisps', match: ['tortilla chips'], rows: [
+    ['Storage', 'Reseal the bag tightly (a clip helps) and keep in the cupboard. Best within a couple of weeks of opening before they turn stale — not unsafe beyond that, just less good.'],
+  ]},
+  { label: 'Nuts & seeds', match: ['peanuts', 'walnuts', 'sesame seeds', 'raw peanuts'], rows: [
+    ['Storage', 'Airtight container, cool cupboard, away from light — their natural oils turn rancid over time.'],
+    ['How long', 'Best within a couple of months at room temperature once opened; refrigerating or freezing roughly doubles that, worth doing if you buy in bulk.'],
+  ]},
+  { label: 'Wine (for cooking)', match: ['red wine', 'white wine'], exclude: ['vinegar'], rows: [
+    ['Once opened', 'Reseal (a wine stopper helps) and refrigerate, even red wine if it\'s just for cooking — it keeps its flavour for 3–5 days that way.'],
+  ]},
+  { label: 'Beer & lager (for cooking)', match: ['lager', 'pale ale'], rows: [
+    ['Once opened', 'Refrigerate and use within a day or two — it goes flat and stale quickly.'],
+  ]},
+  { label: 'Spirits', match: ['brandy', 'whisky'], rows: [
+    ['Once opened', 'Shelf-stable indefinitely thanks to the alcohol content. Keep the cap on in a cupboard, away from direct light and heat, for the best flavour long-term.'],
+  ]},
+];
+
+function matchIngredientCategory(rawItem) {
+  const text = String(rawItem || '').toLowerCase();
+  for (const cat of INGREDIENT_GUIDE) {
+    if (cat.exclude && cat.exclude.some((x) => text.includes(x))) continue;
+    if (cat.match.some((k) => text.includes(k))) return cat;
+  }
+  return null;
+}
+
+function fallbackGuidance(rawItem) {
+  const t = String(rawItem || '').toLowerCase();
+  if (t.includes('dried')) {
+    return { label: 'Dry goods (general)', rows: [
+      ['Storage', 'Keep sealed in a cool, dry cupboard away from heat and light. Once opened, reseal tightly or decant into an airtight container — moisture and pantry pests are the main risks for dry goods, not time itself.'],
+    ]};
+  }
+  if (t.includes('tinned') || t.includes('canned')) {
+    return { label: 'Tinned / canned (general)', rows: [
+      ['Unopened', 'Keeps well past its best-before date if the tin is undamaged.'],
+      ['Once opened', 'Never store food in the tin — decant into a sealed container and refrigerate, using within 2–3 days.'],
+    ]};
+  }
+  if (t.includes('fresh')) {
+    return { label: 'Fresh produce (general)', rows: [
+      ['Fridge', 'Refrigerate and use within about a week — sooner for anything leafy or delicate.'],
+      ['Freezer', "Many vegetables freeze well once blanched; fruit and salad vegetables eaten raw generally don't."],
+    ]};
+  }
+  return { label: 'No specific entry yet', rows: [
+    ['General rule of thumb', "Follow any instructions on the packaging. Once opened, most part-used ingredients are safest kept tightly sealed or wrapped in the fridge and used within 2–3 days — unless it's a shelf-stable dry good (flour, sugar, dried pasta, spices), in which case a cool, dry cupboard is fine."],
+  ]};
+}
+
+/* ---------------------------------------------------------------------------
+ * Loading the recipe list — same approach as the Meal Builder: read the
+ * recipe book's own HTML and lift DEFAULT_RECIPES out of it, then merge in
+ * whatever the database holds, so anything Ben adds on the site shows up
+ * here too with no extra work.
+ * ------------------------------------------------------------------------- */
+let RECIPES = [];
+
+function extractArray(html, marker) {
+  const at = html.indexOf(marker);
+  if (at < 0) return null;
+  const open = at + marker.length - 1;
+  const close = html.indexOf('\n];', open);
+  if (close < 0) return null;
+  try { return (new Function('return ' + html.slice(open, close + 2) + ';'))(); }
+  catch (e) { console.warn('Could not parse ' + marker, e); return null; }
+}
+function mergeById(base, overlay) {
+  const map = new Map(base.map((r) => [r.id, r]));
+  for (const r of overlay) map.set(r.id, r);
+  return [...map.values()];
+}
+async function loadLibrary() {
+  let html = '';
+  try {
+    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    html = await res.text();
+  } catch (e) {
+    document.getElementById('ingCount').textContent = 'Could not read the recipe book.';
+    return;
+  }
+  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
+  if (!seed) { document.getElementById('ingCount').textContent = 'The recipe book loaded but its recipe list could not be read.'; return; }
+
+  let merged = seed;
+  try {
+    const [a, b] = await Promise.all([
+      fetch('/api/recipes', { cache: 'no-store' }),
+      fetch('/api/recipes/deleted', { cache: 'no-store' }),
+    ]);
+    if (a.ok) { const j = await a.json(); if (Array.isArray(j)) merged = mergeById(merged, j); }
+    if (b.ok) { const j = await b.json(); if (Array.isArray(j)) { const gone = new Set(j); merged = merged.filter((r) => !gone.has(r.id)); } }
+  } catch (e) { /* offline is fine — the seed is enough */ }
+
+  RECIPES = merged.filter((r) => !r.noRecipe);
+}
+
+/* ---------------------------------------------------------------------------
+ * Distinct ingredients across the book.
+ * ------------------------------------------------------------------------- */
+function normalizeIngredientKey(item) {
+  let s = String(item || '').toLowerCase();
+  s = s.replace(/\([^)]*\)/g, '');
+  s = s.split(',')[0];
+  s = s.trim().replace(/\s+/g, ' ');
+  s = s.replace(/^(a|an|the)\s+/, '');
+  return s;
+}
+let INGREDIENT_INDEX = [];
+function buildIngredientIndex() {
+  const map = new Map();
+  for (const r of RECIPES) {
+    for (const ing of r.ingredients || []) {
+      const key = normalizeIngredientKey(ing.item);
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, { key, label: key, recipeTitles: new Set(), matchText: ing.item });
+      map.get(key).recipeTitles.add(r.title);
+    }
+  }
+  INGREDIENT_INDEX = [...map.values()].sort((a, b) => a.key.localeCompare(b.key));
+}
+function renderIngredients() {
+  const q = document.getElementById('ingSearch').value.toLowerCase().trim();
+  const grid = document.getElementById('ingGrid');
+  const empty = document.getElementById('ingEmpty');
+  const count = document.getElementById('ingCount');
+  const shown = INGREDIENT_INDEX.filter((i) => !q || i.key.includes(q));
+  count.textContent = INGREDIENT_INDEX.length + ' ingredients from ' + RECIPES.length + ' recipes' + (q ? ' · ' + shown.length + ' shown' : '');
+  if (!shown.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = shown.map((i) => {
+    const cat = matchIngredientCategory(i.matchText);
+    const catLabel = cat ? cat.label : fallbackGuidance(i.matchText).label;
+    return '<button class="ing-card" onclick="openIngredientDetail(\'' + i.key.replace(/'/g, "\\'") + '\')">'
+      + '<div class="ing-name">' + escapeHtml(i.label) + '</div>'
+      + '<div class="ing-cat">' + escapeHtml(catLabel) + '</div>'
+      + '</button>';
+  }).join('');
+}
+function openIngredientDetail(key) {
+  const entry = INGREDIENT_INDEX.find((i) => i.key === key);
+  if (!entry) return;
+  const cat = matchIngredientCategory(entry.matchText) || fallbackGuidance(entry.matchText);
+  const rowsHtml = cat.rows.map((row) => '<div class="guide-row"><span class="g-label">' + escapeHtml(row[0]) + '</span><span>' + escapeHtml(row[1]) + '</span></div>').join('');
+  const titles = [...entry.recipeTitles].sort();
+  const usedIn = '<div class="used-in"><strong>Used in ' + titles.length + ' recipe' + (titles.length !== 1 ? 's' : '') + ':</strong> ' + escapeHtml(titles.slice(0, 8).join(', ')) + (titles.length > 8 ? ', …' : '') + '</div>';
+  const m = document.getElementById('detailModal');
+  m.innerHTML = '<button class="modal-close" onclick="closeModal()">&#x2715;</button>'
+    + '<h2>' + escapeHtml(entry.label) + '</h2>'
+    + '<div class="modal-meta">' + escapeHtml(cat.label) + '</div>'
+    + rowsHtml
+    + usedIn;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+/* ---------------------------------------------------------------------------
+ * Room Monitor: rooms + readings, synced the same offline-first way as the
+ * rest of the site (queue writes locally, flush when online and signed in).
+ * ------------------------------------------------------------------------- */
+let ROOMS = [];
+let READINGS = [];
+const RM_ROOMS_CACHE = 'foodstorage.rooms.v1';
+const RM_READINGS_CACHE = 'foodstorage.readings.v1';
+const RM_QUEUE_KEY = 'foodstorage.pendingWrites.v1';
+
+function loadCache(key) { try { const raw = localStorage.getItem(key); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function saveCache(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {} }
+
+const StorageSync = (() => {
+  let queue = { roomWrites: [], roomDeletes: [], readingWrites: [], readingDeletes: [] };
+  let status = { pending: 0, needsSignIn: false };
+
+  function loadQueue() {
+    try {
+      const raw = localStorage.getItem(RM_QUEUE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed === 'object') queue = Object.assign({ roomWrites: [], roomDeletes: [], readingWrites: [], readingDeletes: [] }, parsed);
+    } catch (e) {}
+  }
+  function saveQueue() {
+    try { localStorage.setItem(RM_QUEUE_KEY, JSON.stringify(queue)); } catch (e) {}
+    status.pending = queue.roomWrites.length + queue.roomDeletes.length + queue.readingWrites.length + queue.readingDeletes.length;
+    renderPill();
+  }
+  function mergeArrById(base, overlay) {
+    const map = new Map(base.map((r) => [r.id, r]));
+    for (const r of overlay) map.set(r.id, r);
+    return [...map.values()];
+  }
+
+  async function pull() {
+    let dbRooms = null, dbReadings = null;
+    try {
+      const [a, b] = await Promise.all([
+        fetch('/api/storage-rooms', { cache: 'no-store' }),
+        fetch('/api/storage-readings', { cache: 'no-store' }),
+      ]);
+      if (a.ok) { const j = await a.json(); if (Array.isArray(j)) dbRooms = j; }
+      if (b.ok) { const j = await b.json(); if (Array.isArray(j)) dbReadings = j; }
+    } catch (e) { /* offline — cached copy is enough */ }
+
+    if (dbRooms !== null) {
+      let merged = mergeArrById(dbRooms, queue.roomWrites);
+      const goneRooms = new Set(queue.roomDeletes);
+      merged = merged.filter((r) => !goneRooms.has(r.id));
+      ROOMS = merged;
+      saveCache(RM_ROOMS_CACHE, ROOMS);
+    } else {
+      ROOMS = mergeArrById(loadCache(RM_ROOMS_CACHE), queue.roomWrites).filter((r) => !queue.roomDeletes.includes(r.id));
+    }
+
+    if (dbReadings !== null) {
+      let merged = mergeArrById(dbReadings, queue.readingWrites);
+      const goneReadings = new Set(queue.readingDeletes);
+      merged = merged.filter((r) => !goneReadings.has(r.id));
+      READINGS = merged;
+      saveCache(RM_READINGS_CACHE, READINGS);
+    } else {
+      READINGS = mergeArrById(loadCache(RM_READINGS_CACHE), queue.readingWrites).filter((r) => !queue.readingDeletes.includes(r.id));
+    }
+    return dbRooms !== null || dbReadings !== null;
+  }
+
+  async function postJson(url, body) {
+    const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const type = res.headers.get('content-type') || '';
+    if (res.status === 401 || !type.includes('application/json')) { const err = new Error('Not signed in'); err.needsSignIn = true; throw err; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+  async function del(url) {
+    const res = await fetch(url, { method: 'DELETE' });
+    const type = res.headers.get('content-type') || '';
+    if (res.status === 401 || !type.includes('application/json')) { const err = new Error('Not signed in'); err.needsSignIn = true; throw err; }
+  }
+
+  async function flush() {
+    if (!navigator.onLine) { renderPill(); return; }
+    const nothingQueued = !queue.roomWrites.length && !queue.roomDeletes.length && !queue.readingWrites.length && !queue.readingDeletes.length;
+    if (nothingQueued) { status.needsSignIn = false; renderPill(); return; }
+    try {
+      if (queue.roomWrites.length) { await postJson('/private/api/storage-rooms', queue.roomWrites); queue.roomWrites = []; }
+      for (const id of [...queue.roomDeletes]) { await del('/private/api/storage-rooms/' + encodeURIComponent(id)); queue.roomDeletes = queue.roomDeletes.filter((g) => g !== id); }
+      if (queue.readingWrites.length) { await postJson('/private/api/storage-readings', queue.readingWrites); queue.readingWrites = []; }
+      for (const id of [...queue.readingDeletes]) { await del('/private/api/storage-readings/' + encodeURIComponent(id)); queue.readingDeletes = queue.readingDeletes.filter((g) => g !== id); }
+      status.needsSignIn = false;
+    } catch (e) {
+      const networkLevel = e instanceof TypeError;
+      status.needsSignIn = Boolean(e.needsSignIn) || (navigator.onLine && networkLevel);
+      console.warn('Food storage sync failed, keeping it queued.', e);
+    }
+    saveQueue();
+  }
+
+  function renderPill() {
+    let el = document.getElementById('fs-sync-status');
+    if (status.pending === 0) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'fs-sync-status'; el.className = 'status-pill'; document.body.appendChild(el); }
+    const n = status.pending, word = n === 1 ? 'change' : 'changes';
+    if (status.needsSignIn) {
+      el.innerHTML = '<strong style="color:#c4622d">' + n + ' ' + word + ' saved on this device</strong><br><a href="/private/" target="_blank" rel="noopener">Sign in</a> to sync ' + (n === 1 ? 'it' : 'them') + ' to the database.';
+    } else if (!navigator.onLine) {
+      el.innerHTML = '<strong>Offline</strong><br>' + n + ' ' + word + ' will sync when you are back online.';
+    } else {
+      el.innerHTML = 'Syncing ' + n + ' ' + word + '…';
+    }
+  }
+
+  async function init() {
+    loadQueue();
+    status.pending = queue.roomWrites.length + queue.roomDeletes.length + queue.readingWrites.length + queue.readingDeletes.length;
+    await pull();
+    renderRooms();
+    await flush();
+    window.addEventListener('online', async () => { await flush(); await pull(); renderRooms(); });
+    window.addEventListener('offline', renderPill);
+  }
+
+  function pushRoom(room) { queue.roomWrites = queue.roomWrites.filter((r) => r.id !== room.id).concat([room]); saveQueue(); flush(); }
+  function removeRoom(id) { queue.roomWrites = queue.roomWrites.filter((r) => r.id !== id); if (!queue.roomDeletes.includes(id)) queue.roomDeletes.push(id); saveQueue(); flush(); }
+  function pushReading(reading) { queue.readingWrites = queue.readingWrites.filter((r) => r.id !== reading.id).concat([reading]); saveQueue(); flush(); }
+  function removeReading(id) { queue.readingWrites = queue.readingWrites.filter((r) => r.id !== id); if (!queue.readingDeletes.includes(id)) queue.readingDeletes.push(id); saveQueue(); flush(); }
+
+  return { init, pushRoom, removeRoom, pushReading, removeReading };
+})();
+
+function uid(prefix) { return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); }
+
+function openRoomForm() {
+  const m = document.getElementById('detailModal');
+  m.innerHTML = '<button class="modal-close" onclick="closeModal()">&#x2715;</button>'
+    + '<h2>Add a room</h2>'
+    + '<div class="modal-meta">Somewhere you keep food and want to track — pantry, garage store, cellar…</div>'
+    + '<div class="form-group"><label>Name</label><input type="text" id="rf-name" placeholder="e.g. Pantry"></div>'
+    + '<div class="form-group"><label>Notes (optional)</label><input type="text" id="rf-notes" placeholder="e.g. North-facing, unheated"></div>'
+    + '<button class="btn" style="width:100%;" onclick="saveRoomForm()">Save room</button>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function saveRoomForm() {
+  const name = document.getElementById('rf-name').value.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  const notes = document.getElementById('rf-notes').value.trim();
+  const room = { id: uid('room'), name, notes: notes || undefined, createdAt: new Date().toISOString() };
+  ROOMS = ROOMS.concat([room]);
+  saveCache(RM_ROOMS_CACHE, ROOMS);
+  StorageSync.pushRoom(room);
+  closeModal();
+  renderRooms();
+}
+function askDeleteRoom(id) {
+  const room = ROOMS.find((r) => r.id === id);
+  if (!room) return;
+  if (!confirm('Delete "' + room.name + '" and all its logged readings? This can\'t be undone.')) return;
+  ROOMS = ROOMS.filter((r) => r.id !== id);
+  READINGS = READINGS.filter((r) => r.roomId !== id);
+  saveCache(RM_ROOMS_CACHE, ROOMS);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.removeRoom(id);
+  renderRooms();
+}
+
+function openReadingForm(roomId) {
+  const room = ROOMS.find((r) => r.id === roomId);
+  if (!room) return;
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const nowLocal = now.toISOString().slice(0, 16);
+  const m = document.getElementById('detailModal');
+  m.innerHTML = '<button class="modal-close" onclick="closeModal()">&#x2715;</button>'
+    + '<h2>Log a reading</h2>'
+    + '<div class="modal-meta">' + escapeHtml(room.name) + '</div>'
+    + '<div class="form-group"><label>When</label><input type="datetime-local" id="rd-when" value="' + nowLocal + '"></div>'
+    + '<div class="form-row">'
+    + '<div class="form-group"><label>Temperature (°C)</label><input type="number" id="rd-temp" step="0.1" placeholder="e.g. 16.5"></div>'
+    + '<div class="form-group"><label>Humidity (% RH)</label><input type="number" id="rd-hum" step="1" min="0" max="100" placeholder="e.g. 55"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Note (optional)</label><input type="text" id="rd-note" placeholder="e.g. Door left open earlier"></div>'
+    + '<div class="form-hint" style="margin-bottom:1rem;">At least one of temperature or humidity is needed.</div>'
+    + '<button class="btn" style="width:100%;" onclick="saveReadingForm(\'' + roomId + '\')">Save reading</button>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function saveReadingForm(roomId) {
+  const whenLocal = document.getElementById('rd-when').value;
+  const tempRaw = document.getElementById('rd-temp').value.trim();
+  const humRaw = document.getElementById('rd-hum').value.trim();
+  if (!tempRaw && !humRaw) { alert('Enter a temperature, a humidity, or both.'); return; }
+  const recordedAt = whenLocal ? new Date(whenLocal).toISOString() : new Date().toISOString();
+  const reading = {
+    id: uid('reading'),
+    roomId,
+    recordedAt,
+    tempC: tempRaw ? parseFloat(tempRaw) : undefined,
+    humidityPct: humRaw ? parseFloat(humRaw) : undefined,
+    note: document.getElementById('rd-note').value.trim() || undefined,
+    loggedAt: new Date().toISOString(),
+  };
+  READINGS = READINGS.concat([reading]);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.pushReading(reading);
+  closeModal();
+  renderRooms();
+}
+function askDeleteReading(id) {
+  READINGS = READINGS.filter((r) => r.id !== id);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.removeReading(id);
+  renderRooms();
+}
+
+/* ---- tiny inline SVG trend chart: one series, one axis, native tooltips ---- */
+function drawTrendChart(points, color, unit) {
+  if (!points.length) return '<div class="chart-empty">No readings yet.</div>';
+  const W = 320, H = 130, padL = 34, padR = 10, padT = 10, padB = 20;
+  const ts = points.map((p) => p.t), vs = points.map((p) => p.v);
+  const minT = Math.min(...ts), maxT = Math.max(...ts);
+  let minV = Math.min(...vs), maxV = Math.max(...vs);
+  if (minV === maxV) { minV -= 1; maxV += 1; }
+  const spanV = maxV - minV;
+  minV -= spanV * 0.1; maxV += spanV * 0.1;
+  const x = (t) => padL + (maxT === minT ? 0 : (t - minT) / (maxT - minT)) * (W - padL - padR);
+  const y = (v) => H - padB - ((v - minV) / (maxV - minV)) * (H - padT - padB);
+
+  const gridVals = [minV + (maxV - minV) * 0.15, minV + (maxV - minV) * 0.5, minV + (maxV - minV) * 0.85];
+  const gridHtml = gridVals.map((v) => '<line x1="' + padL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y(v).toFixed(1) + '" stroke="var(--border)" stroke-width="1"/>'
+    + '<text x="2" y="' + (y(v) + 3).toFixed(1) + '" font-size="9" fill="var(--text-faint)">' + v.toFixed(1) + '</text>').join('');
+
+  let d = '';
+  points.forEach((p, i) => { d += (i === 0 ? 'M' : 'L') + x(p.t).toFixed(1) + ',' + y(p.v).toFixed(1) + ' '; });
+
+  const dots = points.map((p) => {
+    const dateStr = new Date(p.t).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return '<circle cx="' + x(p.t).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="2.5" fill="' + color + '"><title>' + dateStr + ': ' + p.v + unit + '</title></circle>';
+  }).join('');
+
+  const last = points[points.length - 1];
+  const firstLabel = new Date(minT).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const lastLabel = new Date(maxT).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block;">'
+    + gridHtml
+    + '<path d="' + d.trim() + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + dots
+    + '<text x="' + padL + '" y="' + (H - 4) + '" font-size="9" fill="var(--text-faint)">' + firstLabel + '</text>'
+    + '<text x="' + (W - padR) + '" y="' + (H - 4) + '" font-size="9" fill="var(--text-faint)" text-anchor="end">' + lastLabel + '</text>'
+    + '<text x="' + (W - padR) + '" y="12" font-size="10" font-weight="600" fill="' + color + '" text-anchor="end">' + last.v + unit + '</text>'
+    + '</svg>';
+}
+
+function renderRooms() {
+  const list = document.getElementById('roomsList');
+  const empty = document.getElementById('roomsEmpty');
+  if (!ROOMS.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = ROOMS.slice().sort((a, b) => a.name.localeCompare(b.name)).map((room) => {
+    const roomReadings = READINGS.filter((r) => r.roomId === room.id).sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt));
+    const tempPoints = roomReadings.filter((r) => r.tempC != null).map((r) => ({ t: new Date(r.recordedAt).getTime(), v: r.tempC }));
+    const humPoints = roomReadings.filter((r) => r.humidityPct != null).map((r) => ({ t: new Date(r.recordedAt).getTime(), v: r.humidityPct }));
+    const recent = roomReadings.slice(-8).reverse();
+    const rowsHtml = recent.map((r) => (
+      '<tr><td>' + escapeHtml(new Date(r.recordedAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + '</td>'
+      + '<td>' + (r.tempC != null ? r.tempC + '°C' : '—') + '</td>'
+      + '<td>' + (r.humidityPct != null ? r.humidityPct + '%' : '—') + '</td>'
+      + '<td>' + escapeHtml(r.note || '') + '</td>'
+      + '<td><button class="icon-btn" title="Delete reading" onclick="askDeleteReading(\'' + r.id + '\')">✕</button></td></tr>'
+    )).join('');
+    const tableHtml = recent.length
+      ? '<table class="readings-table"><thead><tr><th>When</th><th>Temp</th><th>Humidity</th><th>Note</th><th></th></tr></thead><tbody>' + rowsHtml + '</tbody></table>'
+        + (roomReadings.length > recent.length ? '<div class="readings-more">' + (roomReadings.length - recent.length) + ' earlier reading' + (roomReadings.length - recent.length !== 1 ? 's' : '') + ' — export CSV for the full history.</div>' : '')
+      : '<div class="chart-empty">No readings logged yet.</div>';
+
+    return '<div class="room-card">'
+      + '<div class="room-head"><div><div class="room-title">' + escapeHtml(room.name) + '</div>'
+      + (room.notes ? '<div class="room-notes">' + escapeHtml(room.notes) + '</div>' : '')
+      + '</div><button class="icon-btn" title="Delete room" onclick="askDeleteRoom(\'' + room.id + '\')">✕</button></div>'
+      + '<div class="room-actions">'
+      + '<button class="btn" onclick="openReadingForm(\'' + room.id + '\')">+ Log a reading</button>'
+      + '<button class="btn secondary" onclick="exportRoomReadingsCsv(\'' + room.id + '\')">Export CSV</button>'
+      + '</div>'
+      + '<div class="charts-grid">'
+      + '<div class="chart-box"><div class="chart-title">Temperature</div>' + drawTrendChart(tempPoints, 'var(--blue)', '°C') + '</div>'
+      + '<div class="chart-box"><div class="chart-title">Humidity</div>' + drawTrendChart(humPoints, 'var(--teal)', '%') + '</div>'
+      + '</div>'
+      + tableHtml
+      + '</div>';
+  }).join('');
+}
+
+function csvEscape(v) {
+  const s = v == null ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function downloadCsv(filename, rows) {
+  const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportRoomReadingsCsv(roomId) {
+  const room = ROOMS.find((r) => r.id === roomId);
+  if (!room) return;
+  const rows = [['room', 'recorded_at', 'temp_c', 'humidity_pct', 'note']];
+  READINGS.filter((r) => r.roomId === roomId).sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt))
+    .forEach((r) => rows.push([room.name, r.recordedAt, r.tempC ?? '', r.humidityPct ?? '', r.note || '']));
+  downloadCsv(room.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-readings.csv', rows);
+}
+function exportAllReadingsCsv() {
+  const byId = new Map(ROOMS.map((r) => [r.id, r.name]));
+  const rows = [['room', 'recorded_at', 'temp_c', 'humidity_pct', 'note']];
+  READINGS.slice().sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt))
+    .forEach((r) => rows.push([byId.get(r.roomId) || r.roomId, r.recordedAt, r.tempC ?? '', r.humidityPct ?? '', r.note || '']));
+  downloadCsv('food-storage-readings.csv', rows);
+}
+
+/* ---- init ---- */
+(async function init() {
+  await loadLibrary();
+  buildIngredientIndex();
+  renderIngredients();
+  await StorageSync.init();
+})();
+</script>
+</body>
+</html>
