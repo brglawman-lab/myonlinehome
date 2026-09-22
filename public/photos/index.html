@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photography — My Online Home</title>
+<meta name="description" content="Ben Lawman — wildlife photography.">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm-white: #faf8f4;
+    --forest: #2d4a3e;
+    --sage: #7a9e8e;
+    --earth: #8b6f47;
+    --rust: #c4622d;
+    --amber: #d4a853;
+    --charcoal: #2a2a2a;
+    --mid-grey: #7a7a7a;
+    --light-border: rgba(45,74,62,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    min-height: 26vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.75rem 1.5rem 1.25rem;
+    background: #1f352a url('/assets/puffin.jpg') center 50% / cover no-repeat;
+    color: #fff;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(20,35,28,0.15) 0%, rgba(20,35,28,0.35) 45%, rgba(20,35,28,0.85) 100%);
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; width: 100%; }
+  .hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.3);
+  }
+  .credit {
+    position: absolute; right: 1rem; bottom: 0.6rem; z-index: 1;
+    font-size: 0.7rem; color: rgba(255,255,255,0.55); letter-spacing: 0.03em;
+  }
+
+  /* ---------- cards ---------- */
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+  .section-label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--sage); font-weight: 500;
+    margin: 3.5rem 0 1.5rem;
+  }
+  .cards { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .card {
+    display: flex; flex-direction: column;
+    background: var(--warm-white);
+    border: 1px solid var(--light-border);
+    border-radius: 14px;
+    padding: 1.75rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .card:hover, .card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(45,74,62,0.12);
+    border-color: var(--sage);
+    outline: none;
+  }
+  .card-icon { margin-bottom: 1rem; line-height: 0; }
+  .card-icon .ic { width: 30px; height: 30px; display: block; }
+  .card-icon.gl { color: var(--amber); }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem; font-weight: 700; color: var(--forest);
+    margin-bottom: 0.5rem; letter-spacing: -0.01em;
+  }
+  .card .go {
+    margin-top: auto; padding-top: 1.25rem; font-size: 0.85rem; font-weight: 500;
+    color: var(--rust); letter-spacing: 0.02em;
+  }
+  .card .go::after { content: ' →'; }
+  .meta {
+    margin-top: 0.9rem; padding-top: 0.9rem;
+    border-top: 1px solid var(--light-border);
+    font-size: 0.78rem; color: var(--sage); letter-spacing: 0.02em;
+  }
+
+  .wip-link {
+    margin: 3rem 0 0; text-align: center;
+    font-size: 0.85rem; font-weight: 500;
+    color: var(--sage); letter-spacing: 0.02em;
+  }
+  .wip-link a:hover { color: var(--rust); }
+
+  footer {
+    margin-top: 2.5rem; padding: 2rem 1.5rem 3rem;
+    border-top: 1px solid var(--light-border);
+    text-align: center; font-size: 0.82rem; color: var(--mid-grey);
+  }
+  footer a { color: var(--forest); border-bottom: 1px solid var(--light-border); }
+
+  @media (max-width: 600px) {
+    .hero { min-height: 20vh; padding: 1.5rem 1.25rem 1rem; }
+    .credit { top: 0.6rem; bottom: auto; right: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+</style>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Photography</h1>
+  </div>
+  <span class="credit">Puffin, Bempton Cliffs</span>
+</div>
+
+<div class="wrap">
+  <p class="section-label">Photography</p>
+
+  <div class="cards">
+
+    <a class="card" href="/gallery/">
+      <div class="card-icon gl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l.9-1.5a1.5 1.5 0 0 1 1.28-.7h4.24a1.5 1.5 0 0 1 1.28.7L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z"/><circle cx="12" cy="13" r="3.6"/></svg></div>
+      <h2>Wildlife Photography</h2>
+      <div class="meta">2 photographs</div>
+      <div class="go">View the gallery</div>
+    </a>
+
+  </div>
+
+  <p class="wip-link"><a href="/work-in-progress/">Work in progress →</a></p>
+</div>
+
+<footer>
+  Built and maintained with Claude · <a href="/">home</a> · <a href="/wildlife/">wildlife tracker</a> · <a href="/gallery/">gallery</a>
+</footer>
+
+</body>
+</html>

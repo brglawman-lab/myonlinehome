@@ -1703,11 +1703,28 @@ function foragingCountBarText(q) {
   return activeCount + ' foraging now · ' + items.length + ' shown';
 }
 
+/* Deep links for the Food dashboard and anywhere else that wants to jump
+ * straight to a recipe or a tab: #recipe-<id> opens that recipe's detail
+ * modal, #seasonal / #foraging / #drinks switches to that page. Re-run after
+ * RecipeSync settles in case the link points at a recipe that only exists in
+ * the database overlay (e.g. one just added through the form). */
+function openFromHash() {
+  const hash = decodeURIComponent(location.hash.slice(1));
+  if (!hash) return;
+  const m = hash.match(/^recipe-(.+)$/);
+  if (m) {
+    if (recipes.some(r => r.id === m[1])) { switchToPage('recipes'); openDetail(m[1]); }
+    return;
+  }
+  if (['seasonal', 'foraging', 'drinks'].includes(hash)) switchToPage(hash);
+}
+
 render();
 setupScrollspy();
+openFromHash();
 
 // First paint uses the copy in this file so the book is readable immediately;
 // the database overlay arrives a moment later and re-renders.
-RecipeSync.init();
+RecipeSync.init().then(openFromHash);
 </script>
 </body></html>

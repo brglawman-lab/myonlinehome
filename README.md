@@ -18,7 +18,9 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 
 | Path | What it is | Source |
 |---|---|---|
-| `/` | Landing page | authored here |
+| `/` | Landing page — just "Food" and "Photos" | authored here |
+| `/food/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below | authored here |
+| `/photos/` | Photography hub — wildlife photography, work in progress | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
 | `/recipes/` | Recipe Book — 58 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
@@ -73,6 +75,19 @@ product-specific advice. **Room Monitor** is for tracking real conditions:
 named rooms (pantry, garage store, …) with logged temperature/humidity
 readings, trend charts per room, and a CSV export for analysis outside the
 site. It follows the same offline-first pattern as sightings and recipes.
+
+The home page (`/`) is deliberately just two words — Food and Photos — that
+split the site in two. `/food/` is a read-only dashboard: it scrapes
+`/recipes/` and `/wyfood/` the same way the Meal Builder and Food Storage
+pages do (fetch the page, lift a named array out of its `<script>`), reads
+the public storage-rooms/readings API, and shows what's relevant right now —
+markets this weekend, upcoming festivals, the latest recipe added, what's in
+season, what's worth foraging, storage room conditions, and a "what to cook
+tonight" shuffle — plus buttons into the recipe book, Meal Builder, Food
+Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography
+and work-in-progress links that used to live on the home page. The recipe
+book supports `#recipe-<id>` and `#seasonal`/`#foraging`/`#drinks` in its URL
+so the dashboard's widgets can link straight into the right recipe or tab.
 
 ## Changes from the original sources
 
