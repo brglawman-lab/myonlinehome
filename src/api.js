@@ -212,7 +212,35 @@ export async function createCustomSpecies(request, env) {
  * deletions. The client merges the two, database winning by id.
  *
  * ingredients and steps are stored as JSON strings because D1 is SQLite.
+ *
+ * Photos live in the `image` column so no migration is needed: a JSON array
+ * of {src, caption} objects (the first is the main photo, used as the
+ * thumbnail), or — for rows written before multiple photos existed — a single
+ * URL. NULL means "no photos of its own", so a seeded recipe keeps the photos
+ * from the file; "[]" means its photos were deliberately removed.
  */
+
+const parsePhotos = (raw) => {
+  if (raw == null || raw === "") return null;
+  if (raw.trim().startsWith("[")) {
+    try {
+      const v = JSON.parse(raw);
+      if (Array.isArray(v)) return v.filter((p) => p && typeof p.src === "string" && p.src);
+    } catch {
+      /* not JSON after all — treat it as a plain URL */
+    }
+  }
+  return [{ src: raw }];
+};
+
+const serialisePhotos = (r) => {
+  if (!Array.isArray(r.photos)) return r.image ?? null;
+  const clean = r.photos
+    .filter((p) => p && typeof p.src === "string" && p.src.trim())
+    .slice(0, 24)
+    .map((p) => (p.caption ? { src: p.src.trim(), caption: String(p.caption) } : { src: p.src.trim() }));
+  return JSON.stringify(clean);
+};
 
 const parseJsonColumn = (raw, fallback) => {
   if (raw == null) return fallback;
@@ -245,22 +273,26 @@ export async function listRecipes(env) {
   ).all();
 
   return json(
-    (results || []).map((r) => ({
-      id: r.id,
-      section: r.section,
-      title: r.title,
-      category: r.category,
-      serves: r.serves,
-      time: r.time,
-      calories: r.calories,
-      description: r.description,
-      ingredients: parseJsonColumn(r.ingredients, []),
-      steps: parseJsonColumn(r.steps, []),
-      notes: r.notes,
-      image: r.image,
-      storage: parseJsonObjectColumn(r.storage, null),
-      updatedAt: r.updated_at,
-    }))
+    (results || []).map((r) => {
+      const photos = parsePhotos(r.image);
+      return {
+        id: r.id,
+        section: r.section,
+        title: r.title,
+        category: r.category,
+        serves: r.serves,
+        time: r.time,
+        calories: r.calories,
+        description: r.description,
+        ingredients: parseJsonColumn(r.ingredients, []),
+        steps: parseJsonColumn(r.steps, []),
+        notes: r.notes,
+        image: photos && photos.length ? photos[0].src : null,
+        photos,
+        storage: parseJsonObjectColumn(r.storage, null),
+        updatedAt: r.updated_at,
+      };
+    })
   );
 }
 
@@ -334,7 +366,7 @@ export async function saveRecipes(request, env) {
         JSON.stringify(Array.isArray(r.ingredients) ? r.ingredients : []),
         JSON.stringify(Array.isArray(r.steps) ? r.steps : []),
         r.notes ?? null,
-        r.image ?? null,
+        serialisePhotos(r),
         r.storage && typeof r.storage === "object" ? JSON.stringify(r.storage) : null,
         r.createdAt || now,
         now

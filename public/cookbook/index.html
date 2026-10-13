@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Cookbook — My Online Home</title>
+<meta name="description" content="Ben Lawman's recipe book as a cookbook you can flick through — chapters, photographs, notes and an index.">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ===================================================================
+   * The Cookbook. Every recipe in /recipes/ (plus the database overlay)
+   * laid out as a printed book: cover, contents, introduction, chapters
+   * with openers, recipe pages, interludes and an index. Pages are flowed
+   * at a fixed logical size and the whole book is scaled to fit, so a page
+   * breaks in the same place however big the window is.
+   * ================================================================= */
+  :root {
+    --desk: #2b2622;
+    --desk-2: #3a332d;
+    --paper: #fbf7ef;
+    --paper-edge: #efe7d8;
+    --ink: #2a2622;
+    --ink-soft: #6d655d;
+    --ink-faint: #a69d92;
+    --rule: #e3d9c8;
+    --forest: #2d4a3e;
+    --forest-2: #24392f;
+    --sage: #7a9e8e;
+    --rust: #b65a2a;
+    --gold: #d6b676;
+    --cream: #f5f0e8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 40%, var(--desk-2) 0%, var(--desk) 70%);
+    color: var(--ink);
+    font-family: 'Lora', Georgia, serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; }
+
+  /* ---------- chrome around the book ---------- */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 0 14px; padding-top: env(safe-area-inset-top);
+    color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  }
+  .topbar .grp { display: flex; align-items: center; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(245,240,232,0.22);
+    background: rgba(245,240,232,0.06); color: var(--cream); text-decoration: none; cursor: pointer;
+    font: 500 13px/1.2 'DM Sans', sans-serif; white-space: nowrap; transition: background .15s, border-color .15s;
+  }
+  .chip:hover { background: rgba(245,240,232,0.16); border-color: rgba(245,240,232,0.4); }
+  .topbar .where { opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; flex: 1; min-width: 0; }
+  .bottombar {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 56px; z-index: 50;
+    display: flex; align-items: center; gap: 12px; padding: 0 16px; padding-bottom: env(safe-area-inset-bottom);
+    color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 12px;
+  }
+  .navbtn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(245,240,232,0.22);
+    background: rgba(245,240,232,0.06); color: var(--cream); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; transition: background .15s;
+  }
+  .navbtn:hover { background: rgba(245,240,232,0.18); }
+  .navbtn:disabled { opacity: 0.3; cursor: default; }
+  .scrub-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+  #scrub { width: 100%; accent-color: var(--gold); cursor: pointer; }
+  .scrub-tip {
+    position: absolute; bottom: 30px; transform: translateX(-50%);
+    background: var(--paper); color: var(--ink); padding: 6px 10px; border-radius: 6px;
+    font: 500 12px/1.3 'DM Sans', sans-serif; white-space: nowrap; pointer-events: none;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35); opacity: 0; transition: opacity .12s; max-width: 70vw; overflow: hidden; text-overflow: ellipsis;
+  }
+  .scrub-tip.show { opacity: 1; }
+  .pageno { min-width: 74px; text-align: right; opacity: 0.75; font-variant-numeric: tabular-nums; }
+
+  /* ---------- stage + book ---------- */
+  #stage { position: fixed; top: 52px; bottom: 56px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; }
+  #clip { position: relative; }
+  #clip.single { overflow: hidden; border-radius: 3px; }
+  #book { position: absolute; top: 0; left: 0; transform-origin: 0 0; perspective: 2600px; }
+  #book .shifter { position: absolute; inset: 0; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+  .leaf {
+    position: absolute; top: 0; height: 100%;
+    transform-origin: left center; transform-style: preserve-3d;
+    transition: transform .75s cubic-bezier(.645,.045,.355,1);
+    will-change: transform;
+  }
+  .leaf.flipped { transform: rotateY(-180deg); }
+  .leaf.instant { transition: none !important; }
+  .leaf.fast { transition-duration: .38s; }
+  .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+  .face.back { transform: rotateY(180deg); }
+  .face .shade { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .75s; z-index: 30; }
+  .face.front .shade { background: linear-gradient(to left, rgba(0,0,0,0) 40%, rgba(0,0,0,0.22)); }
+  .face.back .shade { background: linear-gradient(to right, rgba(0,0,0,0) 40%, rgba(0,0,0,0.22)); }
+  .leaf.turning .shade { animation: shade .75s ease-in-out; }
+  .leaf.fast.turning .shade { animation-duration: .38s; }
+  @keyframes shade { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+  .single .leaf.flipped { visibility: hidden; transition: transform .6s cubic-bezier(.645,.045,.355,1), visibility 0s .6s; }
+  .single .leaf { transition-duration: .6s; }
+  .stack { position: absolute; top: 2px; bottom: 2px; pointer-events: none; transition: width .4s; }
+  .stack.l { right: 100%; background: repeating-linear-gradient(to right, #e8dfcf 0 1px, #f6f0e4 1px 3px); border-radius: 3px 0 0 3px; box-shadow: -4px 6px 14px rgba(0,0,0,0.35); }
+  .stack.r { left: 100%; background: repeating-linear-gradient(to left, #e8dfcf 0 1px, #f6f0e4 1px 3px); border-radius: 0 3px 3px 0; box-shadow: 4px 6px 14px rgba(0,0,0,0.35); }
+  .bookshadow { position: absolute; inset: 0; box-shadow: 0 22px 60px rgba(0,0,0,0.5); pointer-events: none; transition: left .6s, right .6s; }
+
+  /* ---------- a page ---------- */
+  .page {
+    position: relative; width: var(--pw); height: var(--ph); overflow: hidden;
+    background-color: var(--paper);
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    font-size: 13.5px; line-height: 1.58; color: var(--ink);
+  }
+  .page.side-r { box-shadow: inset 18px 0 22px -18px rgba(70,50,30,0.32); }
+  .page.side-l { box-shadow: inset -18px 0 22px -18px rgba(70,50,30,0.32); }
+  .single .page.side-r, .single .page.side-l, .page.side-s { box-shadow: inset 8px 0 12px -10px rgba(70,50,30,0.25); }
+  .pbody { position: absolute; top: 56px; bottom: 54px; left: 46px; right: 46px; overflow: hidden; }
+  .page.side-r .pbody { left: 52px; right: 42px; }
+  .page.side-l .pbody { left: 42px; right: 52px; }
+  .runhead {
+    position: absolute; top: 24px; left: 46px; right: 46px;
+    font: 500 9.5px/1 'DM Sans', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .page.side-r .runhead { text-align: right; }
+  .folio { position: absolute; bottom: 22px; font: 400 11px/1 'Lora', serif; color: var(--ink-soft); }
+  .page.side-r .folio { right: 42px; }
+  .page.side-l .folio { left: 42px; }
+  .page.side-s .folio { left: 0; right: 0; text-align: center; }
+  .page.side-s .runhead { text-align: center; }
+  .folio.hide, .runhead:empty { display: none; }
+  .blank-back { background: var(--paper-edge); }
+
+  /* typographic pieces */
+  .kicker { font: 500 9.5px/1.3 'DM Sans', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rust); margin-bottom: 8px; }
+  h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; color: var(--ink); }
+  .r-title { font-size: 28px; line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .r-meta { font: 400 10.5px/1.4 'DM Sans', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
+  .r-head { font-style: italic; color: var(--ink-soft); margin-bottom: 14px; }
+  .r-rule { height: 1px; background: var(--rule); margin: 0 0 12px; }
+  .lbl { font: 500 9.5px/1 'DM Sans', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin: 4px 0 8px; }
+  ul.ing { list-style: none; columns: 2; column-gap: 22px; margin-bottom: 14px; }
+  ul.ing li { break-inside: avoid; font-size: 12.5px; line-height: 1.4; padding: 2.5px 0; }
+  ul.ing li b { font-weight: 500; color: var(--rust); font-family: 'DM Sans', sans-serif; font-size: 11.5px; margin-right: 5px; }
+  .single ul.ing { columns: 1; }
+  .step { display: flex; gap: 10px; margin-bottom: 7px; }
+  .step .n { font: 700 15px/1.35 'Playfair Display', serif; color: var(--rust); min-width: 16px; }
+  .notes { background: rgba(214,182,118,0.16); border-left: 2px solid var(--gold); padding: 9px 12px; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); margin-top: 10px; }
+  .notes .lbl { color: var(--rust); margin: 0 0 5px; }
+  .cont { font: italic 400 12px/1 'Lora', serif; color: var(--ink-faint); margin-bottom: 12px; }
+  .online { font: 400 10px/1 'DM Sans', sans-serif; letter-spacing: 0.06em; color: var(--ink-faint); margin-top: 12px; }
+  .online a { text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .online a:hover { color: var(--rust); }
+  .ornament { text-align: center; color: var(--gold); font-size: 15px; letter-spacing: 0.6em; margin: 12px 0 14px; }
+  .hero-photo { margin: -56px -46px 16px; height: 270px; position: relative; overflow: hidden; background: var(--paper-edge); }
+  .page.side-r .hero-photo { margin-left: -52px; margin-right: -42px; }
+  .page.side-l .hero-photo { margin-left: -42px; margin-right: -52px; }
+  .hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .insets { display: flex; gap: 14px; justify-content: center; padding: 10px 0 4px; }
+  .inset { background: #fff; padding: 6px 6px 18px; box-shadow: 0 3px 10px rgba(60,40,20,0.22); width: 150px; transform: rotate(-2deg); position: relative; }
+  .inset:nth-child(2n) { transform: rotate(2.4deg); }
+  .inset img { width: 100%; height: 118px; object-fit: cover; display: block; }
+  .inset figcaption { position: absolute; left: 6px; right: 6px; bottom: 3px; font: italic 10px/1.2 'Lora', serif; color: var(--ink-soft); text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  /* full-bleed photo page */
+  .photo-page { background: #1d1a17; }
+  .photo-page img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .photo-page .cap {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 34px 26px;
+    background: linear-gradient(to top, rgba(15,12,10,0.72), rgba(15,12,10,0));
+    color: #f5efe4; font: italic 400 13px/1.45 'Lora', serif;
+  }
+  .photo-page .cap .t { font: 400 20px/1.2 'Playfair Display', serif; font-style: normal; display: block; margin-bottom: 3px; }
+  .photo-page .cap .loc { font: 500 9.5px/1 'DM Sans', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; font-style: normal; opacity: 0.7; display: block; margin-top: 8px; }
+
+  /* cover */
+  .cover {
+    background: var(--forest);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.022) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 6px),
+      linear-gradient(to right, rgba(0,0,0,0.28), rgba(0,0,0,0) 7%, rgba(255,255,255,0.04) 8.5%, rgba(0,0,0,0) 12%);
+    color: var(--gold); text-align: center;
+  }
+  .cover .frame { position: absolute; inset: 26px 26px 26px 40px; border: 1px solid rgba(214,182,118,0.55); outline: 1px solid rgba(214,182,118,0.25); outline-offset: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+  .cover .eyebrow { font: 500 10px/1 'DM Sans', sans-serif; letter-spacing: 0.4em; text-transform: uppercase; opacity: 0.85; }
+  .cover h1 { color: var(--gold); font-size: 54px; line-height: 1; font-weight: 400; margin: 18px 0 14px; letter-spacing: -0.01em; }
+  .cover h1 i { display: block; font-size: 30px; margin-bottom: 6px; opacity: 0.9; }
+  .cover .sub { font: italic 400 14px/1.5 'Lora', serif; color: rgba(245,240,232,0.75); max-width: 290px; }
+  .cover .medal { width: 210px; height: 210px; border-radius: 50%; margin: 26px 0; overflow: hidden; border: 3px solid rgba(214,182,118,0.7); box-shadow: 0 0 0 7px rgba(214,182,118,0.12), inset 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
+  .cover .medal img { width: 100%; height: 100%; object-fit: cover; }
+  .cover .author { font: 500 11px/1 'DM Sans', sans-serif; letter-spacing: 0.32em; text-transform: uppercase; margin-top: auto; }
+  .back-cover .blurb { font: italic 400 15px/1.6 'Lora', serif; color: rgba(245,240,232,0.85); max-width: 330px; margin: 0 auto; }
+  .back-cover .frame { inset: 26px 40px 26px 26px; }
+  .endpaper {
+    background-color: #e9dfc9;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70' viewBox='0 0 70 70'><g fill='none' stroke='%232d4a3e' stroke-opacity='.28' stroke-width='1.1'><path d='M12 52c6-14 14-22 26-26M24 33c-2-6 0-10 4-13M31 29c4-4 9-5 13-3'/><circle cx='52' cy='16' r='5'/><circle cx='52' cy='16' r='2'/><path d='M50 58l9-9M54 58l5-5'/></g></svg>");
+  }
+
+  /* title / front matter */
+  .center-col { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px; }
+  .title-page h1 { font-size: 46px; line-height: 1.05; }
+  .title-page h1 i { display: block; font-size: 24px; color: var(--ink-soft); margin-bottom: 8px; }
+  .title-page .sub { font-style: italic; color: var(--ink-soft); margin-top: 14px; max-width: 300px; }
+  .title-page .by { font: 500 10.5px/1 'DM Sans', sans-serif; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rust); margin-top: 40px; }
+  .title-page .imprint { position: absolute; bottom: 40px; font: 400 10px/1.5 'DM Sans', sans-serif; letter-spacing: 0.08em; color: var(--ink-faint); }
+  .fm-title { font-size: 34px; line-height: 1.1; margin: 18px 0 22px; }
+  .prose p { margin-bottom: 11px; text-indent: 1.4em; }
+  .prose p:first-of-type { text-indent: 0; }
+  .prose p.dropcap::first-letter { float: left; font: 400 54px/0.82 'Playfair Display', serif; color: var(--rust); padding: 5px 7px 0 0; }
+  .sign { text-align: right; font-style: italic; color: var(--ink-soft); margin-top: 14px; }
+  .toc { list-style: none; margin-top: 6px; }
+  .toc li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; font-size: 14.5px; }
+  .toc li .num { font: 500 10px/1 'DM Sans', sans-serif; letter-spacing: 0.15em; color: var(--rust); width: 22px; }
+  .toc li a { text-decoration: none; cursor: pointer; }
+  .toc li a:hover { color: var(--rust); }
+  .toc li .dots { flex: 1; border-bottom: 1px dotted var(--ink-faint); transform: translateY(-4px); }
+  .toc li .pn { font-variant-numeric: tabular-nums; color: var(--ink-soft); min-width: 22px; text-align: right; }
+  .toc li.minor { font-size: 12.5px; color: var(--ink-soft); padding: 3px 0 3px 30px; font-style: italic; }
+  .notes-list { list-style: none; }
+  .notes-list li { margin-bottom: 11px; padding-left: 16px; position: relative; }
+  .notes-list li::before { content: '·'; position: absolute; left: 2px; top: -3px; font-size: 20px; color: var(--rust); }
+  .notes-list b { font-weight: 500; }
+  .portrait { width: 190px; height: 230px; margin: 0 auto 22px; background: #fff; padding: 9px 9px 34px; box-shadow: 0 4px 16px rgba(60,40,20,0.25); transform: rotate(-2.5deg); position: relative; }
+  .portrait .ph { width: 100%; height: 100%; background: var(--forest); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .portrait .ph img { width: 100%; height: 100%; object-fit: cover; }
+  .portrait .ph span { font: 400 64px/1 'Playfair Display', serif; color: var(--gold); font-style: italic; }
+  .portrait .pc { position: absolute; left: 0; right: 0; bottom: 9px; text-align: center; font: italic 12px/1 'Lora', serif; color: var(--ink-soft); }
+
+  /* chapter opener */
+  .opener .op-photo { position: absolute; top: 0; left: 0; right: 0; height: 46%; overflow: hidden; }
+  .opener .op-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .opener .op-text { position: absolute; left: 52px; right: 46px; bottom: 60px; top: 70px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .opener.has-photo .op-text { top: 50%; justify-content: flex-start; padding-top: 18px; }
+  .opener .op-num { font: 400 82px/0.9 'Playfair Display', serif; color: var(--rust); opacity: 0.9; }
+  .opener.has-photo .op-num { font-size: 46px; }
+  .opener .op-title { font-size: 40px; line-height: 1.05; margin: 8px 0 14px; letter-spacing: -0.01em; }
+  .opener.has-photo .op-title { font-size: 32px; margin: 4px 0 10px; }
+  .opener .op-intro { font-style: italic; color: var(--ink-soft); font-size: 14px; line-height: 1.6; max-width: 400px; }
+  .opener .op-list { margin-top: 16px; columns: 2; column-gap: 20px; list-style: none; font: 400 11px/1.3 'DM Sans', sans-serif; color: var(--ink-soft); }
+  .opener .op-list li { break-inside: avoid; padding: 2.5px 0; display: flex; gap: 6px; }
+  .opener .op-list li a { text-decoration: none; cursor: pointer; flex: 1; }
+  .opener .op-list li a:hover { color: var(--rust); }
+  .opener .op-list .pn { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .single .opener .op-list { columns: 1; }
+
+  /* fillers */
+  .rule-page .center-col { padding: 70px; }
+  .rule-page .no { font: 500 10px/1 'DM Sans', sans-serif; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rust); }
+  .rule-page blockquote { font: italic 400 27px/1.3 'Playfair Display', serif; color: var(--ink); margin: 22px 0; }
+  .rule-page .ornament { margin: 0; }
+  .lined .pbody { background: repeating-linear-gradient(to bottom, transparent 0 27px, rgba(122,158,142,0.35) 27px 28px); background-position: 0 40px; }
+  .lined h3 { font: italic 400 22px/1 'Playfair Display', serif; color: var(--ink-soft); height: 40px; }
+  .scribble { font: italic 400 15px/28px 'Lora', serif; color: #4a6b8a; transform: rotate(-1deg); padding-left: 6px; }
+
+  /* seasons + foraging */
+  .season-h { font-size: 22px; margin: 6px 0 2px; }
+  .season-m { font: 500 9.5px/1 'DM Sans', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 9px; }
+  .produce { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-bottom: 16px; }
+  .produce span { font: 400 11.5px/1 'DM Sans', sans-serif; padding: 5px 9px 5px 7px; border-radius: 999px; background: rgba(122,158,142,0.14); color: var(--forest); white-space: nowrap; }
+  .produce span.fruit { background: rgba(182,90,42,0.1); color: #8b3a20; }
+  .produce span.fungi { background: rgba(214,182,118,0.22); color: #7a5717; }
+  .forage { display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; font-size: 12.5px; margin-bottom: 14px; }
+  .forage .rng { font: 400 10.5px/1.6 'DM Sans', sans-serif; color: var(--ink-faint); text-align: right; }
+  .warn { font: italic 400 11.5px/1.5 'Lora', serif; color: var(--rust); border-top: 1px solid var(--rule); padding-top: 9px; margin-top: 6px; }
+
+  /* drinks */
+  /* A recipe that would spill a few lines onto a second page is set tighter instead. */
+  .tight .r-title { font-size: 24px; }
+  .tight .r-meta { margin-bottom: 8px; }
+  .tight .r-head { margin-bottom: 9px; font-size: 12.5px; }
+  .tight ul.ing { margin-bottom: 9px; }
+  .tight ul.ing li { font-size: 11.5px; padding: 1.5px 0; }
+  .tight .step { font-size: 12.5px; line-height: 1.45; margin-bottom: 4px; }
+  .tight .notes { font-size: 11.5px; padding: 7px 10px; margin-top: 7px; }
+  .tight .hero-photo { height: 190px; margin-bottom: 12px; }
+  .drink { border-top: 1px solid var(--rule); padding: 12px 0 10px; }
+  .drink h3 { font-size: 20px; line-height: 1.2; }
+  .drink .sp { font: 500 9px/1 'DM Sans', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); margin: 3px 0 7px; }
+  .drink .di { font-size: 12px; color: var(--ink-soft); margin-bottom: 5px; }
+  .drink .dm { font-size: 12.5px; }
+  .drink .dg { font: italic 400 11.5px/1.4 'Lora', serif; color: var(--ink-faint); margin-top: 4px; }
+
+  /* index */
+  .index-cols { position: absolute; top: 56px; bottom: 54px; left: 46px; right: 46px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .page.side-r .index-cols { left: 52px; right: 42px; }
+  .page.side-l .index-cols { left: 42px; right: 52px; }
+  .index-cols { grid-template-rows: minmax(0, 1fr); }
+  .index-cols .col { overflow: hidden; height: 100%; min-height: 0; }
+  .ix-letter { font: 400 18px/1 'Playfair Display', serif; color: var(--rust); margin: 8px 0 4px; }
+  .ix { display: flex; gap: 6px; font-size: 11.5px; line-height: 1.35; padding: 2px 0; }
+  .ix a { flex: 1; text-decoration: none; cursor: pointer; }
+  .ix a:hover { color: var(--rust); }
+  .ix .pn { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .single .index-cols { grid-template-columns: 1fr; }
+  .single .index-cols .col + .col { display: none; }
+
+  /* loading */
+  #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--cream); font: italic 400 16px 'Lora', serif; opacity: .8; }
+  #measure { position: absolute; left: -10000px; top: 0; visibility: hidden; pointer-events: none; }
+  .hint { position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%); z-index: 40; font: 400 12px 'DM Sans', sans-serif; color: rgba(245,240,232,0.6); transition: opacity .6s; pointer-events: none; }
+
+  @media (max-width: 600px) {
+    .topbar .where { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .leaf, #book .shifter { transition-duration: 0s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="grp">
+    <a class="chip" href="/" aria-label="Back to My Online Home">&#8592; Home</a>
+    <a class="chip" href="/recipes/">Recipes</a>
+  </div>
+  <div class="where" id="where"></div>
+  <div class="grp">
+    <button class="chip" onclick="Book.goAnchor('contents')">Contents</button>
+    <button class="chip" onclick="Book.goAnchor('index')">Index</button>
+  </div>
+</div>
+
+<div id="stage"><div id="clip"><div id="book"><div class="shifter" id="shifter"></div></div></div></div>
+<div id="loading">Opening the book…</div>
+<div class="hint" id="hint">Click the page edges, swipe, or use the arrow keys to turn the pages</div>
+
+<div class="bottombar">
+  <button class="navbtn" id="prevBtn" aria-label="Previous page" onclick="Book.prev()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg></button>
+  <div class="scrub-wrap">
+    <input type="range" id="scrub" min="0" max="1" value="0" step="1" aria-label="Flick through the book">
+    <div class="scrub-tip" id="scrubTip"></div>
+  </div>
+  <span class="pageno" id="pageno"></span>
+  <button class="navbtn" id="nextBtn" aria-label="Next page" onclick="Book.next()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg></button>
+</div>
+
+<div id="measure"></div>
+
+<script>
+/* ===========================================================================
+ * Content that only exists in the cookbook — the words around the recipes.
+ * Everything else (recipes, drinks, seasons, foraging, gallery photographs)
+ * is read live from the recipe book and gallery pages, so the cookbook is
+ * never out of date.
+ * ======================================================================== */
+const BOOK = {
+  title: 'Cooked at Home',
+  titleLead: 'Recipes & notes',
+  subtitle: 'Recipes, notes and seasons from a West Yorkshire kitchen',
+  author: 'Ben Lawman',
+  // A photo of the cook for the "About the cook" page. Leave null for the monogram.
+  cookPhoto: null,
+  // The cover's round photo. null = use the first recipe that has one.
+  coverPhoto: null,
+  intro: [
+    'This book started life as a list — things that had worked and were worth doing again. A short rib that fell off the bone. The hummus that finally came out smooth. A pan sauce scribbled down before I forgot what had gone into it.',
+    'Over time the list became a website, and the website has become this: a recipe book I can actually sit and flick through. It is a working book, not a precious one. Most of the recipes were developed the same way — cooked once, talked through with Claude, tweaked, and cooked again until they were right. Some are borrowed from the cooks I keep coming back to, and they say so. Others are simply what happens on a Tuesday when there is a tin of chickpeas and not much else.',
+    'Quantities are mostly for two or three. Ovens vary, pans vary, and the notes at the bottom of a recipe are often more useful than the method above them. Cook from it, adapt it, spill things on it.',
+  ],
+  about: 'Ben cooks at home in West Yorkshire, shops at the farmers’ markets when he can, and spends the rest of his spare time outdoors with a camera — usually somewhere between the Yorkshire coast and the nearest reedbed. The wildlife photographs between the chapters are his too.',
+  beforeYouStart: [
+    ['Servings', 'Most recipes serve two or three. The online recipe book will scale any of them up or down for you.'],
+    ['Ovens', 'Every oven runs a little hot or cold. Use the times as a guide and trust what you can see, smell and probe — a meat thermometer earns its keep.'],
+    ['Salt', 'Fine sea salt for cooking, flaky salt for finishing, and always taste before you add more — marinades, stocks and cheeses bring their own.'],
+    ['Pans', 'A heavy cast-iron skillet does a lot of the work in this book. If a recipe says not to use non-stick, it means it: caramel and fond need a pan that browns.'],
+    ['Leftovers', 'Every recipe on the website has storage and reheating advice. When in doubt: cool it quickly, fridge it, and eat it within three days.'],
+    ['Seasons', 'There is a guide to what is in season, and what is worth foraging, in the middle of the book. Use it — it is the easiest way to cook better.'],
+  ],
+  chapters: [
+    { id: 'starters', sections: ['starters'], title: 'Small Plates', intro: 'Things to put out while everyone is still standing around in the kitchen. Most of these are quick, most can be made ahead, and several of them — the chilli nuts especially — are dangerously easy to keep eating.' },
+    { id: 'fish', sections: ['fish'], title: 'From the Sea', intro: 'Salmon more ways than is probably reasonable, prawns with plenty of garlic, and a few sandwiches that have earned their place. Buy the best fish you can and do not overcook it; that is most of the battle.' },
+    { id: 'beef', sections: ['beef'], title: 'Beef', intro: 'From a Christmas rib of beef to a steak sandwich at the end of a long week. The slow things here reward patience; the quick things reward a very hot pan.' },
+    { id: 'pork', sections: ['pork'], title: 'Pork', intro: 'Belly, shoulder, chops and cured things. Pork is the most forgiving meat in the book and probably the one cooked most often — slow and sticky, or fast and charred.' },
+    { id: 'chicken', sections: ['chicken'], title: 'Chicken', intro: 'The weeknight workhorse. Wraps and nachos, noodles, a proper Caesar, and a shawarma roast that is worth turning the oven on for.' },
+    { id: 'seasons', interlude: 'seasons', title: 'The Year in the Kitchen' },
+    { id: 'veg', sections: ['veg'], title: 'From the Garden', intro: 'No meat and no apology. Beans, halloumi, tofu and a good deal of cheese — the dishes that get made when the fridge is looking thin and still turn out to be the best thing all week.' },
+    { id: 'sides', sections: ['sides'], title: 'On the Side', intro: 'Potatoes, mostly, in every form worth having. Plus the greens, corn and rice that turn a piece of meat or fish into dinner.' },
+    { id: 'dips', sections: ['dips'], title: 'Dips, Butters & Sauces', intro: 'The small jars and bowls that make everything else better. Make double; most of them keep.', compact: true },
+    { id: 'baking', sections: ['baking'], title: 'Bread & Baking', intro: 'Flatbreads, pizza dough, arepas, palmiers and one very good lemon drizzle. Nothing here needs special kit — a hot oven and a little patience will do.' },
+    { id: 'foraging', interlude: 'foraging', title: 'Free Food' },
+    { id: 'drinks', sections: ['soft-drinks'], cocktails: true, title: 'Drinks', intro: 'A shrub for whoever is driving, and a short list of cocktails that get made rather more often than they should.', compact: true },
+  ],
+  rules: [
+    'Taste it. Then taste it again.',
+    'A hot pan and a bit of nerve fixes most things.',
+    'If the recipe says leave it alone, leave it alone.',
+    'Make double. Future you will be grateful.',
+    'Let the meat rest. Nobody has ever complained about a steak that waited five minutes.',
+    'Too rich? It needs acid. Usually a squeeze of lime.',
+    'Read the whole recipe before you start. Especially the bit about marinating overnight.',
+  ],
+  noteScribbles: ['Try with smoked paprika next time', 'Double the sauce!', 'Good with the flatbreads'],
+};
+
+const NUMBER_WORDS = ['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+/* ---------------------------------------------------------------------------
+ * Data — same page-scraping approach as the dashboard and Meal Builder.
+ * ------------------------------------------------------------------------- */
+function extractArray(html, marker) {
+  const at = html.indexOf(marker);
+  if (at < 0) return null;
+  const open = at + marker.length - 1;
+  const close = html.indexOf('\n];', open);
+  if (close < 0) return null;
+  try { return (new Function('return ' + html.slice(open, close + 2) + ';'))(); }
+  catch (e) { console.warn('Could not parse ' + marker, e); return null; }
+}
+function recipePhotos(r) {
+  if (!r) return [];
+  if (Array.isArray(r.photos)) return r.photos.filter(p => p && p.src);
+  return r.image ? [{ src: r.image }] : [];
+}
+async function loadData() {
+  const out = { recipes: [], drinks: [], seasonal: [], foraging: [], gallery: [] };
+  try {
+    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    const html = await res.text();
+    const seed = extractArray(html, 'const DEFAULT_RECIPES = [') || [];
+    out.drinks = extractArray(html, 'const drinks = [') || [];
+    out.seasonal = extractArray(html, 'const SEASONAL_PRODUCE = [') || [];
+    out.foraging = extractArray(html, 'const FORAGING_ITEMS = [') || [];
+    let merged = seed;
+    try {
+      const [a, b] = await Promise.all([fetch('/api/recipes', { cache: 'no-store' }), fetch('/api/recipes/deleted', { cache: 'no-store' })]);
+      const db = a.ok ? await a.json() : [];
+      const gone = new Set(b.ok ? await b.json() : []);
+      if (Array.isArray(db)) {
+        const seedById = new Map(seed.map(r => [r.id, r]));
+        const map = new Map(seed.map(r => [r.id, r]));
+        for (let r of db) {
+          const sr = seedById.get(r.id);
+          if (!Array.isArray(r.photos) && !r.image && sr && recipePhotos(sr).length) r = { ...r, photos: sr.photos };
+          map.set(r.id, r);
+        }
+        merged = [...map.values()];
+      }
+      merged = merged.filter(r => !gone.has(r.id));
+    } catch (e) { /* offline: the seed is enough */ }
+    out.recipes = merged.filter(r => !r.noRecipe && r.title);
+  } catch (e) { console.warn('Could not load the recipe book', e); }
+  try {
+    const res = await fetch('/gallery/', { cache: 'no-cache' });
+    out.gallery = extractArray(await res.text(), 'const PHOTOS = [') || [];
+  } catch (e) { /* the interludes just go without */ }
+  return out;
+}
+
+/* ---------------------------------------------------------------------------
+ * Typesetting. Pages are built in an off-screen #measure box at their real
+ * logical size. A Flow pours blocks into page bodies one at a time and starts
+ * a new page when one overflows.
+ * ------------------------------------------------------------------------- */
+let PAGES = [];          // [{el, anchor, label}]
+let ANCHORS = {};        // anchor id -> page index
+let MODE = 'spread';     // 'spread' | 'single'
+const measure = document.getElementById('measure');
+
+function sideFor(i) { return MODE === 'single' ? 's' : (i % 2 === 0 ? 'r' : 'l'); }
+function nextIndex() { return PAGES.length; }
+
+function newPage(cls, opts) {
+  opts = opts || {};
+  const i = PAGES.length;
+  const el = document.createElement('div');
+  el.className = 'page side-' + sideFor(i) + (cls ? ' ' + cls : '');
+  el.innerHTML = (opts.inner != null ? opts.inner
+    : '<div class="runhead">' + esc(opts.runhead || '') + '</div><div class="pbody"></div>')
+    + (opts.folio === false ? '' : '<div class="folio">' + i + '</div>');
+  measure.appendChild(el);
+  const p = { el, body: el.querySelector('.pbody'), label: opts.label || '', anchors: [] };
+  PAGES.push(p);
+  if (opts.anchor) anchor(opts.anchor, i);
+  return p;
+}
+function anchor(id, i) { if (!(id in ANCHORS)) ANCHORS[id] = i == null ? PAGES.length - 1 : i; }
+
+class Flow {
+  constructor(opts) { this.opts = opts; this.page = null; this.open = null; this.placed = []; }
+  start() {
+    this.page = newPage(this.opts.cls || '', { runhead: this.opts.runhead, label: this.opts.label && this.opts.label() });
+    this.open = null; this.placed = [];
+    if (this.opts.onPage) this.opts.onPage(this.page);
+  }
+  overflowing() { const b = this.page.body; return b.scrollHeight > b.clientHeight + 1; }
+  place(item) {
+    let el;
+    const tmp = document.createElement('div'); tmp.innerHTML = item.html; el = tmp.firstElementChild;
+    if (item.container) {
+      if (!this.open || this.open.key !== item.container) {
+        const c = document.createElement('div'); c.innerHTML = item.containerHtml; const cel = c.firstElementChild;
+        this.page.body.appendChild(cel);
+        this.open = { key: item.container, el: cel, fresh: true };
+      }
+      this.open.el.appendChild(el);
+    } else {
+      this.open = null;
+      this.page.body.appendChild(el);
+    }
+    const rec = { item, el, container: item.container ? this.open.el : null };
+    this.placed.push(rec);
+    if (item.anchor) anchor(item.anchor, PAGES.indexOf(this.page));
+    return rec;
+  }
+  unplace(rec) {
+    rec.el.remove();
+    if (rec.container && !rec.container.children.length) { rec.container.remove(); this.open = null; }
+    this.placed.pop();
+  }
+  add(item) {
+    if (!this.page) this.start();
+    const rec = this.place(item);
+    if (!this.overflowing()) return;
+    if (this.placed.length === 1) return;          // too big for any page — let it clip rather than loop
+    this.unplace(rec);
+    const carry = [];
+    // Don't strand a heading at the bottom of a page.
+    while (this.placed.length > 1 && this.placed[this.placed.length - 1].item.keepWithNext) {
+      const prev = this.placed[this.placed.length - 1];
+      carry.unshift(prev.item); this.unplace(prev);
+    }
+    if (item.anchor) delete ANCHORS[item.anchor];
+    carry.forEach(c => { if (c.anchor) delete ANCHORS[c.anchor]; });
+    this.start();
+    if (this.opts.cont) this.place({ html: this.opts.cont() });
+    carry.forEach(c => this.place(c));
+    this.place(item);
+  }
+  end() { this.page = null; this.open = null; }
+}
+
+/* ---- pieces ---- */
+function chapterLabel(ch) { return ch.title; }
+function photoPage(src, title, caption, loc, label) {
+  newPage('photo-page', { folio: false, label, inner:
+    '<img src="' + esc(src) + '" alt="' + esc(title || '') + '">'
+    + ((title || caption) ? '<div class="cap">' + (title ? '<span class="t">' + esc(title) + '</span>' : '') + esc(caption || '') + (loc ? '<span class="loc">' + esc(loc) + '</span>' : '') + '</div>' : '') });
+}
+
+let fillerN = 0, galleryQueue = [];
+function filler(label) {
+  // Something for a left-hand page so the next chapter opens on the right,
+  // the way a printed book does it.
+  const k = fillerN++ % 3;
+  if (k === 0 && galleryQueue.length) {
+    const g = galleryQueue.shift();
+    photoPage(g.src, g.title, g.caption, [g.species, g.location].filter(Boolean).join(' · '), 'Away from the stove');
+    return;
+  }
+  if (k === 1 || !galleryQueue.length && k === 0) {
+    const rule = BOOK.rules[(fillerN - 1) % BOOK.rules.length];
+    newPage('rule-page', { label, inner: '<div class="center-col"><div class="no">Kitchen rule no. ' + ((fillerN % BOOK.rules.length) + 1) + '</div><blockquote>' + esc(rule) + '</blockquote><div class="ornament">✦ ✦ ✦</div></div>' });
+    return;
+  }
+  const p = newPage('lined', { label, runhead: '' });
+  const s = BOOK.noteScribbles[(fillerN - 1) % BOOK.noteScribbles.length];
+  p.body.innerHTML = '<h3>Kitchen notes</h3><div class="scribble">' + esc(s) + '</div>';
+}
+function startOnRight(label) {
+  if (MODE === 'single') return;
+  if (nextIndex() % 2 === 1) filler(label);
+}
+
+function ingItem(i) { return { container: 'ing', containerHtml: '<ul class="ing"></ul>', html: '<li>' + (i.amount ? '<b>' + esc(i.amount) + '</b>' : '') + esc(i.item) + '</li>' }; }
+function stepItem(s, n) { return { html: '<div class="step"><span class="n">' + n + '</span><div>' + esc(s) + '</div></div>' }; }
+
+function recipeMeta(r) {
+  return [r.serves && r.serves !== '—' ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : '', r.calories ? r.calories + ' cal' : ''].filter(Boolean).join('  ·  ');
+}
+
+function bodyFill(p) {
+  const last = p.body && p.body.lastElementChild;
+  return last ? (last.offsetTop + last.offsetHeight) / p.body.clientHeight : 0;
+}
+function setRecipe(r, ch, compact, tight) {
+  const startLen = PAGES.length, anchorsBefore = new Set(Object.keys(ANCHORS));
+  const photos = recipePhotos(r);
+  const label = () => r.title;
+  let hero = null;
+  if (!compact && photos.length) {
+    // A full-page photo when it lands on a left page, facing its recipe;
+    // otherwise the photo sits across the top of the recipe page.
+    if (MODE === 'spread' && nextIndex() % 2 === 1) {
+      photoPage(photos[0].src, null, photos[0].caption || '', '', r.title);
+      anchor('recipe-' + r.id);
+    } else hero = photos[0];
+  }
+  const flow = compact && setRecipe.flow ? setRecipe.flow : new Flow({ runhead: ch.title, label, cls: tight ? 'tight' : '' });
+  flow.opts.label = label;
+  flow.opts.cont = () => '<div class="cont">' + esc(r.title) + ', continued</div>';
+  if (compact) {
+    setRecipe.flow = flow;
+    if (flow.page && flow.placed.length) flow.add({ html: '<div class="ornament">✦ ✦ ✦</div>', keepWithNext: true });
+  }
+  if (hero) flow.add({ html: '<figure class="hero-photo"><img src="' + esc(hero.src) + '" alt="' + esc(r.title) + '"></figure>', keepWithNext: true });
+  flow.add({ html: '<h2 class="r-title">' + esc(r.title) + '</h2>', keepWithNext: true, anchor: 'recipe-' + r.id });
+  const meta = recipeMeta(r);
+  if (meta) flow.add({ html: '<div class="r-meta">' + esc(meta) + '</div>', keepWithNext: true });
+  if (r.description) flow.add({ html: '<p class="r-head">' + esc(r.description) + '</p>', keepWithNext: true });
+  if (r.ingredients && r.ingredients.length) {
+    flow.add({ html: '<div class="lbl">You will need</div>', keepWithNext: true });
+    r.ingredients.forEach(i => flow.add(ingItem(i)));
+  }
+  if (r.steps && r.steps.length) {
+    flow.add({ html: '<div class="lbl">Method</div>', keepWithNext: true });
+    r.steps.forEach((s, n) => flow.add(stepItem(s, n + 1)));
+  }
+  if (r.notes) flow.add({ html: '<div class="notes"><div class="lbl">Cook’s notes</div>' + esc(r.notes) + '</div>' });
+  const extra = compact ? photos : photos.slice(1);
+  if (extra.length) {
+    for (let k = 0; k < extra.length; k += 2) {
+      flow.add({ html: '<div class="insets">' + extra.slice(k, k + 2).map(p => '<figure class="inset"><img src="' + esc(p.src) + '" alt=""><figcaption>' + esc(p.caption || '') + '</figcaption></figure>').join('') + '</div>' });
+    }
+  }
+  flow.add({ html: '<div class="online"><a href="/recipes/#recipe-' + encodeURIComponent(r.id) + '">Open in the recipe book — scale it, print it, storage advice ›</a></div>' });
+  if (compact) return;
+  flow.end();
+  if (!tight && PAGES.length - startLen >= 2 && bodyFill(PAGES[PAGES.length - 1]) < 0.4) {
+    PAGES.splice(startLen).forEach(p => p.el.remove());
+    Object.keys(ANCHORS).forEach(a => { if (!anchorsBefore.has(a)) delete ANCHORS[a]; });
+    setRecipe(r, ch, compact, true);
+  }
+}
+
+function setCocktail(d, flow) {
+  const ing = (d.ingredients || []).join(' · ');
+  flow.add({ anchor: 'drink-' + slug(d.name), html: '<div class="drink"><h3>' + esc(d.name) + '</h3>'
+    + (d.spirit ? '<div class="sp">' + esc(d.spirit) + '</div>' : '')
+    + '<div class="di">' + esc(ing) + '</div>'
+    + (d.method ? '<div class="dm">' + esc(d.method) + '</div>' : '')
+    + ((d.garnish || d.notes) ? '<div class="dg">' + [d.garnish ? 'Garnish: ' + d.garnish : '', d.notes || ''].filter(Boolean).map(esc).join(' — ') + '</div>' : '')
+    + '</div>' });
+}
+function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+function inSeasonMonth(p, m) { return p.startMonth <= p.endMonth ? (m >= p.startMonth && m <= p.endMonth) : (m >= p.startMonth || m <= p.endMonth); }
+function rangeText(p) { return MONTHS[p.startMonth - 1] + ' – ' + MONTHS[p.endMonth - 1]; }
+
+function setSeasons(data, ch) {
+  startOnRight(ch.title);
+  const flow = new Flow({ runhead: ch.title, label: () => ch.title, cont: () => '<div class="cont">The year in the kitchen, continued</div>' });
+  flow.add({ anchor: 'chapter-' + ch.id, html: '<div class="kicker">An interlude</div>', keepWithNext: true });
+  flow.add({ html: '<h2 class="fm-title">' + esc(ch.title) + '</h2>', keepWithNext: true });
+  flow.add({ html: '<p class="r-head">Buying what is in season is not virtue, it is just better food — cheaper, too. This is what to look out for at the markets, season by season. Each list is what is at its best in the middle month.</p>' });
+  const seasons = [['Spring', 'March to May', 4], ['Summer', 'June to August', 7], ['Autumn', 'September to November', 10], ['Winter', 'December to February', 1]];
+  seasons.forEach(([name, span, mid]) => {
+    const items = data.seasonal.filter(p => inSeasonMonth(p, mid));
+    if (!items.length) return;
+    flow.add({ html: '<h3 class="season-h">' + name + '</h3>', keepWithNext: true });
+    flow.add({ html: '<div class="season-m">' + span + '</div>', keepWithNext: true });
+    flow.add({ html: '<div class="produce">' + items.map(p => '<span class="' + esc(p.type) + '">' + esc(p.icon || '') + ' ' + esc(p.name) + '</span>').join('') + '</div>' });
+  });
+  flow.end();
+}
+
+function setForaging(data, ch) {
+  startOnRight(ch.title);
+  const flow = new Flow({ runhead: ch.title, label: () => ch.title, cont: () => '<div class="cont">Free food, continued</div>' });
+  flow.add({ anchor: 'chapter-' + ch.id, html: '<div class="kicker">An interlude</div>', keepWithNext: true });
+  flow.add({ html: '<h2 class="fm-title">' + esc(ch.title) + '</h2>', keepWithNext: true });
+  flow.add({ html: '<p class="r-head">Hedgerows, woods and verges around here are full of things to eat, if you know when to look. These are the ones worth the walk, and the months to go looking.</p>' });
+  const groups = [['green', 'Leaves, flowers & greens'], ['berry', 'Berries, fruit & nuts'], ['fungi', 'Fungi']];
+  groups.forEach(([id, label]) => {
+    const items = data.foraging.filter(p => p.type === id);
+    if (!items.length) return;
+    flow.add({ html: '<div class="lbl">' + label + '</div>', keepWithNext: true });
+    items.forEach(p => flow.add({ container: 'forage-' + id, containerHtml: '<div class="forage"></div>', html: '<div style="display:contents"><span>' + esc(p.icon || '') + ' ' + esc(p.name) + '</span><span class="rng">' + rangeText(p) + '</span></div>' }));
+  });
+  flow.add({ html: '<p class="warn">Never eat anything you cannot identify with complete certainty — especially fungi. Take only what you need, leave plenty for the wildlife, and stay on the right side of the landowner.</p>' });
+  flow.end();
+}
+
+function setOpener(ch, n, recipes, photoSrc) {
+  startOnRight(ch.title);
+  const listHtml = recipes.length
+    ? '<ul class="op-list">' + recipes.map(r => '<li><a data-go="' + esc(r.anchor) + '">' + esc(r.title) + '</a><span class="pn" data-pn="' + esc(r.anchor) + '"></span></li>').join('') + '</ul>'
+    : '';
+  newPage('opener' + (photoSrc ? ' has-photo' : ''), { folio: false, label: ch.title, anchor: 'chapter-' + ch.id, inner:
+    (photoSrc ? '<div class="op-photo"><img src="' + esc(photoSrc) + '" alt=""></div>' : '')
+    + '<div class="op-text"><div class="kicker">Chapter ' + NUMBER_WORDS[n - 1] + '</div>'
+    + '<div class="op-num">' + String(n).padStart(2, '0') + '</div>'
+    + '<h2 class="op-title">' + esc(ch.title) + '</h2>'
+    + '<p class="op-intro">' + esc(ch.intro || '') + '</p>' + listHtml + '</div>' });
+}
+
+function typeset(data) {
+  PAGES = []; ANCHORS = {}; fillerN = 0; setRecipe.flow = null;
+  measure.innerHTML = '';
+  galleryQueue = data.gallery.slice();
+  const recipesWithPhotos = data.recipes.filter(r => recipePhotos(r).length);
+  const coverSrc = BOOK.coverPhoto || (recipesWithPhotos[0] && recipePhotos(recipesWithPhotos[0])[0].src) || null;
+  const total = data.recipes.length + data.drinks.length;
+
+  // Cover, endpaper, title page.
+  newPage('cover', { folio: false, label: 'Cover', anchor: 'cover', inner:
+    '<div class="frame"><div class="eyebrow">' + esc(BOOK.titleLead) + '</div><h1>' + esc(BOOK.title) + '</h1><div class="sub">' + esc(BOOK.subtitle) + '</div>'
+    + '<div class="medal">' + (coverSrc ? '<img src="' + esc(coverSrc) + '" alt="">' : '<svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="#d6b676" stroke-width="0.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><path d="M2.5 4v5a1.5 1.5 0 0 0 3 0V4M4 9v11M21 4c-1.6 0-2.5 2-2.5 5s1 3 2.5 3v8"/></svg>') + '</div>'
+    + '<div class="author">' + esc(BOOK.author) + '</div></div>' });
+  newPage('endpaper', { folio: false, label: 'Endpaper', inner: '' });
+  newPage('title-page', { folio: false, label: 'Title page', inner:
+    '<div class="center-col"><h1><i>' + esc(BOOK.titleLead) + '</i>' + esc(BOOK.title) + '</h1><div class="sub">' + esc(BOOK.subtitle) + '</div><div class="by">' + esc(BOOK.author) + '</div>'
+    + '<div class="imprint">' + total + ' recipes · typeset ' + new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) + ' from myonlinehome.co.uk</div></div>' });
+
+  // Contents — page numbers are filled in once everything is set.
+  const chapterList = BOOK.chapters.filter(ch => ch.interlude || chapterRecipes(data, ch).length || ch.cocktails && data.drinks.length);
+  let num = 0;
+  const tocRows = [
+    '<li><span class="num"></span><a data-go="intro">Introduction</a><span class="dots"></span><span class="pn" data-pn="intro"></span></li>',
+    '<li><span class="num"></span><a data-go="before">Before you start</a><span class="dots"></span><span class="pn" data-pn="before"></span></li>',
+  ].concat(chapterList.map(ch => ch.interlude
+    ? '<li class="minor"><a data-go="chapter-' + ch.id + '">' + esc(ch.title) + '</a><span class="dots"></span><span class="pn" data-pn="chapter-' + ch.id + '"></span></li>'
+    : '<li><span class="num">' + String(++num).padStart(2, '0') + '</span><a data-go="chapter-' + ch.id + '">' + esc(ch.title) + '</a><span class="dots"></span><span class="pn" data-pn="chapter-' + ch.id + '"></span></li>'))
+    .concat(['<li><span class="num"></span><a data-go="index">Index</a><span class="dots"></span><span class="pn" data-pn="index"></span></li>']);
+  const toc = newPage('', { label: 'Contents', anchor: 'contents' });
+  toc.body.innerHTML = '<div class="kicker">Contents</div><ul class="toc">' + tocRows.join('') + '</ul>';
+
+  // Introduction + about the cook.
+  const intro = new Flow({ runhead: 'Introduction', label: () => 'Introduction' });
+  intro.add({ anchor: 'intro', html: '<div class="kicker">Introduction</div>', keepWithNext: true });
+  intro.add({ html: '<h2 class="fm-title">How this book came about</h2>', keepWithNext: true });
+  BOOK.intro.forEach((p, i) => intro.add({ html: '<div class="prose"><p' + (i === 0 ? ' class="dropcap"' : '') + '>' + esc(p) + '</p></div>' }));
+  intro.add({ html: '<div class="sign">— ' + esc(BOOK.author.split(' ')[0]) + '</div>' });
+  intro.end();
+  const about = newPage('', { label: 'About the cook', anchor: 'about' });
+  about.body.innerHTML = '<div style="padding-top:40px;text-align:center">'
+    + '<div class="portrait"><div class="ph">' + (BOOK.cookPhoto ? '<img src="' + esc(BOOK.cookPhoto) + '" alt="' + esc(BOOK.author) + '">' : '<span>' + esc(BOOK.author.split(' ').map(w => w[0]).join('')) + '</span>') + '</div><div class="pc">The cook</div></div>'
+    + '<div class="kicker">About the cook</div><p style="font-style:italic;color:var(--ink-soft);max-width:360px;margin:10px auto 0">' + esc(BOOK.about) + '</p></div>';
+
+  const before = new Flow({ runhead: 'Before you start', label: () => 'Before you start' });
+  before.add({ anchor: 'before', html: '<div class="kicker">A few notes</div>', keepWithNext: true });
+  before.add({ html: '<h2 class="fm-title">Before you start</h2>', keepWithNext: true });
+  BOOK.beforeYouStart.forEach(([k, v]) => before.add({ html: '<ul class="notes-list"><li><b>' + esc(k) + '.</b> ' + esc(v) + '</li></ul>' }));
+  before.end();
+
+  // Chapters.
+  let chNum = 0;
+  chapterList.forEach(ch => {
+    if (ch.interlude === 'seasons') { setSeasons(data, ch); return; }
+    if (ch.interlude === 'foraging') { setForaging(data, ch); return; }
+    chNum++;
+    const recs = chapterRecipes(data, ch);
+    const listing = recs.map(r => ({ title: r.title, anchor: 'recipe-' + r.id }))
+      .concat(ch.cocktails ? data.drinks.map(d => ({ title: d.name, anchor: 'drink-' + slug(d.name) })) : []);
+    const withPhoto = recs.find(r => recipePhotos(r).length);
+    setOpener(ch, chNum, listing, withPhoto ? recipePhotos(withPhoto)[recipePhotos(withPhoto).length > 1 ? 1 : 0].src : null);
+    setRecipe.flow = null;
+    recs.forEach(r => setRecipe(r, ch, !!ch.compact));
+    if (ch.cocktails && data.drinks.length) {
+      let flow = setRecipe.flow;
+      if (!flow) flow = new Flow({ runhead: ch.title, label: () => 'Cocktails' });
+      flow.opts.label = () => 'Cocktails';
+      flow.opts.cont = null;
+      flow.add({ html: '<div class="ornament">✦ ✦ ✦</div>', keepWithNext: true });
+      flow.add({ anchor: 'cocktails', html: '<h2 class="r-title">Cocktails</h2>', keepWithNext: true });
+      flow.add({ html: '<p class="r-head">Measures are what works for us; adjust to taste and to how the evening is going.</p>', keepWithNext: true });
+      data.drinks.forEach(d => setCocktail(d, flow));
+    }
+    if (setRecipe.flow) { setRecipe.flow.end(); setRecipe.flow = null; }
+  });
+
+  // Index, in two columns.
+  startOnRight('Index');
+  const entries = data.recipes.map(r => ({ t: r.title, a: 'recipe-' + r.id }))
+    .concat(data.drinks.map(d => ({ t: d.name, a: 'drink-' + slug(d.name) })))
+    .sort((x, y) => x.t.localeCompare(y.t, 'en', { sensitivity: 'base' }));
+  const perPage = MODE === 'single' ? 1 : 2;
+  let col = null, colIdx = perPage, letter = '';
+  const nextCol = () => {
+    if (colIdx + 1 >= perPage) {
+      const p = newPage('', { label: 'Index', runhead: 'Index', inner: '<div class="runhead">Index</div><div class="index-cols"><div class="col"></div><div class="col"></div></div>' });
+      anchor('index');
+      p.cols = p.el.querySelectorAll('.col'); colIdx = 0;
+      col = p.cols[0]; col._page = p;
+    } else { const p = col._page; colIdx++; col = p.cols[colIdx]; col._page = p; }
+  };
+  nextCol();
+  const fits = () => col.scrollHeight <= col.clientHeight + 1;
+  entries.forEach(e => {
+    const L = e.t[0].toUpperCase();
+    const add = html => { const d = document.createElement('div'); d.innerHTML = html; const el = d.firstElementChild; col.appendChild(el); return el; };
+    let head = null;
+    if (L !== letter) { head = add('<div class="ix-letter">' + esc(L) + '</div>'); letter = L; }
+    const row = add('<div class="ix"><a data-go="' + esc(e.a) + '">' + esc(e.t) + '</a><span class="pn" data-pn="' + esc(e.a) + '"></span></div>');
+    if (!fits()) {
+      row.remove(); if (head) head.remove();
+      nextCol();
+      if (head) col.appendChild(head);
+      col.appendChild(row);
+    }
+  });
+
+  // Back endpaper and cover: the endpaper on the front of the last leaf,
+  // the back cover on its back.
+  if (MODE === 'spread' && nextIndex() % 2 === 1) newPage('', { folio: false, label: 'Notes', inner: '' });
+  newPage('endpaper', { folio: false, label: 'Endpaper', inner: '' });
+  newPage('cover back-cover', { folio: false, label: 'Back cover', inner:
+    '<div class="frame"><div class="eyebrow">' + esc(BOOK.title) + '</div><div style="height:30px"></div>'
+    + '<p class="blurb">' + total + ' recipes, cooked and re-cooked at home — from small plates and Sunday roasts to dips, bread and a short list of cocktails. With notes on what is in season, what is worth foraging, and a few photographs from away from the stove.</p>'
+    + '<div class="author">myonlinehome.co.uk</div></div>' });
+  if (MODE === 'spread' && PAGES.length % 2 === 1) { /* never happens: back cover is always odd */ }
+
+  // Fill in page numbers now that everything has a place.
+  measure.querySelectorAll('[data-pn]').forEach(el => { const i = ANCHORS[el.dataset.pn]; el.textContent = i != null ? i : ''; });
+}
+
+function chapterRecipes(data, ch) {
+  return ch.sections ? data.recipes.filter(r => ch.sections.includes(r.section)) : [];
+}
+
+/* ---------------------------------------------------------------------------
+ * The book: leaves that turn. In a spread each leaf carries two pages (front
+ * on the right, back on the left once turned). On a phone each page is its
+ * own leaf and turns away to show the next.
+ * ------------------------------------------------------------------------- */
+const Book = (() => {
+  let leaves = [], current = 0, PW = 540, PH = 760, scale = 1, data = null, busy = 0;
+  const clip = document.getElementById('clip'), book = document.getElementById('book'), shifter = document.getElementById('shifter');
+
+  function layoutFor() {
+    const st = document.getElementById('stage').getBoundingClientRect();
+    const aw = st.width - 24, ah = st.height - 20;
+    const spread = aw >= 760 && aw / ah > 1.05;
+    if (spread) return { mode: 'spread', pw: 540, ph: 760, aw, ah };
+    const pw = 400;
+    const ph = Math.round(pw * Math.min(1.9, Math.max(1.3, ah / aw)));
+    return { mode: 'single', pw, ph, aw, ah };
+  }
+
+  function build(keepAnchor) {
+    const L = layoutFor();
+    MODE = L.mode; PW = L.pw; PH = L.ph;
+    document.documentElement.style.setProperty('--pw', PW + 'px');
+    document.documentElement.style.setProperty('--ph', PH + 'px');
+    measure.className = MODE === 'single' ? 'single' : '';
+    typeset(data);
+    shifter.innerHTML = '';
+    leaves = [];
+    const pages = PAGES.map(p => p.el);
+    const pairs = [];
+    if (MODE === 'spread') { for (let i = 0; i < pages.length; i += 2) pairs.push([pages[i], pages[i + 1] || null]); }
+    else pages.forEach(p => pairs.push([p, null]));
+    const stL = document.createElement('div'); stL.className = 'stack l';
+    const stR = document.createElement('div'); stR.className = 'stack r';
+    const sh = document.createElement('div'); sh.className = 'bookshadow';
+    shifter.append(sh, stL, stR);
+    pairs.forEach(([f, b], k) => {
+      const leaf = document.createElement('div');
+      leaf.className = 'leaf instant';
+      leaf.style.left = (MODE === 'spread' ? PW : 0) + 'px';
+      leaf.style.width = PW + 'px';
+      const ff = document.createElement('div'); ff.className = 'face front'; ff.appendChild(f); ff.insertAdjacentHTML('beforeend', '<div class="shade"></div>');
+      const bf = document.createElement('div'); bf.className = 'face back';
+      if (b) bf.appendChild(b); else bf.innerHTML = '<div class="page blank-back"></div>';
+      bf.insertAdjacentHTML('beforeend', '<div class="shade"></div>');
+      leaf.append(ff, bf);
+      shifter.appendChild(leaf);
+      leaves.push(leaf);
+    });
+    clip.classList.toggle('single', MODE === 'single');
+    book.classList.toggle('single', MODE === 'single');
+    const bw = MODE === 'spread' ? PW * 2 : PW;
+    scale = Math.min(L.aw / bw, L.ah / PH);
+    book.style.width = bw + 'px'; book.style.height = PH + 'px';
+    book.style.transform = 'scale(' + scale + ')';
+    clip.style.width = bw * scale + 'px'; clip.style.height = PH * scale + 'px';
+    measure.innerHTML = '';
+
+    const target = keepAnchor != null && ANCHORS[keepAnchor] != null ? ANCHORS[keepAnchor] : null;
+    setLeaf(target != null ? leafForPage(target) : Math.min(current, leaves.length - 1), true);
+    const scrub = document.getElementById('scrub'); scrub.max = String(maxPos());
+    requestAnimationFrame(() => leaves.forEach(l => l.classList.remove('instant')));
+  }
+
+  function leafForPage(i) { return MODE === 'spread' ? Math.ceil(i / 2) : i; }
+  function maxPos() { return MODE === 'spread' ? leaves.length : leaves.length - 1; }
+  function visiblePages() {
+    if (MODE === 'single') return [current];
+    return [current * 2 - 1, current * 2].filter(i => i >= 0 && i < PAGES.length);
+  }
+
+  function zFor(k, flipped) { return flipped ? k + 1 : leaves.length - k + 1; }
+  function applyState(k, flipped, mode) {
+    const leaf = leaves[k];
+    leaf.classList.remove('instant', 'fast');
+    if (mode === 'instant') leaf.classList.add('instant');
+    if (mode === 'fast') leaf.classList.add('fast');
+    const was = leaf.classList.contains('flipped');
+    if (was === flipped) { leaf.style.zIndex = zFor(k, flipped); return; }
+    if (mode === 'instant') { leaf.classList.toggle('flipped', flipped); leaf.style.zIndex = zFor(k, flipped); return; }
+    leaf.style.zIndex = 5000 + k;
+    leaf.classList.add('turning');
+    leaf.classList.toggle('flipped', flipped);
+    busy++;
+    const done = () => { leaf.classList.remove('turning'); leaf.style.zIndex = zFor(k, leaf.classList.contains('flipped')); busy = Math.max(0, busy - 1); };
+    setTimeout(done, mode === 'fast' ? 400 : 780);
+  }
+
+  function setLeaf(pos, instant) {
+    pos = Math.max(0, Math.min(maxPos(), pos));
+    const from = current;
+    current = pos;
+    const diff = Math.abs(pos - from);
+    if (instant || diff === 0) {
+      leaves.forEach((l, k) => applyState(k, k < pos, 'instant'));
+    } else if (diff === 1) {
+      const k = pos > from ? from : pos;
+      applyState(k, pos > from, 'normal');
+    } else {
+      // Riffle: turn the last dozen leaves visibly, the rest instantly.
+      const forward = pos > from;
+      const ks = [];
+      if (forward) for (let k = from; k < pos; k++) ks.push(k); else for (let k = from - 1; k >= pos; k--) ks.push(k);
+      const animated = ks.slice(-12), instantKs = ks.slice(0, ks.length - animated.length);
+      instantKs.forEach(k => applyState(k, forward, 'instant'));
+      animated.forEach((k, j) => setTimeout(() => applyState(k, forward, 'fast'), j * 55));
+    }
+    // The closed book sits centred; open, it spans the spread.
+    if (MODE === 'spread') {
+      const shift = current === 0 ? -PW / 2 : current >= leaves.length ? PW / 2 : 0;
+      shifter.style.transform = 'translateX(' + shift + 'px)';
+      const left = shifter.querySelector('.stack.l'), right = shifter.querySelector('.stack.r'), sh = shifter.querySelector('.bookshadow');
+      const lw = current === 0 ? 0 : Math.min(10, 2 + current / 6), rw = current >= leaves.length ? 0 : Math.min(10, 2 + (leaves.length - current) / 6);
+      left.style.width = lw + 'px'; right.style.width = rw + 'px';
+      // Stacks sit outside whichever half is showing.
+      left.style.left = ''; left.style.right = ''; right.style.left = ''; right.style.right = '';
+      left.style.right = (2 * PW - (current === 0 ? PW : 0)) + 'px';
+      right.style.left = (current >= leaves.length ? PW : 2 * PW) + 'px';
+      left.style.display = current === 0 ? 'none' : ''; right.style.display = current >= leaves.length ? 'none' : '';
+      sh.style.left = (current === 0 ? PW : 0) + 'px'; sh.style.right = (current >= leaves.length ? PW : 0) + 'px';
+    } else {
+      shifter.style.transform = '';
+      shifter.querySelectorAll('.stack').forEach(s => s.style.display = 'none');
+      const sh = shifter.querySelector('.bookshadow'); if (sh) { sh.style.left = '0'; sh.style.right = '0'; }
+    }
+    updateChrome();
+  }
+
+  function updateChrome() {
+    const vis = visiblePages();
+    const labels = vis.map(i => PAGES[i] && PAGES[i].label).filter(Boolean);
+    const uniq = [...new Set(labels)];
+    document.getElementById('where').textContent = uniq.join('  ·  ');
+    const nums = vis.filter(i => i > 0 && i < PAGES.length - 1);
+    document.getElementById('pageno').textContent = nums.length ? 'p. ' + nums.join('–') + ' / ' + (PAGES.length - 2) : '';
+    document.getElementById('scrub').value = String(current);
+    document.getElementById('prevBtn').disabled = current <= 0;
+    document.getElementById('nextBtn').disabled = current >= maxPos();
+    const top = vis[vis.length - 1];
+    const anchorId = Object.keys(ANCHORS).find(a => ANCHORS[a] === top && a.startsWith('recipe-')) || null;
+    try { history.replaceState(null, '', anchorId ? '#' + anchorId : (current ? '#page-' + top : location.pathname)); } catch (e) {}
+  }
+
+  function go(pos) { setLeaf(pos, false); }
+  function next() { if (current < maxPos()) go(current + 1); }
+  function prev() { if (current > 0) go(current - 1); }
+  function goPage(i) { go(leafForPage(i)); }
+  function goAnchor(a) { if (ANCHORS[a] != null) goPage(ANCHORS[a]); }
+  function labelForPos(pos) {
+    const i = MODE === 'spread' ? Math.min(PAGES.length - 1, pos * 2) : pos;
+    const p = PAGES[i];
+    return (i > 0 && i < PAGES.length - 1 ? 'p. ' + i + ' — ' : '') + (p ? p.label : '');
+  }
+  function currentAnchor() {
+    const vis = visiblePages(); const top = vis[vis.length - 1];
+    return Object.keys(ANCHORS).find(a => ANCHORS[a] === top) || null;
+  }
+
+  async function init() {
+    const h = decodeURIComponent(location.hash.slice(1));   // read before the first render rewrites it
+    data = await loadData();
+    try { await document.fonts.load('400 28px "Playfair Display"'); await document.fonts.load('400 13px "Lora"'); await document.fonts.load('italic 400 13px "Lora"'); await document.fonts.load('500 10px "DM Sans"'); await document.fonts.ready; } catch (e) {}
+    build();
+    document.getElementById('loading').remove();
+    // Deep links: #recipe-<id>, #page-<n>, #contents, #index — or carry on where you left off.
+    let target = null;
+    if (h && ANCHORS[h] != null) target = ANCHORS[h];
+    else if (/^page-\d+$/.test(h)) target = parseInt(h.slice(5), 10);
+    if (target != null) setTimeout(() => goPage(target), 350);
+    setTimeout(() => { const hint = document.getElementById('hint'); if (hint) hint.style.opacity = '0'; }, 4500);
+
+    let lastKey = layoutKey();
+    let t = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const k = layoutKey();
+        const a = currentAnchor();
+        if (k !== lastKey) { lastKey = k; build(a); }
+        else build(a);
+      }, 220);
+    });
+  }
+  function layoutKey() { const L = layoutFor(); return L.mode + ':' + L.pw + 'x' + L.ph; }
+
+  return { init, next, prev, go, goPage, goAnchor, labelForPos, maxPos: () => maxPos(), mode: () => MODE, busy: () => busy };
+})();
+
+/* ---------------------------------------------------------------------------
+ * Input: links inside pages, clicks on page edges, swipes, keys, scrubber.
+ * ------------------------------------------------------------------------- */
+document.getElementById('stage').addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if (go) { e.preventDefault(); Book.goAnchor(go.dataset.go); return; }
+  if (e.target.closest('a, button')) return;
+  const clip = document.getElementById('clip').getBoundingClientRect();
+  if (e.clientX < clip.left || e.clientX > clip.right) { e.clientX < clip.left ? Book.prev() : Book.next(); return; }
+  const x = (e.clientX - clip.left) / clip.width;
+  if (Book.mode() === 'single') { x < 0.35 ? Book.prev() : Book.next(); }
+  else { x < 0.5 ? Book.prev() : Book.next(); }
+});
+let touch = null;
+document.getElementById('stage').addEventListener('touchstart', e => { const t = e.touches[0]; touch = { x: t.clientX, y: t.clientY, at: Date.now() }; }, { passive: true });
+document.getElementById('stage').addEventListener('touchend', e => {
+  if (!touch) return;
+  const t = e.changedTouches[0], dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) { dx < 0 ? Book.next() : Book.prev(); e.preventDefault(); }
+  touch = null;
+});
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea')) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); Book.next(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); Book.prev(); }
+  else if (e.key === 'Home') Book.go(0);
+  else if (e.key === 'End') Book.go(Book.maxPos());
+});
+(() => {
+  const scrub = document.getElementById('scrub'), tip = document.getElementById('scrubTip');
+  const showTip = () => {
+    const max = parseInt(scrub.max, 10) || 1, v = parseInt(scrub.value, 10);
+    tip.textContent = Book.labelForPos(v);
+    tip.style.left = (v / max * 100) + '%';
+    tip.classList.add('show');
+  };
+  scrub.addEventListener('input', showTip);
+  scrub.addEventListener('change', () => { tip.classList.remove('show'); Book.go(parseInt(scrub.value, 10)); });
+  scrub.addEventListener('pointerup', () => tip.classList.remove('show'));
+})();
+
+Book.init();
+</script>
+</body>
+</html>

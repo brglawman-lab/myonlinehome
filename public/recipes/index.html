@@ -56,6 +56,12 @@
   .recipe-row:hover { background: var(--surface); }
   .recipe-row.expanded { background: var(--surface); }
   .recipe-head { display: grid; grid-template-columns: 100px 1fr auto auto; align-items: center; gap: 14px; padding: 12px 8px; cursor: pointer; min-height: 56px; }
+  .recipe-head.with-thumb { grid-template-columns: 100px 52px 1fr auto auto; }
+  .recipe-head.with-thumb + .recipe-expand { padding-left: 188px; }
+  .recipe-thumb { width: 52px; height: 52px; border-radius: var(--radius); background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--border-strong); flex-shrink: 0; }
+  .recipe-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .recipe-thumb.photo-count { position: relative; }
+  .recipe-thumb .thumb-count { position: absolute; right: 3px; bottom: 3px; background: rgba(20,16,12,0.65); color: #fff; font-size: 9.5px; font-weight: 500; line-height: 1; padding: 2px 4px; border-radius: 3px; }
   .recipe-head .tag-wrap { display: flex; align-items: center; }
   .card-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; width: fit-content; }
   .recipe-title-wrap { min-width: 0; }
@@ -92,7 +98,14 @@
   .modal-close:hover { color: var(--text); }
   .modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; margin: 8px 0 4px; line-height: 1.3; }
   .modal-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
-  .modal-image { width: 100%; max-height: 320px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1.5rem; display: block; }
+  .modal-image { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius); display: block; background: var(--surface2); }
+  .modal-gallery { margin-bottom: 1.5rem; }
+  .modal-caption { font-size: 12.5px; color: var(--text-muted); font-style: italic; margin-top: 6px; }
+  .modal-thumbs { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; scrollbar-width: thin; }
+  .modal-thumb { width: 58px; height: 58px; flex-shrink: 0; padding: 0; border: 2px solid transparent; border-radius: var(--radius); overflow: hidden; cursor: pointer; background: var(--surface2); opacity: 0.7; transition: opacity 0.15s, border-color 0.15s; }
+  .modal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .modal-thumb:hover { opacity: 1; }
+  .modal-thumb.active { border-color: var(--text); opacity: 1; }
   .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin: 1.5rem 0 0.6rem; }
   .ingredient-list { list-style: none; }
   .ingredient-list li { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
@@ -191,6 +204,9 @@
     .header-controls { max-width: 100%; }
     .form-row, .form-row.three { grid-template-columns: 1fr; }
     .recipe-head { grid-template-columns: 1fr auto; gap: 8px; padding: 12px 4px; }
+    .recipe-head.with-thumb { grid-template-columns: 44px 1fr auto; gap: 10px; }
+    .recipe-head.with-thumb + .recipe-expand { padding-left: 4px; }
+    .recipe-thumb { width: 44px; height: 44px; }
     .recipe-head .tag-wrap { display: none; }
     .recipe-meta { display: none; }
     .recipe-desc { }
@@ -229,6 +245,8 @@
     #detailModal .storage-box { font-size: 9.5pt; margin-top: 14pt; }
     #detailModal .section-label + .storage-box { margin-top: 0; }
     #detailModal .storage-generic-note { display: none; }
+    #detailModal .modal-thumbs { display: none; }
+    #detailModal .modal-image { max-height: 7cm; }
     @page { margin: 2cm; }
   }
 </style>
@@ -262,6 +280,8 @@ transition:background .15s ease,color .15s ease}
         <button class="menu-item" data-page="foraging" onclick="switchToPage('foraging')">Foraging</button>
         <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
         <a class="menu-item" href="/recipes/storage/">Food Storage</a>
+        <a class="menu-item" href="/cookbook/">The Cookbook</a>
+        <a class="menu-item" href="/dashboard/">Dashboard</a>
       </div>
     </div>
     <div class="logo">Recipe <span>Book</span></div>
@@ -314,6 +334,11 @@ transition:background .15s ease,color .15s ease}
       <div class="form-hint">Format: amount then ingredient, e.g. "250g macaroni" or "1 tsp Dijon mustard"</div>
     </div>
     <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
+    <div class="form-group">
+      <label>Photos (optional)</label>
+      <textarea id="f-photos" placeholder="One photo URL per line, e.g. /recipes/photos/beef-short-rib-1.jpg&#10;The first line is the main photo, used as the thumbnail.&#10;Add a caption after a | if you like." style="min-height:60px;"></textarea>
+      <div class="form-hint">First line is the main photo. Put a caption after a <code>|</code>, e.g. "/recipes/photos/x.jpg | Fresh out of the oven".</div>
+    </div>
     <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
     <div class="form-row three">
       <div class="form-group"><label>Fridge (optional)</label><input type="text" id="f-storage-fridge" placeholder="e.g. Up to 3 days, airtight container"></div>
@@ -484,6 +509,13 @@ const RecipeSync = (() => {
     if (dbRecipes === null) return false;
 
     const goneSet = new Set(gone);
+    // Photos are committed files listed in this file, so a database row with
+    // no photos of its own (photos null/absent — not an explicit []) keeps them.
+    const seedById = new Map(DEFAULT_RECIPES.map(r => [r.id, r]));
+    dbRecipes = dbRecipes.map(r => {
+      const seed = seedById.get(r.id);
+      return (!Array.isArray(r.photos) && !r.image && seed && recipePhotos(seed).length) ? { ...r, photos: seed.photos, image: seed.image } : r;
+    });
     let merged = mergeById(DEFAULT_RECIPES, dbRecipes);
     merged = mergeById(merged, queue);
     merged = merged.filter(r => !goneSet.has(r.id) && !gone.includes(r.id));
@@ -601,6 +633,56 @@ const SECTIONS_ORDER = [
 function sectionLabel(s) { const sec = SECTIONS_ORDER.find(x => x.id === s); return sec ? sec.label : (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Other'); }
 function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', dips:'tag-dips', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
 function tagLabel(s) { return sectionLabel(s); }
+
+/* Photos. A recipe has `photos: [{src, caption}]`, the first being the main
+ * photo used as its thumbnail. Older entries may only have `image` (one URL),
+ * which still works. Photo files live in /recipes/photos/. */
+function recipePhotos(r) {
+  if (!r) return [];
+  if (Array.isArray(r.photos)) return r.photos.filter(p => p && p.src);
+  return r.image ? [{ src: r.image }] : [];
+}
+function photosToText(r) {
+  return recipePhotos(r).map(p => p.src + (p.caption ? ' | ' + p.caption : '')).join('\n');
+}
+function parsePhotosText(text) {
+  return text.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const bar = l.indexOf('|');
+    if (bar < 0) return { src: l };
+    const src = l.slice(0, bar).trim(), caption = l.slice(bar + 1).trim();
+    return caption ? { src, caption } : { src };
+  }).filter(p => p.src);
+}
+const PLATE_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/></svg>';
+function thumbHtml(r) {
+  const photos = recipePhotos(r);
+  if (!photos.length) return '<div class="recipe-thumb">' + PLATE_SVG + '</div>';
+  return '<div class="recipe-thumb' + (photos.length > 1 ? ' photo-count' : '') + '"><img src="' + escapeHtml(photos[0].src) + '" alt="" loading="lazy" decoding="async">'
+    + (photos.length > 1 ? '<span class="thumb-count">' + photos.length + '</span>' : '') + '</div>';
+}
+function galleryHtml(r) {
+  const photos = recipePhotos(r);
+  if (!photos.length) return '';
+  const main = photos[0];
+  return '<div class="modal-gallery">'
+    + '<img class="modal-image" id="galleryMain" src="' + escapeHtml(main.src) + '" alt="' + escapeHtml(main.caption || r.title) + '">'
+    + '<div class="modal-caption" id="galleryCaption"' + (main.caption ? '' : ' hidden') + '>' + escapeHtml(main.caption || '') + '</div>'
+    + (photos.length > 1
+        ? '<div class="modal-thumbs">' + photos.map((p, i) =>
+            '<button type="button" class="modal-thumb' + (i === 0 ? ' active' : '') + '" onclick="showGalleryPhoto(this, ' + i + ')" data-src="' + escapeHtml(p.src) + '" data-caption="' + escapeHtml(p.caption || '') + '" aria-label="Photo ' + (i + 1) + (i === 0 ? ' (main)' : '') + '"><img src="' + escapeHtml(p.src) + '" alt="" loading="lazy"></button>'
+          ).join('') + '</div>'
+        : '')
+    + '</div>';
+}
+function showGalleryPhoto(btn, i) {
+  const img = document.getElementById('galleryMain'), cap = document.getElementById('galleryCaption');
+  if (!img) return;
+  img.src = btn.dataset.src;
+  img.alt = btn.dataset.caption || '';
+  cap.textContent = btn.dataset.caption || '';
+  cap.hidden = !btn.dataset.caption;
+  document.querySelectorAll('.modal-thumb').forEach(b => b.classList.toggle('active', b === btn));
+}
 
 /* ── Storage & reheating guidance ──
  *
@@ -877,8 +959,9 @@ function renderRow(r) {
   }
   const rowClasses = 'recipe-row' + (isExpanded ? ' expanded' : '') + (noRecipe ? ' no-recipe' : '');
   return '<div class="' + rowClasses + '" data-id="' + r.id + '">'
-    + '<div class="recipe-head" onclick="toggleExpand(\'' + r.id + '\')">'
+    + '<div class="recipe-head with-thumb" onclick="toggleExpand(\'' + r.id + '\')">'
     + '<div class="tag-wrap"><span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span></div>'
+    + thumbHtml(r)
     + '<div class="recipe-title-wrap"><div class="recipe-title">' + title + '</div>'
     + (desc ? '<div class="recipe-desc">' + desc + '</div>' : '')
     + '</div>'
@@ -931,7 +1014,7 @@ function openDetail(id) {
       + '<h2>' + escapeHtml(r.title) + '</h2>'
       + (meta ? '<div class="modal-meta">' + meta + '</div>' : '')
       + scaleHtml
-      + (r.image ? '<img class="modal-image" src="' + escapeHtml(r.image) + '" alt="' + escapeHtml(r.title) + '">' : '')
+      + galleryHtml(r)
       + '<div class="print-recipe-body">'
       + '<div><p class="section-label">Ingredients</p><ul class="ingredient-list" id="ingList">' + ingHtml + '</ul></div>'
       + '<div><p class="section-label">Method</p><ol class="steps">' + stepsHtml + '</ol></div>'
@@ -1041,6 +1124,7 @@ function openAddModal(id) {
     set('f-ingredients', (r.ingredients || []).map(i => ((i.amount ? i.amount + ' ' : '') + i.item)).join('\n'));
     set('f-steps', (r.steps || []).join('\n'));
     set('f-notes', r.notes || '');
+    set('f-photos', photosToText(r));
     set('f-storage-fridge', (r.storage && r.storage.fridge) || '');
     set('f-storage-freezer', (r.storage && r.storage.freezer) || '');
     set('f-storage-reheat', (r.storage && r.storage.reheat) || '');
@@ -1048,7 +1132,7 @@ function openAddModal(id) {
     editingId = null;
     t.textContent = 'Add a recipe';
     btn.textContent = 'Save recipe';
-    ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(f => set(f, ''));
+    ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-photos','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(f => set(f, ''));
   }
   document.getElementById('addOverlay').classList.add('open');
 }
@@ -1089,6 +1173,8 @@ function saveRecipe() {
   const rawSteps = document.getElementById('f-steps').value.trim();
   const ingredients = rawIngredients ? rawIngredients.split('\n').map(parseIngredientLine).filter(Boolean) : [];
   const steps = rawSteps ? rawSteps.split('\n').filter(Boolean) : [];
+  const photosText = document.getElementById('f-photos').value.trim();
+  const photos = photosText ? parsePhotosText(photosText) : (existing && recipePhotos(existing).length ? [] : undefined);
   const storageFridge = document.getElementById('f-storage-fridge').value.trim();
   const storageFreezer = document.getElementById('f-storage-freezer').value.trim();
   const storageReheat = document.getElementById('f-storage-reheat').value.trim();
@@ -1112,7 +1198,10 @@ function saveRecipe() {
     // The form covers calories and storage now, so a cleared field is a deliberate clear.
     calories: document.getElementById('f-calories').value.trim() || undefined,
     storage,
-    image: existing ? existing.image : undefined
+    // An empty box on a recipe that had photos is a deliberate clear ([]);
+    // on one that never had any it stays unset.
+    photos,
+    image: photos && photos.length ? photos[0].src : undefined
   };
   if (editingId) {
     const i = recipes.findIndex(r => r.id === editingId);
@@ -1125,7 +1214,7 @@ function saveRecipe() {
   editingId = null;
   closeAdd();
   render();
-  ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(id => document.getElementById(id).value = '');
+  ['f-title','f-serves','f-time','f-calories','f-desc','f-ingredients','f-steps','f-notes','f-photos','f-storage-fridge','f-storage-freezer','f-storage-reheat'].forEach(id => document.getElementById(id).value = '');
 }
 
 document.addEventListener('keydown', (e) => {

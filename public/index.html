@@ -50,6 +50,8 @@
   .choice:hover, .choice:focus-visible { transform: translateY(-2px); outline: none; }
   .choice.food:hover, .choice.food:focus-visible { color: var(--rust); }
   .choice.photos:hover, .choice.photos:focus-visible { color: var(--sage); }
+  .choice.dash { font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 400; font-style: italic; color: var(--sage); margin-top: 0.75rem; }
+  .choice.dash:hover, .choice.dash:focus-visible { color: var(--forest); }
 
   footer {
     margin-top: 4rem;
@@ -68,8 +70,9 @@
 <p class="wordmark">My Online Home</p>
 
 <div class="choices">
-  <a class="choice food" href="/food/">Food</a>
+  <a class="choice food" href="/recipes/">Recipes</a>
   <a class="choice photos" href="/photos/">Photos</a>
+  <a class="choice dash" href="/dashboard/">Dashboard</a>
 </div>
 
 <footer>
