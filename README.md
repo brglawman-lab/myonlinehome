@@ -18,11 +18,12 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 
 | Path | What it is | Source |
 |---|---|---|
-| `/` | Landing page — just "Food" and "Photos" | authored here |
-| `/food/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below | authored here |
+| `/` | Landing page — "Recipes", "Photos" and a smaller "Dashboard" | authored here |
+| `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
+| `/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/` | authored here |
 | `/photos/` | Photography hub — wildlife photography, work in progress | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
-| `/recipes/` | Recipe Book — 58 recipes | from `Desktop\Claude\Chef Claude` (canonical copy) |
+| `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/` | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
 | `/recipes/storage/` | Food Storage — ingredient storage lookup + room temperature/humidity monitor | authored here |
 | `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
@@ -76,8 +77,9 @@ named rooms (pantry, garage store, …) with logged temperature/humidity
 readings, trend charts per room, and a CSV export for analysis outside the
 site. It follows the same offline-first pattern as sightings and recipes.
 
-The home page (`/`) is deliberately just two words — Food and Photos — that
-split the site in two. `/food/` is a read-only dashboard: it scrapes
+The home page (`/`) is deliberately just a few words: Recipes goes straight
+to the recipe book, Photos to the photography hub, and a smaller Dashboard
+link to `/dashboard/`. `/dashboard/` is a read-only dashboard: it scrapes
 `/recipes/` and `/wyfood/` the same way the Meal Builder and Food Storage
 pages do (fetch the page, lift a named array out of its `<script>`), reads
 the public storage-rooms/readings API, and shows what's relevant right now —
@@ -88,6 +90,20 @@ Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography
 and work-in-progress links that used to live on the home page. The recipe
 book supports `#recipe-<id>` and `#seasonal`/`#foraging`/`#drinks` in its URL
 so the dashboard's widgets can link straight into the right recipe or tab.
+
+Recipes can carry several photos: `photos: [{src, caption}]`, the first being
+the main photo used as the thumbnail in the list, on the dashboard and in the
+cookbook. Photo files are committed under `public/recipes/photos/` (about
+1600px on the long edge, JPEG ~82). In the database they are stored as a JSON
+array in the existing `image` column, so no migration was needed; a database
+row with no photos of its own keeps the photos listed in the file.
+
+The Cookbook (`/cookbook/`) reads the same recipes, drinks, seasonal and
+foraging lists (and gallery photographs for the interludes) and typesets them
+into pages: cover, contents, introduction, chapter openers, recipe pages,
+interludes and an index. The words that only exist in the book — intro,
+chapter blurbs, "kitchen rules", the cook's photo — are in the `BOOK` object at
+the top of its script. See `docs/cookbook-ideas.md` for what would improve it.
 
 ## Changes from the original sources
 

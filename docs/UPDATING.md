@@ -124,6 +124,9 @@ weeks under `section:'other'`.
   are numbered automatically.
 - **description** — describe the dish directly. Never "This recipe features…".
 - **notes** — optional. Omit the field entirely rather than leaving it empty.
+- **photos** — optional, `[{src:'/recipes/photos/<id>-1.jpg', caption:'Optional'}, …]`.
+  The **first** photo is the main one, used as the thumbnail. Photo files have
+  to be committed to `public/recipes/photos/`, so this needs repository access.
 - **noRecipe: true** — a placeholder for a dish with no recipe yet. Include
   only when true.
 
