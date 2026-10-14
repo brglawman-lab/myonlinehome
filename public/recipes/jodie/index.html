@@ -62,6 +62,9 @@
   .choice .label { font-size: 16px; font-weight: 500; display: block; }
   .choice .sub { font-size: 13px; color: var(--text-muted); display: block; margin-top: 2px; }
   .choice.anything { background: var(--surface2); border-style: dashed; }
+  a.choice { text-decoration: none; }
+  .choice.takeaway { background: #E6F7F5; border-color: #9ED9D2; }
+  .choice.takeaway:hover { border-color: #00A396; }
 
   /* ---- results ---- */
   .results-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
@@ -139,6 +142,9 @@
  * made. A recipe with no entry gets its styles guessed from keywords in its
  * title and description, so it still appears somewhere sensible.
  * ======================================================================== */
+
+/* Deliveroo's own link: on a phone with the app installed it opens the app. */
+const DELIVEROO_URL = 'https://deliveroo.co.uk/';
 
 const PROTEINS = [
   { id: 'chicken', label: 'Chicken',     emoji: '🍗', sub: 'Something with chicken' },
@@ -386,6 +392,9 @@ function renderProteinQuestion() {
           + '<span class="emoji">' + p.emoji + '</span><span class="label">' + esc(p.label) + '</span>'
           + '<span class="sub">' + esc(p.sub) + ' · ' + n + ' recipe' + (n === 1 ? '' : 's') + '</span></button>';
       }).join('')
+    + '<a class="choice takeaway" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">'
+    + '<span class="emoji">🛵</span><span class="label">Deliveroo</span>'
+    + '<span class="sub">Not cooking tonight</span></a>'
     + '</div>';
 }
 
@@ -427,14 +436,16 @@ function renderResults() {
   const list = matches();
   if (!list.length) {
     return '<div class="empty-note">Nothing in the book matches that yet.<br><br>'
-      + '<button class="text-btn" onclick="goBack(1)">Try a different style</button></div>';
+      + '<button class="text-btn" onclick="goBack(1)">Try a different style</button> or '
+      + '<a class="text-btn" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">open Deliveroo</a></div>';
   }
   return '<div class="results-head"><h2 class="question" style="margin:0;">How about one of these?</h2>'
     + (list.length > 1 ? '<button class="pick-btn" onclick="pickOne()">Just pick one for her</button>' : '') + '</div>'
     + '<div class="results-count">' + list.length + ' match' + (list.length === 1 ? '' : 'es') + '</div>'
     + '<div class="list" style="margin-top:0.6rem;">' + list.map(dishCard).join('') + '</div>'
     + '<div class="footer-actions"><button class="text-btn" onclick="goBack(1)">← Different style</button>'
-    + '<button class="text-btn" onclick="goBack(0)">Start again</button></div>';
+    + '<button class="text-btn" onclick="goBack(0)">Start again</button>'
+    + '<a class="text-btn" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">None of these — open Deliveroo</a></div>';
 }
 
 let lastPick = null;
