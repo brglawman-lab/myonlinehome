@@ -25,7 +25,7 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
 | `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/` | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
-| `/recipes/jodie/` | What does Jodie want to eat? — chicken/fish/veg/other meats, then a style, then matching recipes | authored here |
+| `/recipes/jodie/` | What does Jodie want to eat? — a mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
 | `/recipes/storage/` | Food Storage — ingredient storage lookup + room temperature/humidity monitor | authored here |
 | `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
 | `/gallery/` | Wildlife Photography — portfolio gallery | authored here |

@@ -4,7 +4,7 @@
 <title>What does Jodie want to eat?</title>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -12,12 +12,7 @@
     --border: #E2DDD5; --border-strong: #C8C2B8;
     --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
     --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
-    --red: #8B2E2E; --red-light: #F5EAEA;
-    --amber: #8B5E1A; --amber-light: #FBF2E3;
-    --blue: #1A3D6B; --blue-light: #E8EEF5;
-    --teal: #1A5050; --teal-light: #E5F0F0;
-    --pink: #6B2A4A; --pink-light: #F5EAF0;
-    --radius: 4px; --radius-lg: 8px;
+    --radius: 4px; --radius-lg: 10px;
     --header-h: 64px;
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
@@ -39,61 +34,91 @@
   .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
   .ghost-link:hover { background: var(--surface2); color: var(--text); }
 
-  .main { max-width: 860px; margin: 0 auto; padding: 2.25rem 2rem 5rem; }
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 2rem 7rem; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 1.25rem; }
+  h1 em { color: var(--accent); }
 
-  .intro { margin-bottom: 1.5rem; }
-  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
-  .intro h1 em { color: var(--accent); }
-  .intro p { color: var(--text-muted); max-width: 60ch; }
+  /* ---- mood board ---- */
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 104px; grid-auto-flow: dense; gap: 10px; }
+  .tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: 12px 14px; border: 2px solid transparent; border-radius: var(--radius-lg); background: var(--tint); color: var(--text); font-family: 'DM Sans', sans-serif; text-align: left; cursor: pointer; transition: transform 0.15s, border-color 0.15s, opacity 0.15s, box-shadow 0.15s; }
+  .tile:hover { transform: translateY(-2px); }
+  .tile:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  .tile.wide { grid-column: span 2; }
+  .tile.tall { grid-row: span 2; }
+  .tile .emoji { font-size: 30px; line-height: 1; }
+  .tile.tall .emoji, .tile.wide .emoji { font-size: 40px; }
+  .tile .label { font-size: 15px; font-weight: 500; line-height: 1.25; }
+  .tile.tall .label { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; }
+  .tile.on { border-color: var(--text); box-shadow: 0 6px 16px rgba(20,16,12,0.12); }
+  .tile.on::after { content: '✓'; position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: #fff; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .board.full .tile:not(.on) { opacity: 0.45; }
+  .tile.nope { animation: nope 0.35s; }
+  @keyframes nope { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-  /* ---- trail of answers so far ---- */
-  .trail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 1.25rem; font-size: 13px; color: var(--text-faint); min-height: 28px; }
-  .crumb { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; }
-  .crumb:hover { border-color: var(--border-strong); color: var(--text); }
-  .crumb.here { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); cursor: default; }
+  .order-in { margin-top: 1.25rem; font-size: 14px; color: var(--text-muted); }
+  .order-in a { color: var(--text-muted); }
 
-  /* ---- question ---- */
-  .question { font-family: 'Playfair Display', serif; font-size: 25px; font-weight: 400; line-height: 1.3; margin-bottom: 1rem; }
-  .choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-  .choice { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.1rem 1rem; font-family: 'DM Sans', sans-serif; color: var(--text); cursor: pointer; transition: border-color 0.14s, transform 0.14s, box-shadow 0.14s; }
-  .choice:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(20,16,12,0.07); transform: translateY(-1px); }
-  .choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .choice .emoji { font-size: 28px; line-height: 1; display: block; margin-bottom: 0.55rem; }
-  .choice .label { font-size: 16px; font-weight: 500; display: block; }
-  .choice .sub { font-size: 13px; color: var(--text-muted); display: block; margin-top: 2px; }
-  .choice.anything { background: var(--surface2); border-style: dashed; }
-  a.choice { text-decoration: none; }
-  .choice.takeaway { background: #E6F7F5; border-color: #9ED9D2; }
-  .choice.takeaway:hover { border-color: #00A396; }
+  /* ---- confirm bar ---- */
+  .confirm-bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 2rem; z-index: 40; }
+  .confirm-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .count { font-size: 14px; color: var(--text-muted); }
+  .count strong { color: var(--text); }
+  .btn { padding: 11px 22px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .btn:hover { opacity: 0.88; }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .text-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--accent); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
 
   /* ---- results ---- */
-  .results-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
-  .results-count { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
-  .pick-btn { padding: 9px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
-  .pick-btn:hover { opacity: 0.88; }
+  .chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+  .chip { font-size: 13px; padding: 3px 11px; border-radius: 999px; background: var(--tint, var(--surface2)); }
+  .results-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
   .list { display: flex; flex-direction: column; gap: 10px; }
-  .dish { display: flex; gap: 14px; align-items: stretch; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; text-decoration: none; color: var(--text); transition: border-color 0.14s, box-shadow 0.25s; }
+  .dish { display: flex; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; text-decoration: none; color: var(--text); transition: border-color 0.14s, box-shadow 0.25s; }
   .dish:hover { border-color: var(--border-strong); }
   .dish.picked { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
-  .thumb { flex: 0 0 88px; height: 88px; border-radius: var(--radius); background: var(--surface2) center/cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .thumb { flex: 0 0 84px; height: 84px; border-radius: var(--radius); background: var(--surface2) center/cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 30px; }
   .dish-body { flex: 1; min-width: 0; }
-  .dish-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 400; line-height: 1.25; margin-bottom: 3px; }
-  .dish-desc { font-size: 14px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .dish-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; font-size: 12px; color: var(--text-faint); align-items: center; }
-  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface2); color: var(--text-muted); }
-  .pill.match { background: var(--accent-light); color: var(--accent-text); }
+  .dish-top { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+  .dish-title { font-family: 'Playfair Display', serif; font-size: 19px; line-height: 1.25; margin-bottom: 3px; }
+  .score { flex-shrink: 0; font-size: 12px; font-weight: 500; color: var(--accent-text); background: var(--accent-light); padding: 2px 8px; border-radius: 999px; }
+  .dish-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; font-size: 12px; color: var(--text-faint); align-items: center; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--tint); color: var(--text); }
+  .course { text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; }
   .empty-note, .loading { text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); font-style: italic; background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); }
-  .text-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--accent); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
   .footer-actions { margin-top: 1.5rem; display: flex; gap: 1.25rem; flex-wrap: wrap; }
+
+  /* ---- takeaway celebration ---- */
+  .party { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; overflow: hidden; text-align: center; color: #fff;
+    background: #00CCBC; animation: disco 0.6s steps(1) infinite; }
+  .party.on { display: flex; }
+  @keyframes disco { 0% { background: #00CCBC; } 25% { background: #FF3D7F; } 50% { background: #7B2FF7; } 75% { background: #FF9F1C; } }
+  .rays { position: absolute; width: 260vmax; height: 260vmax; left: 50%; top: 50%; margin: -130vmax 0 0 -130vmax;
+    background: repeating-conic-gradient(rgba(255,255,255,0.22) 0 10deg, transparent 10deg 20deg); animation: spin 6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .party-card { position: relative; padding: 1rem; }
+  .trophy { font-size: 120px; line-height: 1; display: inline-block; animation: trophy 0.9s ease-in-out infinite; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3)); }
+  @keyframes trophy { 0%, 100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.18); } }
+  .winner { font-family: 'Playfair Display', serif; font-weight: 700; font-size: clamp(48px, 13vw, 110px); line-height: 1; letter-spacing: 0.02em; text-shadow: 4px 4px 0 #1A1714; animation: pulse 0.45s ease-in-out infinite alternate; margin: 0.5rem 0; }
+  @keyframes pulse { from { transform: scale(0.94) rotate(-2deg); } to { transform: scale(1.06) rotate(2deg); } }
+  .prize { display: inline-block; background: #FFD23F; color: #1A1714; font-weight: 700; font-size: clamp(16px, 4.5vw, 24px); padding: 10px 22px; border-radius: 999px; border: 3px solid #1A1714; transform: rotate(-3deg); box-shadow: 4px 4px 0 #1A1714; }
+  .party-sub { margin-top: 1.25rem; font-size: 16px; font-weight: 500; text-shadow: 1px 1px 0 rgba(0,0,0,0.35); }
+  .party-actions { margin-top: 1rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; align-items: center; }
+  .party-actions a { background: #fff; color: #1A1714; text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px; }
+  .party-actions button { background: none; border: none; color: #fff; text-decoration: underline; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) {
+    .party, .rays, .trophy, .winner { animation: none; }
+  }
 
   @media (max-width: 640px) {
     .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .confirm-bar { padding-left: 1rem; padding-right: 1rem; }
     .header-inner { gap: 0.75rem; }
     .header-right { display: none; }
-    .intro h1 { font-size: 27px; }
-    .question { font-size: 21px; }
-    .choices { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .thumb { flex-basis: 68px; height: 68px; }
+    h1 { font-size: 27px; }
+    .board { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 92px; gap: 8px; }
+    .tile.tall .label { font-size: 19px; }
+    .thumb { flex-basis: 64px; height: 64px; }
     .dish-title { font-size: 17px; }
   }
 </style>
@@ -120,119 +145,155 @@
 </header>
 
 <main class="main">
-  <div class="intro">
-    <h1>What does <em>Jodie</em> want to eat?</h1>
-    <p>Two quick questions and you'll have a shortlist from the recipe book.</p>
-  </div>
-  <div class="trail" id="trail"></div>
+  <h1>What does <em>Jodie</em> want to eat?</h1>
   <div id="stage"><div class="loading">Reading the recipe book…</div></div>
 </main>
+
+<div class="confirm-bar" id="confirmBar" hidden>
+  <div class="confirm-inner">
+    <div class="count" id="count"></div>
+    <button class="btn" id="confirmBtn" onclick="confirmChoices()" disabled>Show me</button>
+  </div>
+</div>
+
+<div class="party" id="party" role="dialog" aria-live="assertive" aria-label="Takeaway night">
+  <div class="rays"></div>
+  <canvas id="confetti"></canvas>
+  <div class="party-card">
+    <div class="trophy">🏆</div>
+    <div class="winner">WINNER!</div>
+    <div class="prize">🛵 You've won a TAKEAWAY 🍟</div>
+    <div class="party-sub" id="partyCountdown">Really hungry and not that healthy. Opening Deliveroo…</div>
+    <div class="party-actions">
+      <a id="partyGo" href="#">Open Deliveroo now</a>
+      <button onclick="stopParty()">Actually, let's cook</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ===========================================================================
  * What does Jodie want to eat?
  *
- * A two-question decision tree over the recipe book: chicken / fish / veg /
- * other meats, then a style (comfort food, spicy, creamy, …), then a list of
- * matching recipes. Like the Meal Builder it fetches /recipes/ and lifts
- * DEFAULT_RECIPES out of it, then applies the database overlay, so new
- * recipes show up here without touching this page.
+ * One mood board: tap up to five things (chicken, spicy, really hungry, …)
+ * and get every recipe that matches at least one, most matches first.
+ * Mains, starters and sides are all in play. Really hungry + not that
+ * healthy skips the recipes altogether and throws a party on the way to
+ * Deliveroo.
  *
- * STYLE_TAGS is hand-written for the recipes that existed when this page was
- * made. A recipe with no entry gets its styles guessed from keywords in its
- * title and description, so it still appears somewhere sensible.
+ * Like the Meal Builder this fetches /recipes/ and lifts DEFAULT_RECIPES out
+ * of it, then applies the database overlay, so new recipes appear here too.
+ * TAGS is hand-written for the recipes that existed when this page was made;
+ * anything else is tagged from its section, calories and keywords.
  * ======================================================================== */
 
 /* Deliveroo's own link: on a phone with the app installed it opens the app. */
 const DELIVEROO_URL = 'https://deliveroo.co.uk/';
+const MAX_PICKS = 5;
 
-const PROTEINS = [
-  { id: 'chicken', label: 'Chicken',     emoji: '🍗', sub: 'Something with chicken' },
-  { id: 'fish',    label: 'Fish',        emoji: '🐟', sub: 'Fish and seafood' },
-  { id: 'veg',     label: 'Veg',         emoji: '🥦', sub: 'No meat or fish' },
-  { id: 'other',   label: 'Other meats', emoji: '🥩', sub: 'Beef, pork and the rest' },
+/* Board order is the mood-board layout. `size` is wide or tall for the
+ * bigger tiles; `not` is the option it can't be picked alongside. */
+const OPTIONS = [
+  { id: 'chicken',  label: 'Chicken',          emoji: '🍗', tint: '#F6E3C6', size: 'tall' },
+  { id: 'spicy',    label: 'Spicy',            emoji: '🌶️', tint: '#F7D4CC' },
+  { id: 'hearty',   label: 'Really hungry',    emoji: '🤤', tint: '#F3D9E4', not: 'light' },
+  { id: 'fish',     label: 'Fish',             emoji: '🐟', tint: '#D3E6EE', size: 'wide' },
+  { id: 'comfort',  label: 'Comfort food',     emoji: '🛋️', tint: '#EADFD3' },
+  { id: 'healthy',  label: 'Healthy',          emoji: '🥗', tint: '#D9EBD3', not: 'treat' },
+  { id: 'veg',      label: 'Veg',              emoji: '🥦', tint: '#DCEBCF', size: 'tall' },
+  { id: 'creamy',   label: 'Creamy & cheesy',  emoji: '🧀', tint: '#F8EBC4' },
+  { id: 'light',    label: 'Not that hungry',  emoji: '🤏', tint: '#E4E1F1', not: 'hearty' },
+  { id: 'asian',    label: 'Asian',            emoji: '🥢', tint: '#F4DAD2' },
+  { id: 'treat',    label: 'Not that healthy', emoji: '🍟', tint: '#FBE2B8', size: 'wide', not: 'healthy' },
+  { id: 'other',    label: 'Other meats',      emoji: '🥩', tint: '#EED3D0', size: 'tall' },
+  { id: 'fresh',    label: 'Fresh & light',    emoji: '🍋', tint: '#F4F0C6' },
+  { id: 'mexican',  label: 'Mexican',          emoji: '🌮', tint: '#F6DCC2' },
+  { id: 'handheld', label: 'Sandwiches, wraps & tacos', emoji: '🥪', tint: '#E9E2D6', size: 'wide' },
+  { id: 'bbq',      label: 'BBQ',              emoji: '🔥', tint: '#F5D6C6' },
+  { id: 'quick',    label: 'Quick',            emoji: '⏱️', tint: '#D8E4EE', size: 'wide' },
 ];
+const PROTEIN_IDS = ['chicken', 'fish', 'veg', 'other'];
 
-const STYLES = [
-  { id: 'comfort',  label: 'Comfort food',             emoji: '🛋️' },
-  { id: 'spicy',    label: 'Spicy',                    emoji: '🌶️' },
-  { id: 'creamy',   label: 'Creamy & cheesy',          emoji: '🧀' },
-  { id: 'fresh',    label: 'Fresh & light',            emoji: '🥗' },
-  { id: 'asian',    label: 'Asian',                    emoji: '🥢' },
-  { id: 'mexican',  label: 'Mexican',                  emoji: '🌮' },
-  { id: 'handheld', label: 'Sandwiches, wraps & tacos', emoji: '🥪' },
-  { id: 'bbq',      label: 'BBQ & summery',            emoji: '🔥' },
-  { id: 'quick',    label: 'Quick (30 mins or less)',  emoji: '⏱️' },
-];
+/* Sections that never get suggested. Everything else is a main, starter or side. */
+const SKIP_SECTIONS = new Set(['dips', 'baking', 'soft-drinks']);
+const COURSE = { starters: 'Starter', sides: 'Side' };
 
-/* Sections that count as a meal, and which branch of the tree they belong
- * to. Anything not listed here and not in SKIP_SECTIONS is "other meats", so
- * a new lamb or meat section lands there automatically. */
-const SECTION_PROTEIN = { chicken: 'chicken', fish: 'fish', veg: 'veg' };
-const SKIP_SECTIONS = new Set(['sides', 'dips', 'baking', 'soft-drinks']);
-
-/* Starters are mixed, so only the ones that make a light meal are included,
- * each with its own branch. */
-const STARTER_PROTEIN = {
+/* Protein for recipes outside the chicken / fish / veg sections. */
+const PROTEIN_OVERRIDE = {
   'gambas-al-ajillo': 'fish',
-  'tahini-soy-mushroom-bagel': 'veg',
   'roast-tomato-whipped-feta-toast': 'other',
   'baked-camembert-chorizo-tomatoes': 'other',
 };
+const COURSE_OVERRIDE = { 'bbq-courgettes-asparagus': 'Side' };
 
-const STYLE_TAGS = {
+/* light / hearty = not that hungry / really hungry; healthy / treat = healthy / not that healthy. */
+const TAGS = {
   // chicken
-  'cajun-chicken-nachos':          ['comfort', 'spicy', 'creamy', 'mexican'],
-  'cajun-chicken-wraps':           ['spicy', 'fresh', 'handheld'],
-  'pad-thai':                      ['asian', 'comfort'],
-  'chicken-caesar':                ['creamy', 'fresh'],
-  'shawarma-roast-chicken':        ['comfort', 'fresh'],
-  'grilled-herb-chicken-sandwich': ['handheld', 'fresh', 'bbq'],
+  'cajun-chicken-nachos':          ['comfort', 'spicy', 'creamy', 'mexican', 'hearty', 'treat'],
+  'cajun-chicken-wraps':           ['spicy', 'fresh', 'handheld', 'light', 'healthy'],
+  'pad-thai':                      ['asian', 'comfort', 'hearty', 'treat'],
+  'chicken-caesar':                ['creamy', 'fresh', 'hearty', 'treat'],
+  'shawarma-roast-chicken':        ['comfort', 'fresh', 'hearty', 'healthy'],
+  'grilled-herb-chicken-sandwich': ['handheld', 'fresh', 'bbq', 'light', 'healthy'],
   // fish
-  'kewpie-prawn-baguette':         ['handheld', 'creamy'],
-  'salmon-rice-bowls':             ['fresh', 'asian'],
-  'thomas-straker-salmon-slaw':    ['fresh', 'creamy'],
-  'gambas-al-ajillo':              ['spicy'],
-  'wild-salmon-beetroot-labneh':   ['fresh', 'creamy'],
-  'tuna-cannellini-bean-salad':    ['fresh'],
-  'bbq-salmon-dill-creme-fraiche': ['bbq', 'fresh', 'creamy'],
-  'gambas-pil-pil-bbq':            ['bbq', 'spicy'],
-  'fish-cakes-greek-salad':        ['fresh', 'comfort'],
-  'smoked-mackerel-sour-cream-baguette': ['handheld', 'creamy'],
+  'kewpie-prawn-baguette':         ['handheld', 'creamy', 'light', 'treat'],
+  'salmon-rice-bowls':             ['fresh', 'asian', 'hearty', 'healthy'],
+  'thomas-straker-salmon-slaw':    ['fresh', 'creamy', 'light', 'healthy'],
+  'gambas-al-ajillo':              ['spicy', 'light', 'treat'],
+  'wild-salmon-beetroot-labneh':   ['fresh', 'creamy', 'hearty', 'healthy'],
+  'tuna-cannellini-bean-salad':    ['fresh', 'light', 'healthy'],
+  'bbq-salmon-dill-creme-fraiche': ['bbq', 'fresh', 'creamy', 'light', 'healthy'],
+  'gambas-pil-pil-bbq':            ['bbq', 'spicy', 'light', 'healthy'],
+  'fish-cakes-greek-salad':        ['fresh', 'comfort', 'light', 'healthy'],
+  'smoked-mackerel-sour-cream-baguette': ['handheld', 'creamy', 'light'],
   // veg
-  'baked-mac-cheese':              ['comfort', 'creamy'],
-  'sundried-tomato-chickpea-stew': ['comfort', 'spicy'],
-  'leek-potato-soup':              ['comfort', 'creamy'],
-  'chipotle-black-bean-halloumi-tacos': ['mexican', 'spicy', 'handheld'],
-  'creamy-harissa-butter-beans':   ['creamy', 'spicy', 'comfort'],
-  'spicy-bean-enchiladas':         ['mexican', 'spicy', 'comfort', 'creamy'],
-  'cheesy-bean-burritos':          ['mexican', 'comfort', 'creamy', 'handheld'],
-  'black-bean-cheddar-quesadillas': ['mexican', 'creamy', 'handheld'],
-  'bbq-courgettes-asparagus':      ['bbq', 'fresh'],
-  'crispy-tofu-khao-soi':          ['asian', 'spicy', 'creamy', 'comfort'],
-  'tahini-soy-mushroom-bagel':     ['handheld', 'asian'],
+  'baked-mac-cheese':              ['comfort', 'creamy', 'hearty', 'treat'],
+  'sundried-tomato-chickpea-stew': ['comfort', 'spicy', 'healthy'],
+  'leek-potato-soup':              ['comfort', 'creamy', 'light', 'healthy'],
+  'chipotle-black-bean-halloumi-tacos': ['mexican', 'spicy', 'handheld', 'hearty'],
+  'creamy-harissa-butter-beans':   ['creamy', 'spicy', 'comfort', 'light', 'healthy'],
+  'spicy-bean-enchiladas':         ['mexican', 'spicy', 'comfort', 'creamy', 'hearty', 'treat'],
+  'cheesy-bean-burritos':          ['mexican', 'comfort', 'creamy', 'handheld', 'hearty', 'treat'],
+  'black-bean-cheddar-quesadillas': ['mexican', 'creamy', 'handheld', 'treat'],
+  'bbq-courgettes-asparagus':      ['bbq', 'fresh', 'light', 'healthy'],
+  'crispy-tofu-khao-soi':          ['asian', 'spicy', 'creamy', 'comfort', 'hearty'],
+  'tahini-soy-mushroom-bagel':     ['handheld', 'asian', 'light'],
+  'smooth-hummus':                 ['fresh', 'light', 'healthy'],
+  'addictive-hot-chilli-nuts':     ['spicy', 'light', 'treat'],
+  'devilled-eggs':                 ['creamy', 'light'],
+  // sides
+  'spiced-red-cabbage':            ['comfort', 'light', 'healthy'],
+  'dauphinois':                    ['comfort', 'creamy', 'treat'],
+  'mash':                          ['comfort', 'creamy'],
+  'hash-browns':                   ['comfort', 'treat'],
+  'roasties':                      ['comfort'],
+  'dirty-wedges':                  ['comfort', 'spicy', 'treat'],
+  'coconut-rice':                  ['asian', 'creamy'],
+  'creamed-spinach':               ['creamy'],
+  'bbq-corn-smoky-garlic-butter':  ['bbq'],
+  'bbq-corn-chipotle-lime-butter': ['bbq', 'spicy', 'mexican'],
   // other meats
-  'beef-short-rib':                ['comfort'],
-  'red-pepper-pepperoni-orzotto':  ['comfort', 'creamy'],
-  'smashed-potatoes-pancetta-raclette': ['comfort', 'creamy'],
-  'roast-beef-christmas':          ['comfort'],
-  'pork-belly-carnitas':           ['mexican', 'handheld', 'spicy'],
-  'chorizo-al-vino':               ['comfort', 'spicy'],
-  'steak-peppercorn':              ['comfort', 'creamy'],
-  'thomas-straker-burgers':        ['handheld', 'comfort', 'spicy'],
-  'caramelised-asian-pulled-pork': ['asian', 'comfort'],
-  'rump-steak-ciabatta':           ['handheld', 'spicy'],
-  'sirloin-baguette-caramelised-onion': ['handheld'],
-  'marinated-pork-tomahawk-charred-hispi-apple-sage-sauce': ['comfort'],
-  'sticky-asian-pork-belly':       ['asian', 'comfort'],
-  'pork-belly-banh-mi':            ['asian', 'handheld', 'fresh', 'spicy'],
-  'pork-belly-ramen':              ['asian', 'comfort', 'spicy'],
-  'roast-tomato-whipped-feta-toast': ['fresh', 'creamy'],
-  'baked-camembert-chorizo-tomatoes': ['comfort', 'creamy'],
+  'beef-short-rib':                ['comfort', 'hearty', 'treat'],
+  'red-pepper-pepperoni-orzotto':  ['comfort', 'creamy', 'hearty'],
+  'smashed-potatoes-pancetta-raclette': ['comfort', 'creamy', 'hearty', 'treat'],
+  'roast-beef-christmas':          ['comfort', 'hearty'],
+  'pork-belly-carnitas':           ['mexican', 'handheld', 'spicy', 'hearty', 'treat'],
+  'chorizo-al-vino':               ['comfort', 'spicy', 'hearty', 'treat'],
+  'steak-peppercorn':              ['comfort', 'creamy', 'hearty', 'treat'],
+  'thomas-straker-burgers':        ['handheld', 'comfort', 'spicy', 'hearty', 'treat'],
+  'caramelised-asian-pulled-pork': ['asian', 'comfort', 'hearty', 'treat'],
+  'rump-steak-ciabatta':           ['handheld', 'spicy', 'hearty', 'treat'],
+  'sirloin-baguette-caramelised-onion': ['handheld', 'hearty', 'treat'],
+  'marinated-pork-tomahawk-charred-hispi-apple-sage-sauce': ['comfort', 'hearty'],
+  'sticky-asian-pork-belly':       ['asian', 'comfort', 'hearty', 'treat'],
+  'pork-belly-banh-mi':            ['asian', 'handheld', 'fresh', 'spicy', 'hearty'],
+  'pork-belly-ramen':              ['asian', 'comfort', 'spicy', 'hearty'],
+  'roast-tomato-whipped-feta-toast': ['fresh', 'creamy', 'light'],
+  'baked-camembert-chorizo-tomatoes': ['comfort', 'creamy', 'treat'],
 };
 
-/* Fallback for recipes with no STYLE_TAGS entry. */
-const STYLE_KEYWORDS = {
+/* Fallbacks for recipes with no TAGS entry. */
+const KEYWORDS = {
   comfort:  /\b(stew|braise|braised|bake|baked|mash|pie|soup|roast|slow|hearty|comfort|pasta|mac)\b/i,
   spicy:    /(spic|chilli|chili|chipotle|harissa|cajun|sriracha|jalape|hot\b|curry)/i,
   creamy:   /(cream|cheese|cheesy|cheddar|mozzarella|parmesan|feta|halloumi|coconut|mayo|crème|creme)/i,
@@ -241,6 +302,12 @@ const STYLE_KEYWORDS = {
   mexican:  /(taco|burrito|enchilada|quesadilla|nacho|chipotle|salsa|tortilla|mexican|carnitas)/i,
   handheld: /(sandwich|baguette|wrap|taco|burger|bagel|ciabatta|toast|burrito|bun|bánh|banh)/i,
   bbq:      /\b(bbq|barbecue|grill|grilled|charred)\b/i,
+};
+const INDULGENT = /(cheese|cheesy|cream|fried|butter|mayo|bacon|pancetta|chorizo|pastry|caramel)/i;
+const PROTEIN_WORDS = {
+  chicken: /chicken/i,
+  fish: /(fish|salmon|tuna|cod|prawn|gambas|mackerel|haddock|crab|squid|anchov)/i,
+  other: /(beef|steak|pork|chorizo|bacon|pancetta|lamb|sausage|ham\b|pepperoni|duck)/i,
 };
 
 /* ===========================================================================
@@ -288,14 +355,17 @@ async function loadLibrary() {
     if (b.ok) { const j = await b.json(); if (Array.isArray(j)) { const gone = new Set(j); merged = merged.filter(r => !gone.has(r.id)); } }
   } catch (e) { /* offline is fine — the seed is enough */ }
 
-  DISHES = merged.map(toDish).filter(Boolean)
-    .sort((x, y) => x.title.localeCompare(y.title));
+  DISHES = merged.map(toDish).filter(Boolean);
 }
 
 function proteinOf(r) {
-  if (r.section === 'starters') return STARTER_PROTEIN[r.id] || null;
-  if (SKIP_SECTIONS.has(r.section)) return null;
-  return SECTION_PROTEIN[r.section] || 'other';
+  if (PROTEIN_OVERRIDE[r.id]) return PROTEIN_OVERRIDE[r.id];
+  if (r.section === 'chicken' || r.section === 'fish' || r.section === 'veg') return r.section;
+  if (r.section !== 'starters' && r.section !== 'sides') return 'other';
+  // Starters and sides are mixed, so read the title and ingredients.
+  const text = r.title + ' ' + (r.ingredients || []).map(i => i.item).join(' ');
+  for (const p of ['chicken', 'fish', 'other']) if (PROTEIN_WORDS[p].test(text)) return p;
+  return 'veg';
 }
 
 function minutesOf(t) {
@@ -309,18 +379,23 @@ function minutesOf(t) {
   return found ? total : null;
 }
 
-function stylesOf(r) {
-  let styles = STYLE_TAGS[r.id];
-  if (!styles) {
+function tagsOf(r, course) {
+  let tags = TAGS[r.id];
+  if (!tags) {
     const text = (r.title || '') + ' ' + (r.description || '');
-    styles = Object.keys(STYLE_KEYWORDS).filter(k => STYLE_KEYWORDS[k].test(text));
+    const cal = parseInt(r.calories, 10) || null;
+    tags = Object.keys(KEYWORDS).filter(k => KEYWORDS[k].test(text));
+    if (course !== 'Main' || (cal && cal < 500)) tags.push('light');
+    else if (cal && cal >= 800) tags.push('hearty');
+    if ((cal && cal >= 850) || INDULGENT.test(text)) tags.push('treat');
+    else if (cal && cal <= 550) tags.push('healthy');
   }
-  styles = styles.slice();
+  tags = tags.slice();
   const mins = minutesOf(r.time);
   // "Plus overnight brine" and the like would make a 30-minute recipe look quick.
-  const hasWait = /overnight|plus|marinat|chill/i.test(r.time || '');
-  if (mins && mins <= 30 && !hasWait && styles.indexOf('quick') === -1) styles.push('quick');
-  return styles;
+  const hasWait = /overnight|plus|marinat|chill|day before/i.test(r.time || '');
+  if (mins && mins <= 30 && !hasWait && tags.indexOf('quick') === -1) tags.push('quick');
+  return tags;
 }
 
 function photoOf(r) {
@@ -329,157 +404,211 @@ function photoOf(r) {
 }
 
 function toDish(r) {
+  if (!r.title || SKIP_SECTIONS.has(r.section)) return null;
+  const course = COURSE_OVERRIDE[r.id] || COURSE[r.section] || 'Main';
   const protein = proteinOf(r);
-  if (!protein || !r.title) return null;
   return {
-    id: r.id, title: r.title, description: r.description || '',
+    id: r.id, title: r.title, course,
     time: r.time && r.time !== '—' ? r.time : '',
-    protein, styles: stylesOf(r), photo: photoOf(r), noRecipe: !!r.noRecipe,
+    tags: [protein].concat(tagsOf(r, course)),
+    photo: photoOf(r), noRecipe: !!r.noRecipe,
   };
 }
 
 /* ===========================================================================
- * The tree
+ * The board and the results
  * ======================================================================== */
-const state = { protein: null, style: null };
+let picks = [];
+const optionById = id => OPTIONS.find(o => o.id === id);
+const COURSE_RANK = { Main: 0, Starter: 1, Side: 2 };
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
-const proteinById = id => PROTEINS.find(p => p.id === id);
-const styleById = id => STYLES.find(s => s.id === id);
-const inProtein = p => DISHES.filter(d => d.protein === p);
 
-function matches() {
-  return inProtein(state.protein).filter(d => state.style === 'any' || d.styles.indexOf(state.style) !== -1);
-}
-
-function choose(key, value) {
-  state[key] = value;
-  if (key === 'protein') state.style = null;
-  saveHash();
-  render();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function goBack(step) {
-  if (step === 0) { state.protein = null; state.style = null; }
-  if (step === 1) { state.style = null; }
-  saveHash();
-  render();
-}
-
-function renderTrail() {
-  const el = document.getElementById('trail');
-  if (!state.protein) { el.innerHTML = ''; return; }
-  const p = proteinById(state.protein);
-  let html = '<button class="crumb" onclick="goBack(0)">Start again</button><span>›</span>';
-  if (!state.style) {
-    html += '<span class="crumb here">' + p.emoji + ' ' + esc(p.label) + '</span>';
-  } else {
-    const s = state.style === 'any' ? { emoji: '🎲', label: 'Anything' } : styleById(state.style);
-    html += '<button class="crumb" onclick="goBack(1)">' + p.emoji + ' ' + esc(p.label) + '</button><span>›</span>'
-      + '<span class="crumb here">' + s.emoji + ' ' + esc(s.label) + '</span>';
+function toggle(id, el) {
+  const at = picks.indexOf(id);
+  if (at !== -1) { picks.splice(at, 1); }
+  else {
+    const opt = optionById(id);
+    // Really hungry and not that hungry can't both be true, so one replaces the other.
+    if (opt.not && picks.indexOf(opt.not) !== -1) picks.splice(picks.indexOf(opt.not), 1);
+    if (picks.length >= MAX_PICKS) {
+      el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope');
+      document.getElementById('count').innerHTML = '<strong>That\'s 5</strong> — untick one to swap it';
+      return;
+    }
+    picks.push(id);
   }
-  el.innerHTML = html;
+  renderBoard();
 }
 
-function renderProteinQuestion() {
-  return '<h2 class="question">Do you fancy chicken, fish or veg?</h2><div class="choices">'
-    + PROTEINS.map(p => {
-        const n = inProtein(p.id).length;
-        return '<button class="choice" onclick="choose(\'protein\',\'' + p.id + '\')">'
-          + '<span class="emoji">' + p.emoji + '</span><span class="label">' + esc(p.label) + '</span>'
-          + '<span class="sub">' + esc(p.sub) + ' · ' + n + ' recipe' + (n === 1 ? '' : 's') + '</span></button>';
-      }).join('')
-    + '<a class="choice takeaway" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">'
-    + '<span class="emoji">🛵</span><span class="label">Deliveroo</span>'
-    + '<span class="sub">Not cooking tonight</span></a>'
-    + '</div>';
+function renderBoard() {
+  const full = picks.length >= MAX_PICKS;
+  document.getElementById('stage').innerHTML =
+    '<div class="board' + (full ? ' full' : '') + '">'
+    + OPTIONS.map(o =>
+        '<button class="tile' + (o.size ? ' ' + o.size : '') + (picks.indexOf(o.id) !== -1 ? ' on' : '')
+        + '" style="--tint:' + o.tint + '" aria-pressed="' + (picks.indexOf(o.id) !== -1) + '"'
+        + ' onclick="toggle(\'' + o.id + '\', this)">'
+        + '<span class="emoji">' + o.emoji + '</span><span class="label">' + esc(o.label) + '</span></button>').join('')
+    + '</div>'
+    + '<p class="order-in">Can\'t face cooking? <a href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">Open Deliveroo</a></p>';
+  document.getElementById('confirmBar').hidden = false;
+  document.getElementById('count').innerHTML = picks.length
+    ? '<strong>' + picks.length + '</strong> of ' + MAX_PICKS + ' picked'
+    : 'Pick up to ' + MAX_PICKS;
+  document.getElementById('confirmBtn').disabled = !picks.length;
 }
 
-function renderStyleQuestion() {
-  const pool = inProtein(state.protein);
-  const p = proteinById(state.protein);
-  // Only offer styles that actually have something behind them.
-  const offered = STYLES.map(s => ({ s, n: pool.filter(d => d.styles.indexOf(s.id) !== -1).length }))
-    .filter(x => x.n > 0);
-  return '<h2 class="question">' + esc(p.label) + ' it is. What sort of thing?</h2><div class="choices">'
-    + offered.map(({ s, n }) =>
-        '<button class="choice" onclick="choose(\'style\',\'' + s.id + '\')">'
-        + '<span class="emoji">' + s.emoji + '</span><span class="label">' + esc(s.label) + '</span>'
-        + '<span class="sub">' + n + ' option' + (n === 1 ? '' : 's') + '</span></button>').join('')
-    + '<button class="choice anything" onclick="choose(\'style\',\'any\')">'
-    + '<span class="emoji">🎲</span><span class="label">Don\'t mind</span>'
-    + '<span class="sub">Show all ' + pool.length + '</span></button>'
-    + '</div>';
+function ranked() {
+  return DISHES
+    .map(d => ({ d, hits: picks.filter(p => d.tags.indexOf(p) !== -1) }))
+    .filter(x => x.hits.length)
+    .sort((a, b) => b.hits.length - a.hits.length
+      || COURSE_RANK[a.d.course] - COURSE_RANK[b.d.course]
+      || a.d.title.localeCompare(b.d.title));
 }
 
-function dishCard(d) {
+function dishCard({ d, hits }) {
+  const protein = optionById(d.tags[0]);
   const thumb = d.photo
     ? '<div class="thumb" style="background-image:url(\'' + esc(d.photo) + '\')"></div>'
-    : '<div class="thumb">' + proteinById(d.protein).emoji + '</div>';
-  const pills = d.styles.map(id => {
-    const s = styleById(id);
-    return s ? '<span class="pill' + (id === state.style ? ' match' : '') + '">' + esc(s.label) + '</span>' : '';
+    : '<div class="thumb">' + protein.emoji + '</div>';
+  const pills = hits.map(id => {
+    const o = optionById(id);
+    return '<span class="pill" style="--tint:' + o.tint + '">' + esc(o.label) + '</span>';
   }).join('');
   return '<a class="dish" id="dish-' + esc(d.id) + '" href="/recipes/#recipe-' + encodeURIComponent(d.id) + '">'
     + thumb + '<div class="dish-body">'
-    + '<div class="dish-title">' + esc(d.title) + '</div>'
-    + (d.description ? '<div class="dish-desc">' + esc(d.description) + '</div>' : '')
-    + '<div class="dish-meta">' + (d.time ? '<span>' + esc(d.time) + '</span>' : '')
-    + (d.noRecipe ? '<span class="pill">No recipe written yet</span>' : '') + pills + '</div>'
+    + '<div class="dish-top"><div class="dish-title">' + esc(d.title) + '</div>'
+    + '<span class="score">' + hits.length + '/' + picks.length + '</span></div>'
+    + '<div class="dish-meta"><span class="course">' + d.course + '</span>'
+    + (d.time ? '<span>· ' + esc(d.time) + '</span>' : '')
+    + (d.noRecipe ? '<span class="pill" style="--tint:var(--surface2)">No recipe written yet</span>' : '') + '</div>'
+    + '<div class="dish-meta">' + pills + '</div>'
     + '</div></a>';
 }
 
 function renderResults() {
-  const list = matches();
-  if (!list.length) {
-    return '<div class="empty-note">Nothing in the book matches that yet.<br><br>'
-      + '<button class="text-btn" onclick="goBack(1)">Try a different style</button> or '
-      + '<a class="text-btn" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">open Deliveroo</a></div>';
-  }
-  return '<div class="results-head"><h2 class="question" style="margin:0;">How about one of these?</h2>'
-    + (list.length > 1 ? '<button class="pick-btn" onclick="pickOne()">Just pick one for her</button>' : '') + '</div>'
-    + '<div class="results-count">' + list.length + ' match' + (list.length === 1 ? '' : 'es') + '</div>'
-    + '<div class="list" style="margin-top:0.6rem;">' + list.map(dishCard).join('') + '</div>'
-    + '<div class="footer-actions"><button class="text-btn" onclick="goBack(1)">← Different style</button>'
-    + '<button class="text-btn" onclick="goBack(0)">Start again</button>'
+  document.getElementById('confirmBar').hidden = true;
+  const list = ranked();
+  const chosen = '<div class="chosen">' + picks.map(id => {
+    const o = optionById(id);
+    return '<span class="chip" style="--tint:' + o.tint + '">' + o.emoji + ' ' + esc(o.label) + '</span>';
+  }).join('') + '</div>';
+  const back = '<div class="footer-actions"><button class="text-btn" onclick="changeChoices()">← Change choices</button>'
     + '<a class="text-btn" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">None of these — open Deliveroo</a></div>';
+  if (!list.length) {
+    document.getElementById('stage').innerHTML = chosen + '<div class="empty-note">Nothing in the book matches that yet.</div>' + back;
+    return;
+  }
+  document.getElementById('stage').innerHTML = chosen
+    + '<div class="results-head"><span class="count">' + list.length + ' recipe' + (list.length === 1 ? '' : 's') + ', best match first</span>'
+    + (list.length > 1 ? '<button class="btn" onclick="pickOne()">Just pick one for her</button>' : '') + '</div>'
+    + '<div class="list">' + list.map(dishCard).join('') + '</div>' + back;
 }
 
+/* Random pick, weighted to the top: only dishes with the best score are drawn. */
 let lastPick = null;
 function pickOne() {
-  const list = matches();
+  const list = ranked();
+  const best = list.filter(x => x.hits.length === list[0].hits.length);
+  const pool = best.length > 1 ? best : list;
   let d;
-  do { d = list[Math.floor(Math.random() * list.length)]; } while (list.length > 1 && d.id === lastPick);
+  do { d = pool[Math.floor(Math.random() * pool.length)].d; } while (pool.length > 1 && d.id === lastPick);
   lastPick = d.id;
   document.querySelectorAll('.dish.picked').forEach(el => el.classList.remove('picked'));
   const el = document.getElementById('dish-' + d.id);
   if (el) { el.classList.add('picked'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 }
 
-function render() {
-  renderTrail();
-  const stage = document.getElementById('stage');
-  if (!state.protein) stage.innerHTML = renderProteinQuestion();
-  else if (!state.style) stage.innerHTML = renderStyleQuestion();
-  else stage.innerHTML = renderResults();
+function confirmChoices() {
+  if (!picks.length) return;
+  if (picks.indexOf('hearty') !== -1 && picks.indexOf('treat') !== -1) { startParty(); return; }
+  // The picks go in the URL so the back button returns to the board, and a
+  // shortlist can be sent as a link.
+  history.pushState(null, '', '#' + picks.join(','));
+  renderResults();
+  window.scrollTo({ top: 0 });
 }
 
-/* The answers live in the URL (#fish/spicy) so the browser back button
- * steps back through the tree and a result can be shared. */
-function saveHash() {
-  const parts = [state.protein, state.style].filter(Boolean);
-  const hash = parts.length ? '#' + parts.join('/') : '';
-  if (hash !== location.hash) history.pushState(null, '', hash || location.pathname);
+function changeChoices() {
+  history.pushState(null, '', location.pathname);
+  renderBoard();
+  window.scrollTo({ top: 0 });
 }
+
 function readHash() {
-  const [p, s] = decodeURIComponent(location.hash.slice(1)).split('/');
-  state.protein = proteinById(p) ? p : null;
-  state.style = state.protein && (s === 'any' || styleById(s)) ? s : null;
+  picks = decodeURIComponent(location.hash.slice(1)).split(',').filter(id => optionById(id)).slice(0, MAX_PICKS);
 }
-window.addEventListener('popstate', () => { readHash(); render(); });
+window.addEventListener('popstate', () => { readHash(); route(); });
+
+function route() {
+  if (location.hash.length > 1 && picks.length) renderResults();
+  else renderBoard();
+}
+
+/* ===========================================================================
+ * Takeaway party: really hungry + not that healthy
+ * ======================================================================== */
+let partyTimers = [];
+let confettiFrame = null;
+
+function startParty() {
+  const party = document.getElementById('party');
+  document.getElementById('partyGo').href = DELIVEROO_URL;
+  party.classList.add('on');
+  document.body.style.overflow = 'hidden';
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) runConfetti();
+  let n = 4;
+  const label = document.getElementById('partyCountdown');
+  const tick = () => {
+    label.textContent = n > 0 ? 'Really hungry and not that healthy. Opening Deliveroo in ' + n + '…' : 'Opening Deliveroo…';
+    if (n-- <= 0) { location.href = DELIVEROO_URL; return; }
+    partyTimers.push(setTimeout(tick, 1000));
+  };
+  tick();
+}
+
+function stopParty() {
+  partyTimers.forEach(clearTimeout); partyTimers = [];
+  cancelAnimationFrame(confettiFrame);
+  document.getElementById('party').classList.remove('on');
+  document.body.style.overflow = '';
+  history.pushState(null, '', '#' + picks.join(','));
+  renderResults();
+}
+
+function runConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const EMOJI = ['🍕', '🍔', '🍟', '🌮', '🍜', '🥡', '🍗', '🎉', '⭐', '💸'];
+  const COLOURS = ['#FFD23F', '#FFFFFF', '#1A1714', '#00CCBC', '#FF3D7F'];
+  const bits = Array.from({ length: 140 }, (_, i) => ({
+    x: Math.random() * innerWidth, y: -Math.random() * innerHeight,
+    vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4,
+    r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+    emoji: i % 3 === 0 ? EMOJI[i % EMOJI.length] : null,
+    colour: COLOURS[i % COLOURS.length], size: 8 + Math.random() * 10,
+  }));
+  const draw = () => {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const b of bits) {
+      b.x += b.vx; b.y += b.vy; b.r += b.vr;
+      if (b.y > innerHeight + 30) { b.y = -30; b.x = Math.random() * innerWidth; }
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r);
+      if (b.emoji) { ctx.font = (b.size * 2.2) + 'px serif'; ctx.fillText(b.emoji, -b.size, b.size); }
+      else { ctx.fillStyle = b.colour; ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2); }
+      ctx.restore();
+    }
+    confettiFrame = requestAnimationFrame(draw);
+  };
+  draw();
+}
 
 function toggleMainMenu(e) {
   e.stopPropagation();
@@ -495,7 +624,7 @@ document.addEventListener('click', () => document.getElementById('mainMenuDropdo
     return;
   }
   readHash();
-  render();
+  route();
 })();
 </script>
 </body></html>
