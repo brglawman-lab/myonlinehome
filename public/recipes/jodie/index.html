@@ -71,11 +71,10 @@
   /* ---- results ---- */
   .chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
   .chip { font-size: 13px; padding: 3px 11px; border-radius: 999px; background: var(--tint, var(--surface2)); }
-  .results-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .results-head { margin-bottom: 1rem; }
   .list { display: flex; flex-direction: column; gap: 10px; }
   .dish { display: flex; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; text-decoration: none; color: var(--text); transition: border-color 0.14s, box-shadow 0.25s; }
   .dish:hover { border-color: var(--border-strong); }
-  .dish.picked { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
   .thumb { flex: 0 0 84px; height: 84px; border-radius: var(--radius); background: var(--surface2) center/cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 30px; }
   .dish-body { flex: 1; min-width: 0; }
   .dish-top { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
@@ -461,10 +460,14 @@ function renderBoard() {
   document.getElementById('confirmBtn').disabled = !picks.length;
 }
 
+/* A recipe has to match at least two picks to be shown — or the one pick,
+ * if only one was made. */
+function minHits() { return Math.min(2, picks.length); }
+
 function ranked() {
   return DISHES
     .map(d => ({ d, hits: picks.filter(p => d.tags.indexOf(p) !== -1) }))
-    .filter(x => x.hits.length)
+    .filter(x => x.hits.length >= minHits())
     .sort((a, b) => b.hits.length - a.hits.length
       || COURSE_RANK[a.d.course] - COURSE_RANK[b.d.course]
       || a.d.title.localeCompare(b.d.title));
@@ -500,27 +503,12 @@ function renderResults() {
   const back = '<div class="footer-actions"><button class="text-btn" onclick="changeChoices()">← Change choices</button>'
     + '<a class="text-btn" href="' + DELIVEROO_URL + '" target="_blank" rel="noopener">None of these — open Deliveroo</a></div>';
   if (!list.length) {
-    document.getElementById('stage').innerHTML = chosen + '<div class="empty-note">Nothing in the book matches that yet.</div>' + back;
+    document.getElementById('stage').innerHTML = chosen + '<div class="empty-note">Nothing in the book matches more than one of those yet.</div>' + back;
     return;
   }
   document.getElementById('stage').innerHTML = chosen
-    + '<div class="results-head"><span class="count">' + list.length + ' recipe' + (list.length === 1 ? '' : 's') + ', best match first</span>'
-    + (list.length > 1 ? '<button class="btn" onclick="pickOne()">Just pick one for her</button>' : '') + '</div>'
+    + '<div class="results-head"><span class="count">' + list.length + ' recipe' + (list.length === 1 ? '' : 's') + ', best match first</span></div>'
     + '<div class="list">' + list.map(dishCard).join('') + '</div>' + back;
-}
-
-/* Random pick, weighted to the top: only dishes with the best score are drawn. */
-let lastPick = null;
-function pickOne() {
-  const list = ranked();
-  const best = list.filter(x => x.hits.length === list[0].hits.length);
-  const pool = best.length > 1 ? best : list;
-  let d;
-  do { d = pool[Math.floor(Math.random() * pool.length)].d; } while (pool.length > 1 && d.id === lastPick);
-  lastPick = d.id;
-  document.querySelectorAll('.dish.picked').forEach(el => el.classList.remove('picked'));
-  const el = document.getElementById('dish-' + d.id);
-  if (el) { el.classList.add('picked'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 }
 
 function confirmChoices() {
