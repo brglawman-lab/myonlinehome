@@ -86,7 +86,7 @@ pages do (fetch the page, lift a named array out of its `<script>`), reads
 the public storage-rooms/readings API, and shows what's relevant right now —
 markets this weekend, upcoming festivals, the latest recipe added, what's in
 season, what's worth foraging, storage room conditions, and a "what to cook
-tonight" shuffle — plus buttons into the recipe book, Meal Builder, Food
+tonight" shuffle — plus buttons into the recipe book, Meal Builder, What does Jodie want to eat?, Food
 Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography
 and work-in-progress links that used to live on the home page. The recipe
 book supports `#recipe-<id>` and `#seasonal`/`#foraging`/`#drinks` in its URL
