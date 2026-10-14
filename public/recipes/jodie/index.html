@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What does Jodie want to eat?</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --red: #8B2E2E; --red-light: #F5EAEA;
+    --amber: #8B5E1A; --amber-light: #FBF2E3;
+    --blue: #1A3D6B; --blue-light: #E8EEF5;
+    --teal: #1A5050; --teal-light: #E5F0F0;
+    --pink: #6B2A4A; --pink-light: #F5EAF0;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* ---- header, matched to the recipe book ---- */
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+  .menu-wrap { position: relative; flex-shrink: 0; }
+  .menu-btn { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; }
+  .menu-btn:hover { background: var(--surface2); }
+  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.09); padding: 5px; z-index: 60; }
+  .menu-dropdown.open { display: block; }
+  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; text-decoration: none; transition: background 0.15s; }
+  .menu-item:hover { background: var(--surface2); }
+  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+  .header-right { flex-shrink: 0; }
+  .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
+  .ghost-link:hover { background: var(--surface2); color: var(--text); }
+
+  .main { max-width: 860px; margin: 0 auto; padding: 2.25rem 2rem 5rem; }
+
+  .intro { margin-bottom: 1.5rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
+  .intro h1 em { color: var(--accent); }
+  .intro p { color: var(--text-muted); max-width: 60ch; }
+
+  /* ---- trail of answers so far ---- */
+  .trail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 1.25rem; font-size: 13px; color: var(--text-faint); min-height: 28px; }
+  .crumb { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px 11px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; }
+  .crumb:hover { border-color: var(--border-strong); color: var(--text); }
+  .crumb.here { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); cursor: default; }
+
+  /* ---- question ---- */
+  .question { font-family: 'Playfair Display', serif; font-size: 25px; font-weight: 400; line-height: 1.3; margin-bottom: 1rem; }
+  .choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .choice { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.1rem 1rem; font-family: 'DM Sans', sans-serif; color: var(--text); cursor: pointer; transition: border-color 0.14s, transform 0.14s, box-shadow 0.14s; }
+  .choice:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(20,16,12,0.07); transform: translateY(-1px); }
+  .choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .choice .emoji { font-size: 28px; line-height: 1; display: block; margin-bottom: 0.55rem; }
+  .choice .label { font-size: 16px; font-weight: 500; display: block; }
+  .choice .sub { font-size: 13px; color: var(--text-muted); display: block; margin-top: 2px; }
+  .choice.anything { background: var(--surface2); border-style: dashed; }
+
+  /* ---- results ---- */
+  .results-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+  .results-count { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+  .pick-btn { padding: 9px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .pick-btn:hover { opacity: 0.88; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .dish { display: flex; gap: 14px; align-items: stretch; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; text-decoration: none; color: var(--text); transition: border-color 0.14s, box-shadow 0.25s; }
+  .dish:hover { border-color: var(--border-strong); }
+  .dish.picked { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .thumb { flex: 0 0 88px; height: 88px; border-radius: var(--radius); background: var(--surface2) center/cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .dish-body { flex: 1; min-width: 0; }
+  .dish-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 400; line-height: 1.25; margin-bottom: 3px; }
+  .dish-desc { font-size: 14px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dish-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; font-size: 12px; color: var(--text-faint); align-items: center; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface2); color: var(--text-muted); }
+  .pill.match { background: var(--accent-light); color: var(--accent-text); }
+  .empty-note, .loading { text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); font-style: italic; background: var(--surface); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); }
+  .text-btn { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--accent); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .footer-actions { margin-top: 1.5rem; display: flex; gap: 1.25rem; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .header-inner { gap: 0.75rem; }
+    .header-right { display: none; }
+    .intro h1 { font-size: 27px; }
+    .question { font-size: 21px; }
+    .choices { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .thumb { flex-basis: 68px; height: 68px; }
+    .dish-title { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="menu-wrap">
+      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
+        <span>What does Jodie want?</span>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="menu-dropdown" id="mainMenuDropdown">
+        <a class="menu-item" href="/recipes/">Recipes</a>
+        <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
+        <a class="menu-item active" href="/recipes/jodie/">What does Jodie want to eat?</a>
+      </div>
+    </div>
+    <div class="logo">Recipe <span>Book</span></div>
+    <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="intro">
+    <h1>What does <em>Jodie</em> want to eat?</h1>
+    <p>Two quick questions and you'll have a shortlist from the recipe book.</p>
+  </div>
+  <div class="trail" id="trail"></div>
+  <div id="stage"><div class="loading">Reading the recipe book…</div></div>
+</main>
+
+<script>
+/* ===========================================================================
+ * What does Jodie want to eat?
+ *
+ * A two-question decision tree over the recipe book: chicken / fish / veg /
+ * other meats, then a style (comfort food, spicy, creamy, …), then a list of
+ * matching recipes. Like the Meal Builder it fetches /recipes/ and lifts
+ * DEFAULT_RECIPES out of it, then applies the database overlay, so new
+ * recipes show up here without touching this page.
+ *
+ * STYLE_TAGS is hand-written for the recipes that existed when this page was
+ * made. A recipe with no entry gets its styles guessed from keywords in its
+ * title and description, so it still appears somewhere sensible.
+ * ======================================================================== */
+
+const PROTEINS = [
+  { id: 'chicken', label: 'Chicken',     emoji: '🍗', sub: 'Something with chicken' },
+  { id: 'fish',    label: 'Fish',        emoji: '🐟', sub: 'Fish and seafood' },
+  { id: 'veg',     label: 'Veg',         emoji: '🥦', sub: 'No meat or fish' },
+  { id: 'other',   label: 'Other meats', emoji: '🥩', sub: 'Beef, pork and the rest' },
+];
+
+const STYLES = [
+  { id: 'comfort',  label: 'Comfort food',             emoji: '🛋️' },
+  { id: 'spicy',    label: 'Spicy',                    emoji: '🌶️' },
+  { id: 'creamy',   label: 'Creamy & cheesy',          emoji: '🧀' },
+  { id: 'fresh',    label: 'Fresh & light',            emoji: '🥗' },
+  { id: 'asian',    label: 'Asian',                    emoji: '🥢' },
+  { id: 'mexican',  label: 'Mexican',                  emoji: '🌮' },
+  { id: 'handheld', label: 'Sandwiches, wraps & tacos', emoji: '🥪' },
+  { id: 'bbq',      label: 'BBQ & summery',            emoji: '🔥' },
+  { id: 'quick',    label: 'Quick (30 mins or less)',  emoji: '⏱️' },
+];
+
+/* Sections that count as a meal, and which branch of the tree they belong
+ * to. Anything not listed here and not in SKIP_SECTIONS is "other meats", so
+ * a new lamb or meat section lands there automatically. */
+const SECTION_PROTEIN = { chicken: 'chicken', fish: 'fish', veg: 'veg' };
+const SKIP_SECTIONS = new Set(['sides', 'dips', 'baking', 'soft-drinks']);
+
+/* Starters are mixed, so only the ones that make a light meal are included,
+ * each with its own branch. */
+const STARTER_PROTEIN = {
+  'gambas-al-ajillo': 'fish',
+  'tahini-soy-mushroom-bagel': 'veg',
+  'roast-tomato-whipped-feta-toast': 'other',
+  'baked-camembert-chorizo-tomatoes': 'other',
+};
+
+const STYLE_TAGS = {
+  // chicken
+  'cajun-chicken-nachos':          ['comfort', 'spicy', 'creamy', 'mexican'],
+  'cajun-chicken-wraps':           ['spicy', 'fresh', 'handheld'],
+  'pad-thai':                      ['asian', 'comfort'],
+  'chicken-caesar':                ['creamy', 'fresh'],
+  'shawarma-roast-chicken':        ['comfort', 'fresh'],
+  'grilled-herb-chicken-sandwich': ['handheld', 'fresh', 'bbq'],
+  // fish
+  'kewpie-prawn-baguette':         ['handheld', 'creamy'],
+  'salmon-rice-bowls':             ['fresh', 'asian'],
+  'thomas-straker-salmon-slaw':    ['fresh', 'creamy'],
+  'gambas-al-ajillo':              ['spicy'],
+  'wild-salmon-beetroot-labneh':   ['fresh', 'creamy'],
+  'tuna-cannellini-bean-salad':    ['fresh'],
+  'bbq-salmon-dill-creme-fraiche': ['bbq', 'fresh', 'creamy'],
+  'gambas-pil-pil-bbq':            ['bbq', 'spicy'],
+  'fish-cakes-greek-salad':        ['fresh', 'comfort'],
+  'smoked-mackerel-sour-cream-baguette': ['handheld', 'creamy'],
+  // veg
+  'baked-mac-cheese':              ['comfort', 'creamy'],
+  'sundried-tomato-chickpea-stew': ['comfort', 'spicy'],
+  'leek-potato-soup':              ['comfort', 'creamy'],
+  'chipotle-black-bean-halloumi-tacos': ['mexican', 'spicy', 'handheld'],
+  'creamy-harissa-butter-beans':   ['creamy', 'spicy', 'comfort'],
+  'spicy-bean-enchiladas':         ['mexican', 'spicy', 'comfort', 'creamy'],
+  'cheesy-bean-burritos':          ['mexican', 'comfort', 'creamy', 'handheld'],
+  'black-bean-cheddar-quesadillas': ['mexican', 'creamy', 'handheld'],
+  'bbq-courgettes-asparagus':      ['bbq', 'fresh'],
+  'crispy-tofu-khao-soi':          ['asian', 'spicy', 'creamy', 'comfort'],
+  'tahini-soy-mushroom-bagel':     ['handheld', 'asian'],
+  // other meats
+  'beef-short-rib':                ['comfort'],
+  'red-pepper-pepperoni-orzotto':  ['comfort', 'creamy'],
+  'smashed-potatoes-pancetta-raclette': ['comfort', 'creamy'],
+  'roast-beef-christmas':          ['comfort'],
+  'pork-belly-carnitas':           ['mexican', 'handheld', 'spicy'],
+  'chorizo-al-vino':               ['comfort', 'spicy'],
+  'steak-peppercorn':              ['comfort', 'creamy'],
+  'thomas-straker-burgers':        ['handheld', 'comfort', 'spicy'],
+  'caramelised-asian-pulled-pork': ['asian', 'comfort'],
+  'rump-steak-ciabatta':           ['handheld', 'spicy'],
+  'sirloin-baguette-caramelised-onion': ['handheld'],
+  'marinated-pork-tomahawk-charred-hispi-apple-sage-sauce': ['comfort'],
+  'sticky-asian-pork-belly':       ['asian', 'comfort'],
+  'pork-belly-banh-mi':            ['asian', 'handheld', 'fresh', 'spicy'],
+  'pork-belly-ramen':              ['asian', 'comfort', 'spicy'],
+  'roast-tomato-whipped-feta-toast': ['fresh', 'creamy'],
+  'baked-camembert-chorizo-tomatoes': ['comfort', 'creamy'],
+};
+
+/* Fallback for recipes with no STYLE_TAGS entry. */
+const STYLE_KEYWORDS = {
+  comfort:  /\b(stew|braise|braised|bake|baked|mash|pie|soup|roast|slow|hearty|comfort|pasta|mac)\b/i,
+  spicy:    /(spic|chilli|chili|chipotle|harissa|cajun|sriracha|jalape|hot\b|curry)/i,
+  creamy:   /(cream|cheese|cheesy|cheddar|mozzarella|parmesan|feta|halloumi|coconut|mayo|crème|creme)/i,
+  fresh:    /\b(salad|slaw|fresh|light|pickled|herb|lemon|grilled)\b/i,
+  asian:    /(soy|miso|thai|ramen|noodle|teriyaki|sesame|ginger|hoisin|asian|curry|kimchi|gochujang)/i,
+  mexican:  /(taco|burrito|enchilada|quesadilla|nacho|chipotle|salsa|tortilla|mexican|carnitas)/i,
+  handheld: /(sandwich|baguette|wrap|taco|burger|bagel|ciabatta|toast|burrito|bun|bánh|banh)/i,
+  bbq:      /\b(bbq|barbecue|grill|grilled|charred)\b/i,
+};
+
+/* ===========================================================================
+ * Loading the library (same approach as the Meal Builder)
+ * ======================================================================== */
+let DISHES = [];
+let loadError = null;
+
+function extractArray(html, marker) {
+  const at = html.indexOf(marker);
+  if (at < 0) return null;
+  const open = at + marker.length - 1;
+  const close = html.indexOf('\n];', open);
+  if (close < 0) return null;
+  try { return (new Function('return ' + html.slice(open, close + 2) + ';'))(); }
+  catch (e) { console.warn('Could not parse ' + marker, e); return null; }
+}
+
+function mergeById(base, overlay) {
+  const map = new Map(base.map(r => [r.id, r]));
+  for (const r of overlay) map.set(r.id, r);
+  return [...map.values()];
+}
+
+async function loadLibrary() {
+  let html = '';
+  try {
+    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    html = await res.text();
+  } catch (e) {
+    loadError = 'Could not read the recipe book.';
+    return;
+  }
+  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
+  if (!seed) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
+
+  let merged = seed;
+  try {
+    const [a, b] = await Promise.all([
+      fetch('/api/recipes', { cache: 'no-store' }),
+      fetch('/api/recipes/deleted', { cache: 'no-store' })
+    ]);
+    if (a.ok) { const j = await a.json(); if (Array.isArray(j)) merged = mergeById(merged, j); }
+    if (b.ok) { const j = await b.json(); if (Array.isArray(j)) { const gone = new Set(j); merged = merged.filter(r => !gone.has(r.id)); } }
+  } catch (e) { /* offline is fine — the seed is enough */ }
+
+  DISHES = merged.map(toDish).filter(Boolean)
+    .sort((x, y) => x.title.localeCompare(y.title));
+}
+
+function proteinOf(r) {
+  if (r.section === 'starters') return STARTER_PROTEIN[r.id] || null;
+  if (SKIP_SECTIONS.has(r.section)) return null;
+  return SECTION_PROTEIN[r.section] || 'other';
+}
+
+function minutesOf(t) {
+  if (!t) return null;
+  const s = String(t).toLowerCase();
+  let total = 0, found = false;
+  const h = s.match(/([\d.]+)\s*(?:[–-]\s*[\d.]+)?\s*\+?\s*(?:hr|hour)/);
+  if (h) { total += parseFloat(h[1]) * 60; found = true; }
+  const m = s.match(/([\d.]+)\s*(?:[–-]\s*[\d.]+)?\s*(?:min)/);
+  if (m) { total += parseFloat(m[1]); found = true; }
+  return found ? total : null;
+}
+
+function stylesOf(r) {
+  let styles = STYLE_TAGS[r.id];
+  if (!styles) {
+    const text = (r.title || '') + ' ' + (r.description || '');
+    styles = Object.keys(STYLE_KEYWORDS).filter(k => STYLE_KEYWORDS[k].test(text));
+  }
+  styles = styles.slice();
+  const mins = minutesOf(r.time);
+  // "Plus overnight brine" and the like would make a 30-minute recipe look quick.
+  const hasWait = /overnight|plus|marinat|chill/i.test(r.time || '');
+  if (mins && mins <= 30 && !hasWait && styles.indexOf('quick') === -1) styles.push('quick');
+  return styles;
+}
+
+function photoOf(r) {
+  if (Array.isArray(r.photos) && r.photos.length && r.photos[0].src) return r.photos[0].src;
+  return typeof r.image === 'string' && r.image ? r.image : null;
+}
+
+function toDish(r) {
+  const protein = proteinOf(r);
+  if (!protein || !r.title) return null;
+  return {
+    id: r.id, title: r.title, description: r.description || '',
+    time: r.time && r.time !== '—' ? r.time : '',
+    protein, styles: stylesOf(r), photo: photoOf(r), noRecipe: !!r.noRecipe,
+  };
+}
+
+/* ===========================================================================
+ * The tree
+ * ======================================================================== */
+const state = { protein: null, style: null };
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+const proteinById = id => PROTEINS.find(p => p.id === id);
+const styleById = id => STYLES.find(s => s.id === id);
+const inProtein = p => DISHES.filter(d => d.protein === p);
+
+function matches() {
+  return inProtein(state.protein).filter(d => state.style === 'any' || d.styles.indexOf(state.style) !== -1);
+}
+
+function choose(key, value) {
+  state[key] = value;
+  if (key === 'protein') state.style = null;
+  saveHash();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goBack(step) {
+  if (step === 0) { state.protein = null; state.style = null; }
+  if (step === 1) { state.style = null; }
+  saveHash();
+  render();
+}
+
+function renderTrail() {
+  const el = document.getElementById('trail');
+  if (!state.protein) { el.innerHTML = ''; return; }
+  const p = proteinById(state.protein);
+  let html = '<button class="crumb" onclick="goBack(0)">Start again</button><span>›</span>';
+  if (!state.style) {
+    html += '<span class="crumb here">' + p.emoji + ' ' + esc(p.label) + '</span>';
+  } else {
+    const s = state.style === 'any' ? { emoji: '🎲', label: 'Anything' } : styleById(state.style);
+    html += '<button class="crumb" onclick="goBack(1)">' + p.emoji + ' ' + esc(p.label) + '</button><span>›</span>'
+      + '<span class="crumb here">' + s.emoji + ' ' + esc(s.label) + '</span>';
+  }
+  el.innerHTML = html;
+}
+
+function renderProteinQuestion() {
+  return '<h2 class="question">Do you fancy chicken, fish or veg?</h2><div class="choices">'
+    + PROTEINS.map(p => {
+        const n = inProtein(p.id).length;
+        return '<button class="choice" onclick="choose(\'protein\',\'' + p.id + '\')">'
+          + '<span class="emoji">' + p.emoji + '</span><span class="label">' + esc(p.label) + '</span>'
+          + '<span class="sub">' + esc(p.sub) + ' · ' + n + ' recipe' + (n === 1 ? '' : 's') + '</span></button>';
+      }).join('')
+    + '</div>';
+}
+
+function renderStyleQuestion() {
+  const pool = inProtein(state.protein);
+  const p = proteinById(state.protein);
+  // Only offer styles that actually have something behind them.
+  const offered = STYLES.map(s => ({ s, n: pool.filter(d => d.styles.indexOf(s.id) !== -1).length }))
+    .filter(x => x.n > 0);
+  return '<h2 class="question">' + esc(p.label) + ' it is. What sort of thing?</h2><div class="choices">'
+    + offered.map(({ s, n }) =>
+        '<button class="choice" onclick="choose(\'style\',\'' + s.id + '\')">'
+        + '<span class="emoji">' + s.emoji + '</span><span class="label">' + esc(s.label) + '</span>'
+        + '<span class="sub">' + n + ' option' + (n === 1 ? '' : 's') + '</span></button>').join('')
+    + '<button class="choice anything" onclick="choose(\'style\',\'any\')">'
+    + '<span class="emoji">🎲</span><span class="label">Don\'t mind</span>'
+    + '<span class="sub">Show all ' + pool.length + '</span></button>'
+    + '</div>';
+}
+
+function dishCard(d) {
+  const thumb = d.photo
+    ? '<div class="thumb" style="background-image:url(\'' + esc(d.photo) + '\')"></div>'
+    : '<div class="thumb">' + proteinById(d.protein).emoji + '</div>';
+  const pills = d.styles.map(id => {
+    const s = styleById(id);
+    return s ? '<span class="pill' + (id === state.style ? ' match' : '') + '">' + esc(s.label) + '</span>' : '';
+  }).join('');
+  return '<a class="dish" id="dish-' + esc(d.id) + '" href="/recipes/#recipe-' + encodeURIComponent(d.id) + '">'
+    + thumb + '<div class="dish-body">'
+    + '<div class="dish-title">' + esc(d.title) + '</div>'
+    + (d.description ? '<div class="dish-desc">' + esc(d.description) + '</div>' : '')
+    + '<div class="dish-meta">' + (d.time ? '<span>' + esc(d.time) + '</span>' : '')
+    + (d.noRecipe ? '<span class="pill">No recipe written yet</span>' : '') + pills + '</div>'
+    + '</div></a>';
+}
+
+function renderResults() {
+  const list = matches();
+  if (!list.length) {
+    return '<div class="empty-note">Nothing in the book matches that yet.<br><br>'
+      + '<button class="text-btn" onclick="goBack(1)">Try a different style</button></div>';
+  }
+  return '<div class="results-head"><h2 class="question" style="margin:0;">How about one of these?</h2>'
+    + (list.length > 1 ? '<button class="pick-btn" onclick="pickOne()">Just pick one for her</button>' : '') + '</div>'
+    + '<div class="results-count">' + list.length + ' match' + (list.length === 1 ? '' : 'es') + '</div>'
+    + '<div class="list" style="margin-top:0.6rem;">' + list.map(dishCard).join('') + '</div>'
+    + '<div class="footer-actions"><button class="text-btn" onclick="goBack(1)">← Different style</button>'
+    + '<button class="text-btn" onclick="goBack(0)">Start again</button></div>';
+}
+
+let lastPick = null;
+function pickOne() {
+  const list = matches();
+  let d;
+  do { d = list[Math.floor(Math.random() * list.length)]; } while (list.length > 1 && d.id === lastPick);
+  lastPick = d.id;
+  document.querySelectorAll('.dish.picked').forEach(el => el.classList.remove('picked'));
+  const el = document.getElementById('dish-' + d.id);
+  if (el) { el.classList.add('picked'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+}
+
+function render() {
+  renderTrail();
+  const stage = document.getElementById('stage');
+  if (!state.protein) stage.innerHTML = renderProteinQuestion();
+  else if (!state.style) stage.innerHTML = renderStyleQuestion();
+  else stage.innerHTML = renderResults();
+}
+
+/* The answers live in the URL (#fish/spicy) so the browser back button
+ * steps back through the tree and a result can be shared. */
+function saveHash() {
+  const parts = [state.protein, state.style].filter(Boolean);
+  const hash = parts.length ? '#' + parts.join('/') : '';
+  if (hash !== location.hash) history.pushState(null, '', hash || location.pathname);
+}
+function readHash() {
+  const [p, s] = decodeURIComponent(location.hash.slice(1)).split('/');
+  state.protein = proteinById(p) ? p : null;
+  state.style = state.protein && (s === 'any' || styleById(s)) ? s : null;
+}
+window.addEventListener('popstate', () => { readHash(); render(); });
+
+function toggleMainMenu(e) {
+  e.stopPropagation();
+  document.getElementById('mainMenuDropdown').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('mainMenuDropdown').classList.remove('open'));
+
+(async function init() {
+  await loadLibrary();
+  if (loadError || !DISHES.length) {
+    document.getElementById('stage').innerHTML = '<div class="empty-note">' + esc(loadError || 'No recipes found.')
+      + '<br><br><a href="/recipes/" style="color:var(--accent);">Open the recipe book</a></div>';
+    return;
+  }
+  readHash();
+  render();
+})();
+</script>
+</body></html>
