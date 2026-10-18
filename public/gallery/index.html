@@ -252,7 +252,7 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">Wildlife Photography</div>
     <h1>Ben Lawman</h1>
-    <p class="hero-role">Yorkshire &amp; beyond — birds, mammals, and the moments in between</p>
+    <p class="hero-role">Birds and wildlife from Yorkshire and further afield</p>
     <p class="hero-tagline" id="heroTagline"></p>
   </div>
   <div class="hero-scroll" aria-hidden="true">
@@ -291,16 +291,31 @@
 // PHOTO DATA
 // =============================================
 const PHOTOS = [
-  { id: 'osprey-post-catch', src: '/gallery/photos/osprey-post-catch.jpg', title: 'The Catch', species: 'Osprey', tags: ['birds-of-prey'], location: '', date: '', size: 'wide', hero: true,
-    caption: 'An osprey pauses atop a weathered post, fish still gripped in its talons moments after a successful dive — feathers dark and slicked with water, head bowed low in that brief stillness before the first bite.' },
-  { id: 'puffin-bempton-daisies', src: '/gallery/photos/puffin-bempton-daisies.jpg', title: 'Among the Daisies', species: 'Atlantic Puffin', tags: ['seabirds'], location: 'Bempton Cliffs, North Yorkshire', date: '',
-    caption: 'Half-hidden in a drift of sea mayweed on the cliff face, an Atlantic puffin pauses at its burrow entrance — its unmistakable striped bill catching the last of the light.' },
-  { id: 'stonechat-on-reed', src: '/gallery/photos/stonechat-on-reed.jpg', title: 'Reedbed Lookout', species: 'Stonechat', tags: ['songbirds'], location: '', date: '2023-03-12', camera: 'Canon EOS R7',
-    caption: 'Perched on the swaying tip of a reed head, a stonechat surveys the open grassland beyond — its black cap and rust-orange breast a rare splash of colour against a flat, late-winter sky.' },
-  { id: 'reed-bunting-song', src: '/gallery/photos/reed-bunting-song.jpg', title: 'Song from the Scrub', species: 'Reed Bunting', tags: ['songbirds'], location: '', date: '2023-03-12', camera: 'Canon EOS R7',
-    caption: 'A reed bunting sings from bare willow scrub at the reedbed\'s edge, its black hood and white collar sharp against branches still leafless in the last of winter.' },
-  { id: 'kestrel-birch-perch', src: '/gallery/photos/kestrel-birch-perch.jpg', title: 'The Watcher', species: 'Kestrel', tags: ['birds-of-prey'], location: '', date: '2023-03-12', camera: 'Canon EOS R7',
-    caption: 'A kestrel holds a swaying perch at the top of a birch sapling, sharp-eyed against a flat grey sky — patient, still, and clearly at home over this reedbed.' },
+  { id: "osprey-post-catch", src: "/gallery/photos/osprey-post-catch.jpg", title: "Osprey with fish", species: "Osprey", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", size: "wide", hero: true, caption: "An osprey on a post with a fish it has just caught." },
+  { id: "magnificent-frigatebirds", src: "/gallery/photos/magnificent-frigatebirds.jpg", title: "Frigatebirds on a mangrove", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", size: "wide", caption: "Two frigatebirds on top of a mangrove tree. The one with the white head is a juvenile." },
+  { id: "puffin-bempton-daisies", src: "/gallery/photos/puffin-bempton-daisies.jpg", title: "Puffin", species: "Atlantic puffin", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", caption: "A puffin among sea mayweed on the cliffs." },
+  { id: "black-spiny-tailed-iguana", src: "/gallery/photos/black-spiny-tailed-iguana.jpg", title: "Black spiny-tailed iguana", species: "Black spiny-tailed iguana", tags: ["reptiles"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "An iguana resting in the grass." },
+  { id: "frigatebird-in-flight", src: "/gallery/photos/frigatebird-in-flight.jpg", title: "Frigatebird in flight", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A male frigatebird flying over the mangroves. The red patch is his throat pouch." },
+  { id: "female-frigatebird", src: "/gallery/photos/female-frigatebird.jpg", title: "Female frigatebird", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A female in the mangroves. Females have a white chest and a blue ring round the eye." },
+  { id: "golden-fronted-woodpecker", src: "/gallery/photos/golden-fronted-woodpecker.jpg", title: "Woodpecker feeding its chick", species: "Golden-fronted woodpecker", tags: ["songbirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A woodpecker feeding its chick at a nest hole in a palm trunk." },
+  { id: "american-crocodile", src: "/gallery/photos/american-crocodile.jpg", title: "Crocodile on the bank", species: "American crocodile", tags: ["reptiles"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", size: "wide", caption: "A crocodile resting at the water's edge." },
+  { id: "tropical-kingbird", src: "/gallery/photos/tropical-kingbird.jpg", title: "Tropical kingbird", species: "Tropical kingbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A tropical kingbird on an old post." },
+  { id: "mangrove-warbler", src: "/gallery/photos/mangrove-warbler.jpg", title: "Mangrove warbler", species: "Yellow warbler (mangrove form)", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A mangrove warbler, the chestnut-headed form of the yellow warbler." },
+  { id: "black-vulture", src: "/gallery/photos/black-vulture.jpg", title: "Black vulture", species: "Black vulture", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A black vulture perched on a branch." },
+  { id: "melodious-blackbird", src: "/gallery/photos/melodious-blackbird.jpg", title: "Melodious blackbird", species: "Melodious blackbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A melodious blackbird in the mangroves." },
+  { id: "great-kiskadee", src: "/gallery/photos/great-kiskadee.jpg", title: "Great kiskadee", species: "Great kiskadee", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A great kiskadee perched in the mangroves." },
+  { id: "gannets-bempton", src: "/gallery/photos/gannets-bempton.jpg", title: "Gannets", species: "Northern gannet", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", size: "wide", caption: "Two gannets on the clifftop." },
+  { id: "razorbills-bempton", src: "/gallery/photos/razorbills-bempton.jpg", title: "Guillemots and razorbill", species: "Guillemot and razorbill", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", caption: "Seabirds on a ledge among sea mayweed." },
+  { id: "mandarin-drake", src: "/gallery/photos/mandarin-drake.jpg", title: "Mandarin duck", species: "Mandarin duck", tags: ["waders"], location: "", date: "2020-03-13", camera: "Sony A68", caption: "A male mandarin duck on the grass." },
+  { id: "black-headed-gull-landing", src: "/gallery/photos/black-headed-gull-landing.jpg", title: "Gull coming in to land", species: "Black-headed gull", tags: ["seabirds"], location: "", date: "2020-07-05", camera: "Sony A68", caption: "A black-headed gull landing on a dead branch." },
+  { id: "shag-on-rocks", src: "/gallery/photos/shag-on-rocks.jpg", title: "Young shag", species: "Shag", tags: ["seabirds"], location: "", date: "2019-08-27", camera: "Sony A68", caption: "A young shag on the rocks." },
+  { id: "kestrel-birch-perch", src: "/gallery/photos/kestrel-birch-perch.jpg", title: "Kestrel", species: "Kestrel", tags: ["birds-of-prey"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A kestrel on top of a young birch." },
+  { id: "stonechat-on-reed", src: "/gallery/photos/stonechat-on-reed.jpg", title: "Stonechat", species: "Stonechat", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male stonechat on top of a reed." },
+  { id: "reed-bunting-song", src: "/gallery/photos/reed-bunting-song.jpg", title: "Reed bunting", species: "Reed bunting", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male reed bunting singing from a willow." },
+  { id: "yellowhammer", src: "/gallery/photos/yellowhammer.jpg", title: "Yellowhammer", species: "Yellowhammer", tags: ["songbirds"], location: "", date: "2020-03-20", camera: "Sony A68", caption: "A male yellowhammer on a bank of bare earth." },
+  { id: "blue-tit", src: "/gallery/photos/blue-tit.jpg", title: "Blue tit", species: "Blue tit", tags: ["garden-birds"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A blue tit on a lichen-covered branch." },
+  { id: "goosander", src: "/gallery/photos/goosander.jpg", title: "Goosander", species: "Goosander", tags: ["waders"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A female goosander on a fast-flowing river." },
+  { id: "grey-wagtail", src: "/gallery/photos/grey-wagtail.jpg", title: "Grey wagtail", species: "Grey wagtail", tags: ["songbirds"], location: "", date: "2023-04-13", camera: "Canon EOS R7", caption: "A grey wagtail on a mossy rock." },
 ];
 
 const TAG_LABELS = {
@@ -417,7 +432,7 @@ document.addEventListener('keydown', e => {
     const img = new Image();
     img.onload = () => bg.classList.add('loaded');
     img.src = heroPhoto.src;
-    document.getElementById('heroTagline').textContent = '“' + heroPhoto.caption + '”';
+    
   }
 })();
 

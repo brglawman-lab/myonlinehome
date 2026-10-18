@@ -42,18 +42,19 @@ There are three ways a photo reaches this workflow, and only one of them require
 ## Photo object format
 
 ```js
-{ id: 'kebab-case-id', src: '/gallery/photos/filename.jpg', title: 'Short Evocative Title',
+{ id: 'kebab-case-id', src: '/gallery/photos/filename.jpg', title: 'Short Plain Title',
   species: 'Common Name', tags: ['seabirds'], location: 'Place, County', date: 'YYYY-MM-DD',
   camera: 'Optional EXIF string, e.g. "Canon R5, 600mm f/4, 1/2000s"',
-  caption: 'One or two sentences, written like a caption in a photography book — specific to
-    what is actually happening in the frame, not generic.',
+  caption: 'One short, plain sentence saying what is in the frame. A second sentence only if it
+    adds a fact, e.g. what the red patch is.',
   size: 'wide',   // omit entirely for a normal tile; 'wide' makes it a large 2-column tile
   hero: true },   // omit entirely; set on exactly one photo — it becomes the homepage backdrop
 ```
 
 - **id** — lowercase, hyphens, derived from subject + something distinguishing (location,
   behaviour). Must be unique and match the image filename (without extension).
-- **title** — short and evocative ("The Catch", "Among the Daisies"), not just the species name.
+- **title** — short and plain. Usually the species name, or the species plus what it is doing
+  ("Osprey with fish", "Frigatebird in flight"). No poetic titles.
 - **species** — common name. If you can't identify the species with real confidence from the
   image, say so to Ben rather than guessing — a wrong ID undermines the "professional
   portfolio" the whole page is going for. It's fine to add the photo with a best-guess species
@@ -105,9 +106,12 @@ There are three ways a photo reaches this workflow, and only one of them require
 
 ## Style
 
-- **caption** — written like the caption under a photograph in a proper photography book:
-  specific to the frame, a little literary, never generic ("A [species] perched on a branch").
-  Say what's actually going on — the light, the behaviour, the moment.
-- **title** — short, evocative, not just the species repeated.
+- **caption** — plain and factual, one short sentence ("A grey wagtail on a mossy rock.").
+  Ben asked for this in October 2026 because the earlier captions read as too flowery. No
+  descriptions of light or mood, no em-dash asides, no literary phrasing. A second sentence is
+  fine only when it adds a useful fact ("The red patch is his throat pouch.").
+- **title** — short and plain, as above.
+- **review first** — Ben approves every new photo, title and caption before it goes up. Show
+  him the candidates (with any edits made) and wait for his go-ahead before committing.
 - Don't invent location, date, or camera details. An empty field is honest; a plausible-sounding
   fabricated one is not, especially on a page presenting itself as a professional's portfolio.
