@@ -40,6 +40,9 @@
   .section-nav { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 40; padding: 0 2rem; }
   .section-nav-inner { max-width: 1100px; margin: 0 auto; height: var(--nav-h); display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
   .section-nav-inner::-webkit-scrollbar { display: none; }
+  .section-nav-inner.more-right { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
+  .section-nav-inner.more-left { -webkit-mask-image: linear-gradient(to left, #000 85%, transparent); mask-image: linear-gradient(to left, #000 85%, transparent); }
+  .section-nav-inner.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); }
   .pill { background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 999px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s; }
   .pill:hover { background: var(--surface2); color: var(--text); }
   .pill.active { background: var(--text); color: var(--bg); border-color: var(--text); }
@@ -161,15 +164,6 @@
   .spirit-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 999px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s, border-color 0.15s; }
   .spirit-btn:hover { background: var(--surface2); color: var(--text); }
   .spirit-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
-  /* ── Main hamburger menu ── */
-  .menu-wrap { position: relative; flex-shrink: 0; }
-  .menu-btn { display: flex; align-items: center; gap: 7px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
-  .menu-btn:hover { background: var(--surface2); }
-  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 10px 28px rgba(20,16,12,0.14); min-width: 200px; z-index: 70; overflow: hidden; padding: 5px; }
-  .menu-dropdown.open { display: block; }
-  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; transition: background 0.15s; }
-  .menu-item:hover { background: var(--surface2); }
-  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
   /* ── Seasonal produce timeline ── */
   .season-intro { font-size: 13px; color: var(--text-muted); margin: 0 0 1.25rem; }
   .season-icon { width: 38px; height: 38px; border-radius: 999px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; line-height: 1; }
@@ -261,30 +255,13 @@ text-decoration:none;border:1px solid rgba(45,74,62,0.22);
 box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
 transition:background .15s ease,color .15s ease}
 #mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+@media (min-width:721px) and (max-width:1340px){.site-header{padding-left:7.5rem}}
 @media print{#mohome-back{display:none}}
 </style>
 
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="menu-wrap">
-      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
-        <span id="menuCurrentLabel">Recipes</span>
-        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-      </button>
-      <div class="menu-dropdown" id="mainMenuDropdown">
-        <button class="menu-item" data-page="recipes" onclick="switchToPage('recipes')">Recipes</button>
-        <button class="menu-item" data-page="drinks" onclick="switchToPage('drinks')">Drinks</button>
-        <button class="menu-item" data-page="seasonal" onclick="switchToPage('seasonal')">Seasonal Produce</button>
-        <button class="menu-item" data-page="foraging" onclick="switchToPage('foraging')">Foraging</button>
-        <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
-        <a class="menu-item" href="/recipes/jodie/">What does Jodie want to eat?</a>
-        <a class="menu-item" href="/recipes/storage/">Food Storage</a>
-        <a class="menu-item" href="/cookbook/">The Cookbook</a>
-        <a class="menu-item" href="/dashboard/">Dashboard</a>
-      </div>
-    </div>
     <div class="logo">Recipe <span>Book</span></div>
     <div class="header-controls">
       <div class="search-wrap">
@@ -298,6 +275,9 @@ transition:background .15s ease,color .15s ease}
     </div>
   </div>
 </header>
+
+<nav class="recipe-nav" id="recipeNav" data-current="recipes"></nav>
+<script src="/assets/recipe-nav.js"></script>
 
 <nav class="section-nav" id="sectionNavWrap">
   <div class="section-nav-inner" id="sectionNav"></div>
@@ -837,29 +817,15 @@ function adjustServes(delta) {
   renderScaledIngredients();
 }
 let currentPage = 'recipes'; // 'recipes' | 'drinks' | 'seasonal' | 'foraging'
-const PAGE_LABELS = { recipes: 'Recipes', drinks: 'Drinks', seasonal: 'Seasonal Produce', foraging: 'Foraging' };
 
-function toggleMainMenu(e) {
-  e.stopPropagation();
-  document.getElementById('mainMenuDropdown').classList.toggle('open');
-}
-function closeMainMenu() {
-  document.getElementById('mainMenuDropdown').classList.remove('open');
-}
-document.addEventListener('click', (e) => {
-  const wrap = document.querySelector('.menu-wrap');
-  if (wrap && !wrap.contains(e.target)) closeMainMenu();
-});
 function switchToPage(page) {
-  closeMainMenu();
   if (currentPage === page) { window.scrollTo(0, 0); return; }
   currentPage = page;
   window.scrollTo(0, 0);
   render();
 }
 function updateChromeForPage() {
-  document.getElementById('menuCurrentLabel').textContent = PAGE_LABELS[currentPage];
-  document.querySelectorAll('.menu-item').forEach(b => b.classList.toggle('active', b.dataset.page === currentPage));
+  window.setRecipeNavCurrent(currentPage);
   const onRecipes = currentPage === 'recipes';
   document.getElementById('sectionNavWrap').style.display = onRecipes ? '' : 'none';
   document.getElementById('calFilterWrap').style.display = onRecipes ? '' : 'none';
@@ -879,7 +845,18 @@ function renderNav(visibleSectionIds) {
     const isActive = activeSection === s.id;
     return '<a href="#sec-' + s.id + '" class="pill' + (isActive ? ' active' : '') + '" data-section="' + s.id + '" onclick="onPillClick(event, \'' + s.id + '\')">' + s.label + '<span class="pill-count">' + count + '</span></a>';
   }).join('');
+  updatePillFade();
 }
+/* Fade whichever edge of the pill row has more pills hidden past it, so on a
+ * phone it's clear the row scrolls. */
+function updatePillFade() {
+  const nav = document.getElementById('sectionNav');
+  const max = nav.scrollWidth - nav.clientWidth;
+  nav.classList.toggle('more-left', max > 1 && nav.scrollLeft > 1);
+  nav.classList.toggle('more-right', max > 1 && nav.scrollLeft < max - 1);
+}
+document.getElementById('sectionNav').addEventListener('scroll', updatePillFade, { passive: true });
+window.addEventListener('resize', updatePillFade);
 function onPillClick(e, id) {
   activeSection = id;
   document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.dataset.section === id); });

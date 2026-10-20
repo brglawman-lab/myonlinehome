@@ -20,10 +20,10 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 |---|---|---|
 | `/` | Landing page — "Recipes", "Photos" and a smaller "Dashboard" | authored here |
 | `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
-| `/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/` | authored here |
+| `/private/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the Cloudflare Access login and not linked from any public page (reach it from `/private/`) | authored here |
 | `/photos/` | Photography hub — wildlife photography, work in progress | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
-| `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/` | from `Desktop\Claude\Chef Claude` (canonical copy) |
+| `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/`. The row of big buttons under the header on it and its sub-pages comes from `public/assets/recipe-nav.js` — change destinations there, not in the pages | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
 | `/recipes/jodie/` | What does Jodie want to eat? — a mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
 | `/recipes/storage/` | Food Storage — ingredient storage lookup + room temperature/humidity monitor | authored here |
@@ -99,7 +99,7 @@ cookbook. Photo files are committed under `public/recipes/photos/` (about
 array in the existing `image` column, so no migration was needed; a database
 row with no photos of its own keeps the photos listed in the file.
 
-The Cookbook (`/cookbook/`) reads the same recipes, drinks, seasonal and
+The Cookbook (`/private/cookbook/`, sign-in only while it's unfinished) reads the same recipes, drinks, seasonal and
 foraging lists (and gallery photographs for the interludes) and typesets them
 into pages: cover, contents, introduction, chapter openers, recipe pages,
 interludes and an index. The words that only exist in the book — intro,
