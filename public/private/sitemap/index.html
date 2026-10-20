@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Site map — Private</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.55; padding:3rem 1.25rem; }
+  .wrap { max-width:760px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.4rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:1.25rem; }
+  .toolbar { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+  .toolbar button { font:inherit; font-size:0.88rem; font-weight:500; background:var(--forest); color:var(--cream);
+         border:none; border-radius:999px; padding:0.45rem 1.2rem; cursor:pointer; }
+  .toolbar button:disabled { opacity:0.6; cursor:default; }
+  #summary { font-size:0.88rem; color:var(--mid-grey); }
+  .group { background:var(--warm-white); border:1px solid var(--border); border-radius:14px;
+           padding:1.1rem 1.4rem 0.6rem; margin-bottom:1.25rem; }
+  .group h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.2rem; color:var(--forest); }
+  .group > p { font-size:0.85rem; color:var(--mid-grey); margin:0.15rem 0 0.6rem; }
+  .row { display:grid; grid-template-columns:1.2rem minmax(0, 15rem) 1fr; gap:0.75rem; align-items:baseline;
+         padding:0.5rem 0; border-top:1px solid var(--border); font-size:0.92rem; }
+  .row:first-of-type { border-top:none; }
+  .row a { color:var(--forest); font-weight:500; text-decoration:none; overflow-wrap:anywhere; }
+  .row a:hover { color:var(--rust); }
+  .row code { font-size:0.82rem; color:var(--charcoal); overflow-wrap:anywhere; }
+  .row .desc { color:var(--mid-grey); font-size:0.86rem; }
+  .row .path { display:block; font-size:0.75rem; color:var(--mid-grey); font-weight:400; }
+  .st { font-size:0.85rem; text-align:center; }
+  .st.ok { color:#3b7a4a; } .st.bad { color:#a3361c; }
+  a.home { display:inline-block; margin-top:1rem; color:var(--rust); text-decoration:none; font-size:0.9rem; }
+  @media (max-width:560px) { .row { grid-template-columns:1.2rem 1fr; } .row .desc { grid-column:2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Site map</h1>
+  <p class="sub">Every page and endpoint on myonlinehome.co.uk, grouped by who can reach it. Only you can see this page.</p>
+  <div class="toolbar">
+    <button id="checkBtn" onclick="checkAll()">Check all links</button>
+    <span id="summary"></span>
+  </div>
+  <div id="groups"></div>
+  <a class="home" href="/private/">&larr; Private</a>
+</div>
+
+<script>
+/* Keep this list up to date when pages are added, moved or removed. */
+const GROUPS = [
+  { title: 'Public — linked from the site', note: 'Anyone can reach these by clicking around from the home page.', items: [
+    ['/', 'Home', 'Food, Photos, Dashboard; Contact and Privacy in the footer'],
+    ['/recipes/', 'Recipe Book (Food)', 'Recipes, plus the Drinks, Seasonal and Foraging tabs'],
+    ['/recipes/#drinks', 'Drinks', 'Tab inside the recipe book'],
+    ['/recipes/#seasonal', 'Seasonal Produce', 'Tab inside the recipe book'],
+    ['/recipes/#foraging', 'Foraging', 'Tab inside the recipe book'],
+    ['/recipes/inspiration/', 'Inspiration', 'Recent recipes from the Guardian, BBC Good Food and olive'],
+    ['/recipes/combinator/', 'Meal Builder', 'Pairs recipes into a meal'],
+    ['/recipes/jodie/', 'What does Jodie want to eat?', 'Mood board that ranks dishes'],
+    ['/recipes/storage/', 'Food Storage', 'Ingredient storage guide and room monitor'],
+    ['/dashboard/', 'Dashboard', 'Markets, in season, foraging, festivals, storage watch'],
+    ['/wyfood/', "WY Farmer's Markets", 'Markets and food festivals in West Yorkshire'],
+    ['/gallery/', 'Wildlife Photography', 'The photo gallery (home page "Photos")'],
+    ['/wildlife/', 'Yorkshire Wildlife Tracker', 'Species checklist, county map, sightings — linked from the gallery'],
+    ['/contact/', 'Contact', 'Contact form; messages arrive in Private → Messages'],
+    ['/privacy/', 'Privacy notice', 'Update it if the site starts collecting anything new'],
+  ]},
+  { title: 'Public — not linked from anywhere', note: 'Anyone with the address can open these, but nothing on the site points to them.', items: [
+    ['/photos/', 'Photography hub', 'The old Photos landing page, before Photos went straight to the gallery'],
+    ['/work-in-progress/', 'Work in progress', 'Linked only from the Photography hub'],
+    ['/food/', 'Old Food address', 'Redirects to the Dashboard'],
+    ['/recipes/recipes.json', 'Recipe data', 'The seed recipes the recipe pages load'],
+  ]},
+  { title: 'Private — behind your sign-in', note: 'Cloudflare Access covers everything under /private/.', items: [
+    ['/private/', 'Private home', 'Message count, cookbook, database check'],
+    ['/private/messages/', 'Messages', 'Read, reply to and delete contact form messages'],
+    ['/private/cookbook/', 'The Cookbook', 'Work in progress — the recipe book as a page-turning book'],
+    ['/private/sitemap/', 'Site map', 'This page'],
+  ]},
+  { title: 'Data feeds (API)', note: 'Used by the pages above. The /private/api/ ones need your sign-in.', items: [
+    ['/api/recipes', 'Recipes in the database', 'GET · public', true],
+    ['/api/recipes/deleted', 'Deleted recipe ids', 'GET · public', true],
+    ['/api/sightings', 'Wildlife sightings', 'GET · public', true],
+    ['/api/custom-species', 'Custom species', 'GET · public', true],
+    ['/api/storage-rooms', 'Storage rooms', 'GET · public', true],
+    ['/api/storage-readings', 'Storage readings', 'GET · public', true],
+    ['/api/inspiration', 'Inspiration feed', 'GET · public · cached 3 hours', true],
+    ['/api/contact', 'Contact form', 'POST · public', false],
+    ['/private/api/contact', 'Contact messages', 'GET, DELETE · sign-in', true],
+    ['/private/api/recipes', 'Save recipes', 'POST, DELETE · sign-in', false],
+    ['/private/api/sightings', 'Save sightings', 'POST, DELETE · sign-in', false],
+    ['/private/api/custom-species', 'Save custom species', 'POST · sign-in', false],
+    ['/private/api/storage-rooms', 'Save storage rooms', 'POST, DELETE · sign-in', false],
+    ['/private/api/storage-readings', 'Save storage readings', 'POST, DELETE · sign-in', false],
+  ]},
+];
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+document.getElementById('groups').innerHTML = GROUPS.map(g =>
+  '<section class="group"><h2>' + esc(g.title) + '</h2><p>' + esc(g.note) + '</p>'
+  + g.items.map(([path, name, desc, checkable]) => {
+      const isApi = path.startsWith('/api/') || path.startsWith('/private/api/');
+      const canCheck = isApi ? checkable : !path.includes('#');
+      const label = isApi
+        ? '<code>' + esc(path) + '</code><span class="path">' + esc(name) + '</span>'
+        : '<a href="' + esc(path) + '">' + esc(name) + '<span class="path">' + esc(path) + '</span></a>';
+      return '<div class="row"><span class="st"' + (canCheck ? ' data-check="' + esc(path) + '"' : '') + '></span>'
+        + '<span>' + label + '</span><span class="desc">' + esc(desc) + '</span></div>';
+    }).join('')
+  + '</section>'
+).join('');
+
+async function checkAll() {
+  const btn = document.getElementById('checkBtn');
+  const cells = [...document.querySelectorAll('[data-check]')];
+  btn.disabled = true;
+  let ok = 0, bad = 0;
+  await Promise.all(cells.map(async (cell) => {
+    cell.className = 'st'; cell.textContent = '…';
+    try {
+      const res = await fetch(cell.dataset.check, { cache: 'no-store', redirect: 'manual' });
+      // An opaque redirect from a page means Access wants a fresh sign-in; anything else non-2xx is a problem.
+      const good = res.ok || res.type === 'opaqueredirect';
+      cell.className = 'st ' + (good ? 'ok' : 'bad');
+      cell.textContent = good ? '✓' : '✗';
+      cell.title = res.type === 'opaqueredirect' ? 'Redirects (sign-in)' : 'HTTP ' + res.status;
+      good ? ok++ : bad++;
+    } catch (e) {
+      cell.className = 'st bad'; cell.textContent = '✗'; cell.title = e.message; bad++;
+    }
+  }));
+  document.getElementById('summary').textContent = ok + ' working' + (bad ? ' · ' + bad + ' with a problem (hover the ✗ for details)' : '') + ' · checked ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
