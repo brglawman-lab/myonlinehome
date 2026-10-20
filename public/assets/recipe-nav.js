@@ -17,6 +17,8 @@
   const ITEMS = [
     { id: 'recipes',    label: 'Recipes',      href: '/recipes/',            tab: true,
       icon: svg('<path d="M12 6.5C10.2 5 7.6 4.5 4 4.5v13c3.6 0 6.2.5 8 2 1.8-1.5 4.4-2 8-2v-13c-3.6 0-6.2.5-8 2Z"/><path d="M12 6.5v13"/>') },
+    { id: 'inspiration', label: 'Inspiration', href: '/recipes/inspiration/',
+      icon: svg('<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/>') },
     { id: 'drinks',     label: 'Drinks',       href: '/recipes/#drinks',     tab: true,
       icon: svg('<path d="M5 4h14l-7 8z"/><path d="M12 12v7"/><path d="M8 20h8"/>') },
     { id: 'seasonal',   label: 'Seasonal',     href: '/recipes/#seasonal',   tab: true,
@@ -42,12 +44,12 @@
   .recipe-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .recipe-nav a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .recipe-nav a.active svg { color: #fff; }
-  @media (max-width: 900px) {
-    .recipe-nav-inner { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 1000px) {
+    .recipe-nav-inner { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   }
   @media (max-width: 720px) {
     .recipe-nav { padding: 10px 1rem; }
-    .recipe-nav-inner { gap: 6px; }
+    .recipe-nav-inner { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
     .recipe-nav a { min-height: 68px; padding: 8px 4px; font-size: 12px; gap: 5px; }
     .recipe-nav a svg { width: 22px; height: 22px; }
   }

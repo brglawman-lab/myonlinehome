@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Messages — Private</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.6; padding:3rem 1.25rem; }
+  .wrap { max-width:680px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.4rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:2rem; }
+  .msg { background:var(--warm-white); border:1px solid var(--border); border-radius:14px;
+         padding:1.25rem 1.5rem; margin-bottom:1rem; }
+  .msg-head { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+  .who { font-weight:500; color:var(--forest); }
+  .who a { color:var(--rust); font-weight:400; }
+  .when { font-size:0.82rem; color:var(--mid-grey); }
+  .body { white-space:pre-wrap; overflow-wrap:anywhere; }
+  .from { font-size:0.78rem; color:var(--mid-grey); margin-top:0.6rem; overflow-wrap:anywhere; }
+  .actions { margin-top:0.9rem; display:flex; gap:0.6rem; }
+  .actions a, .actions button { font:inherit; font-size:0.85rem; border-radius:999px; padding:0.35rem 1rem;
+         border:1px solid var(--forest); background:none; color:var(--forest); cursor:pointer; text-decoration:none; }
+  .actions a { background:var(--forest); color:var(--cream); }
+  .note { color:var(--mid-grey); }
+  a.home { display:inline-block; margin-top:2rem; color:var(--rust); text-decoration:none; font-size:0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Messages</h1>
+  <p class="sub">Sent through the contact form on <a href="/contact/">/contact/</a>. Messages older than a year are deleted automatically.</p>
+  <div id="list"><p class="note">Loading…</p></div>
+  <a class="home" href="/private/">&larr; Private</a>
+</div>
+
+<script>
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+async function load() {
+  const list = document.getElementById('list');
+  let msgs;
+  try {
+    const res = await fetch('/private/api/contact', { cache: 'no-store' });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'HTTP ' + res.status);
+    msgs = await res.json();
+  } catch (e) {
+    list.innerHTML = '<p class="note">Could not load messages: ' + esc(e.message) + '</p>';
+    return;
+  }
+  if (!msgs.length) { list.innerHTML = '<p class="note">No messages yet.</p>'; return; }
+  list.innerHTML = msgs.map(m => {
+    const reply = 'mailto:' + encodeURIComponent(m.email) + '?subject=' + encodeURIComponent('Re: your message about myonlinehome.co.uk')
+      + '&body=' + encodeURIComponent('\n\n> ' + m.message.split('\n').join('\n> '));
+    return '<div class="msg" id="' + esc(m.id) + '">'
+      + '<div class="msg-head"><div class="who">' + esc(m.name || 'No name given') + ' · <a href="mailto:' + esc(m.email) + '">' + esc(m.email) + '</a></div>'
+      + '<div class="when">' + esc(new Date(m.createdAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })) + '</div></div>'
+      + '<div class="body">' + esc(m.message) + '</div>'
+      + (m.page ? '<div class="from">From: ' + esc(m.page) + '</div>' : '')
+      + '<div class="actions"><a href="' + esc(reply) + '">Reply</a><button onclick="removeMsg(\'' + esc(m.id) + '\')">Delete</button></div>'
+      + '</div>';
+  }).join('');
+}
+
+async function removeMsg(id) {
+  if (!confirm('Delete this message? This can\'t be undone.')) return;
+  const res = await fetch('/private/api/contact/' + encodeURIComponent(id), { method: 'DELETE' });
+  if (res.ok) document.getElementById(id).remove();
+  else alert('Could not delete it — try again.');
+  if (!document.querySelector('.msg')) document.getElementById('list').innerHTML = '<p class="note">No messages yet.</p>';
+}
+
+load();
+</script>
+</body>
+</html>

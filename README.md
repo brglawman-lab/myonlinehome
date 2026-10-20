@@ -1,6 +1,6 @@
 # myonlinehome
 
-Source for **myonlinehome.co.uk** — Ben Lawman's personal site.
+Source for **myonlinehome.co.uk**, a personal site. The site itself deliberately shows no owner name or email address; visitors use the contact form.
 
 ## Repository layout
 
@@ -18,12 +18,15 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 
 | Path | What it is | Source |
 |---|---|---|
-| `/` | Landing page — "Recipes", "Photos" and a smaller "Dashboard" | authored here |
+| `/` | Landing page — "Food" (→ `/recipes/`), "Photos" (→ `/gallery/`) and a smaller "Dashboard"; Contact and Privacy in the footer | authored here |
+| `/contact/` | Contact form. Messages are stored in D1 (`contact_messages`) and read at `/private/messages/` — no email address is published | authored here |
+| `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
 | `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
 | `/private/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the Cloudflare Access login and not linked from any public page (reach it from `/private/`) | authored here |
 | `/photos/` | Photography hub — wildlife photography, work in progress | authored here |
 | `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
 | `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/`. The row of big buttons under the header on it and its sub-pages comes from `public/assets/recipe-nav.js` — change destinations there, not in the pages | from `Desktop\Claude\Chef Claude` (canonical copy) |
+| `/recipes/inspiration/` | Inspiration — a handful of recipes recently published by The Guardian, BBC Good Food and olive, read from their RSS feeds by `/api/inspiration` (`src/inspiration.js`) and cached for 3 hours | authored here |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
 | `/recipes/jodie/` | What does Jodie want to eat? — a mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
 | `/recipes/storage/` | Food Storage — ingredient storage lookup + room temperature/humidity monitor | authored here |
@@ -44,6 +47,10 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     GET  /api/recipes/deleted            public
     GET  /api/storage-rooms              public
     GET  /api/storage-readings           public
+    GET  /api/inspiration                public, cached 3 h
+    POST /api/contact                    public (honeypot, timing check, 5/hour per connection)
+    GET  /private/api/contact            behind Cloudflare Access
+    DEL  /private/api/contact/:id        behind Cloudflare Access
     POST /private/api/sightings          behind Cloudflare Access
     DEL  /private/api/sightings/:id      behind Cloudflare Access
     POST /private/api/custom-species     behind Cloudflare Access

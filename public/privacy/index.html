@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — My Online Home</title>
+<meta name="description" content="What this website collects, why, and what it doesn't do.">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.65; padding:4.5rem 1.25rem 3rem; }
+  .wrap { max-width:680px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.4rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:2rem; }
+  h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.25rem; color:var(--forest); margin:2rem 0 0.5rem; }
+  p, li { margin-bottom:0.7rem; }
+  ul { padding-left:1.25rem; }
+  a { color:var(--forest); }
+  .updated { margin-top:2.5rem; font-size:0.82rem; color:var(--mid-grey); }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+</style>
+
+<div class="wrap">
+  <h1>Privacy</h1>
+  <p class="sub">My Online Home is a personal, non-commercial website run by one person. This page explains what it collects and why. In short: almost nothing, and no tracking.</p>
+
+  <h2>If you send a message</h2>
+  <p>The <a href="/contact/">contact form</a> collects your email address, your message, your name if you give it, and the page you came from. I use these only to read and reply to your message. The legal basis is my legitimate interest in answering people who get in touch.</p>
+  <p>Messages are stored in the website's database, hosted by Cloudflare, and nobody else sees them. To stop spam, the form also stores a one-way scrambled code made from your IP address and the date. That code can't be turned back into your address. Messages are deleted automatically after 12 months, or sooner if you ask.</p>
+
+  <h2>No tracking, no advertising cookies</h2>
+  <p>The site doesn't use analytics, advertising or tracking cookies, and it doesn't build a profile of you. Public pages set no cookies at all.</p>
+  <p>Some pages save things in your own browser's storage so they work quickly and offline. The recipe book keeps a copy of the recipes, and the wildlife tracker keeps your list. This stays on your device. It isn't sent to me, and you can clear it any time in your browser settings.</p>
+
+  <h2>Services the site relies on</h2>
+  <ul>
+    <li><strong>Cloudflare</strong> hosts the site. Like any web host, it handles your IP address and basic request details to deliver pages and protect against attacks.</li>
+    <li><strong>Google Fonts</strong> supplies the typefaces, so your browser fetches font files from Google, which sees your IP address. Cloudflare's code library (cdnjs) does the same for the wildlife map.</li>
+    <li><strong>OpenStreetMap</strong> supplies map tiles on the wildlife tracker, and <strong>NBN Atlas</strong> supplies wildlife records there.</li>
+    <li><strong>postcodes.io</strong> looks up a postcode only if you type one into the farmers' markets page.</li>
+    <li>The <strong>Inspiration</strong> page shows pictures straight from the food websites it lists (The Guardian, BBC Good Food and olive), so your browser loads those images from them.</li>
+  </ul>
+  <p>Links to other websites take you to sites with their own privacy policies.</p>
+
+  <h2>Your rights</h2>
+  <p>Under UK data protection law you can ask to see what I hold about you, ask me to correct or delete it, or object to how it's used. Use the <a href="/contact/">contact form</a>. You can also complain to the Information Commissioner's Office at <a href="https://ico.org.uk/make-a-complaint/" rel="noopener">ico.org.uk</a>.</p>
+
+  <p class="updated">Last updated October 2026.</p>
+</div>
+</body>
+</html>

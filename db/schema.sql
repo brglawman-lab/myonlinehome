@@ -85,3 +85,17 @@ CREATE INDEX IF NOT EXISTS idx_storage_readings_date ON storage_readings (record
 --
 --   ALTER TABLE recipes ADD COLUMN storage TEXT;
 -- ---------------------------------------------------------------------------
+
+-- Messages from the contact form on /contact/. Read on /private/messages/.
+-- The Worker also creates this table on first use, so running this is optional.
+-- sender_hash is a hash of IP address + date, used only for rate limiting;
+-- rows older than a year are deleted automatically.
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id          TEXT PRIMARY KEY,
+  name        TEXT,
+  email       TEXT NOT NULL,
+  message     TEXT NOT NULL,
+  page        TEXT,
+  sender_hash TEXT,
+  created_at  TEXT NOT NULL
+);
