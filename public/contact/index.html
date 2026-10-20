@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — My Online Home</title>
+<meta name="description" content="Send a message about the website.">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.6; padding:4.5rem 1.25rem 3rem; }
+  .wrap { max-width:560px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.4rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:2rem; }
+  form { background:var(--warm-white); border:1px solid var(--border); border-radius:14px; padding:1.5rem; }
+  label { display:block; font-size:0.85rem; font-weight:500; color:var(--forest); margin-bottom:0.3rem; }
+  .opt { font-weight:400; color:var(--mid-grey); }
+  input, textarea { width:100%; font:inherit; font-size:0.95rem; color:var(--charcoal); background:#fff;
+         border:1px solid rgba(45,74,62,0.25); border-radius:8px; padding:0.6rem 0.75rem; margin-bottom:1.1rem; }
+  input:focus, textarea:focus { outline:2px solid var(--sage); outline-offset:1px; border-color:var(--sage); }
+  textarea { min-height:160px; resize:vertical; }
+  .hp { position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  button { font:inherit; font-weight:500; background:var(--forest); color:var(--cream); border:none;
+           border-radius:999px; padding:0.65rem 1.6rem; cursor:pointer; }
+  button:hover { background:#24392f; }
+  button:disabled { opacity:0.6; cursor:default; }
+  .status { margin-top:1rem; font-size:0.9rem; }
+  .status.err { color:#a3361c; }
+  .done { background:var(--warm-white); border:1px solid var(--border); border-radius:14px; padding:1.5rem; }
+  .done h2 { font-family:'Playfair Display',Georgia,serif; color:var(--forest); font-size:1.3rem; margin-bottom:0.3rem; }
+  .fine { margin-top:1.25rem; font-size:0.8rem; color:var(--mid-grey); }
+  a { color:var(--forest); }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+</style>
+
+<div class="wrap">
+  <h1>Get in touch</h1>
+  <p class="sub">A question about a recipe or photo, prints and usage, a farmers market that's missing, or something on the site that's wrong — send a message and I'll reply by email.</p>
+
+  <form id="contactForm" novalidate>
+    <label for="name">Your name <span class="opt">(optional)</span></label>
+    <input id="name" name="name" type="text" maxlength="100" autocomplete="name">
+
+    <label for="email">Your email</label>
+    <input id="email" name="email" type="email" maxlength="200" autocomplete="email" required>
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" maxlength="5000" required></textarea>
+
+    <!-- Left empty by people; bots tend to fill it in. -->
+    <div class="hp" aria-hidden="true">
+      <label for="website">Website</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit" id="sendBtn">Send message</button>
+    <p class="status" id="status" role="status"></p>
+    <p class="fine">Your email address is used only to reply to you. See the <a href="/privacy/">privacy notice</a>.</p>
+  </form>
+
+  <div class="done" id="done" hidden>
+    <h2>Thanks — message sent.</h2>
+    <p>I'll reply to the email address you gave.</p>
+  </div>
+</div>
+
+<script>
+const startedAt = Date.now();
+const params = new URLSearchParams(location.search);
+const form = document.getElementById('contactForm');
+const status = document.getElementById('status');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = form.email.value.trim();
+  const message = form.message.value.trim();
+  status.className = 'status err';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = 'Please enter a valid email address so I can reply.'; form.email.focus(); return; }
+  if (message.length < 2) { status.textContent = 'Please write a message.'; form.message.focus(); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; status.className = 'status'; status.textContent = 'Sending…';
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name.value, email, message,
+        website: form.website.value,
+        page: params.get('from') || document.referrer || '',
+        startedAt,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Something went wrong — please try again.');
+    form.hidden = true;
+    document.getElementById('done').hidden = false;
+  } catch (err) {
+    status.className = 'status err';
+    status.textContent = err && err.message ? err.message : 'Something went wrong — please try again.';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

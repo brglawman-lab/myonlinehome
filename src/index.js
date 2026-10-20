@@ -24,6 +24,8 @@ import {
   createStorageReadings,
   deleteStorageReading,
 } from "./api.js";
+import { createContactMessage, listContactMessages, deleteContactMessage } from "./contact.js";
+import { getInspiration } from "./inspiration.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -56,6 +58,14 @@ export default {
       if (path === "/api/storage-rooms") {
         if (method === "GET") return listStorageRooms(env);
         return json({ error: "Read-only. Write to /private/api/storage-rooms." }, 405);
+      }
+      if (path === "/api/inspiration") {
+        if (method === "GET") return getInspiration(request, ctx);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/api/contact") {
+        if (method === "POST") return createContactMessage(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
       }
       if (path === "/api/storage-readings") {
         if (method === "GET") return listStorageReadings(env);
@@ -101,6 +111,16 @@ export default {
       if (path.startsWith("/private/api/storage-readings/")) {
         const id = decodeURIComponent(path.slice("/private/api/storage-readings/".length));
         if (method === "DELETE") return deleteStorageReading(request, env, id);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+
+      if (path === "/private/api/contact") {
+        if (method === "GET") return listContactMessages(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path.startsWith("/private/api/contact/")) {
+        const id = decodeURIComponent(path.slice("/private/api/contact/".length));
+        if (method === "DELETE") return deleteContactMessage(request, env, id);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

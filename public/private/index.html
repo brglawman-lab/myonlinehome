@@ -39,6 +39,11 @@
   </div>
 
   <div class="box">
+    <h2><a href="/private/messages/" style="color:inherit">Messages &rarr;</a></h2>
+    <p id="msgCount">From the contact form.</p>
+  </div>
+
+  <div class="box">
     <h2><a href="/private/cookbook/" style="color:inherit">The Cookbook &rarr;</a></h2>
     <p>Work in progress — the recipe book as a page-turning book. Not linked
        anywhere public until it's ready.</p>
@@ -54,6 +59,16 @@
 </div>
 
 <script>
+fetch('/private/api/contact', { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    if (!Array.isArray(d)) return;
+    document.getElementById('msgCount').textContent = d.length
+      ? d.length + ' message' + (d.length === 1 ? '' : 's') + ' from the contact form. Latest: ' + new Date(d[0].createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '.'
+      : 'No messages from the contact form yet.';
+  })
+  .catch(() => {});
+
 fetch('/api/sightings')
   .then(r => r.json())
   .then(d => {

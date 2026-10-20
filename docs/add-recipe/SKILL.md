@@ -15,20 +15,21 @@ description: >
 The recipe book is a page on Ben's website:
 
     live    https://myonlinehome.co.uk/recipes/
-    source  brglawman-lab/myonlinehome → public/recipes/index.html
+    source  brglawman-lab/myonlinehome → public/recipes/recipes.json
 
 **The old locations are dead.** The `RecipeBook` and `chef-claude-recipes`
 repositories have been deleted, and `Desktop\Claude\Chef Claude\Chef Claude —
 Recipe Book.html` is a stale snapshot. Editing any of them changes nothing.
 
-Recipes live in a JavaScript array called `DEFAULT_RECIPES` in a `<script>` tag
-in `public/recipes/index.html`, one object per line. Everything on the page is
-rendered from that array.
+Recipes live in `public/recipes/recipes.json`: a JSON array, one recipe object
+per line. The recipe book page (`public/recipes/index.html`) loads it at start-up
+as `DEFAULT_RECIPES`, and the Meal Builder, Jodie, Food Storage, the dashboard
+and the cookbook read the same file. (Recipes used to be written straight into
+`index.html`; they are not there any more.)
 
 ## Before editing the file: check which layer the recipe is in
 
-The page has two sources. `DEFAULT_RECIPES` in the file holds the original 51
-recipes. A **database** holds anything Ben has added, edited or deleted through
+The page has two sources. `recipes.json` holds the seed recipes. A **database** holds anything Ben has added, edited or deleted through
 the site. Where both have a recipe with the same id, **the database wins**.
 
 - **Adding a new recipe** — edit the file, or use the site's `+ Add` form.
@@ -42,14 +43,16 @@ there is in the database and overrides the file.
 
 ## Recipe object format
 
-```js
-{ id:'kebab-case-id', section:'starters', title:'Full Recipe Title', category:'starters',
-  serves:'2–3', time:'35 mins', calories:'640',
-  description:'One or two sentences for the list view.',
-  ingredients:[{amount:'250g',item:'macaroni'},{amount:'1 tsp',item:'Dijon mustard'}],
-  steps:['Step one text.','Step two text.'],
-  notes:'Optional tips, substitutions, make-ahead advice.',
-  storage:{fridge:'Up to 3 days, sealed container.', freezer:'Freezes well for up to 3 months.', reheat:'Microwave 2 mins, or oven 15 mins at 180°C.'} },
+One line per recipe in the file (wrapped here for reading):
+
+```json
+{"id":"kebab-case-id","section":"starters","title":"Full Recipe Title","category":"starters",
+ "serves":"2–3","time":"35 mins","calories":"640",
+ "description":"One or two sentences for the list view.",
+ "ingredients":[{"amount":"250g","item":"macaroni"},{"amount":"1 tsp","item":"Dijon mustard"}],
+ "steps":["Step one text.","Step two text."],
+ "notes":"Optional tips, substitutions, make-ahead advice.",
+ "storage":{"fridge":"Up to 3 days, sealed container.","freezer":"Freezes well for up to 3 months.","reheat":"Microwave 2 mins, or oven 15 mins at 180°C."}},
 ```
 
 ### `section` — only these nine values exist
@@ -86,7 +89,7 @@ was found by counting rows against the header total.
 - **steps** — active imperative. Do not number them; they are auto-numbered.
 - **description** — describe the dish directly, never "This recipe features…".
 - **notes** — omit the field entirely rather than leaving it empty.
-- **photos** — optional, `[{src:'/recipes/photos/<id>-1.jpg', caption:'Optional'}, …]`.
+- **photos** — optional, `[{"src":"/recipes/photos/<id>-1.jpg","caption":"Optional"}, …]`.
   The **first** photo is the main one, used as the thumbnail when browsing
   and in the cookbook. Commit the files to `public/recipes/photos/`, named
   `<recipe-id>-1.jpg`, `-2.jpg`…, resized to ~1600px on the long edge.
@@ -103,15 +106,16 @@ was found by counting rows against the header total.
 
 ## Workflow
 
-1. Read `public/recipes/index.html` and find `const DEFAULT_RECIPES`.
+1. Read `public/recipes/recipes.json`.
 2. Search for the title and a likely id. If a `noRecipe: true` placeholder
    exists, **replace that object** rather than adding a second entry.
 3. Parse the recipe from what Ben gave you. Ask about anything ambiguous —
    quantities and timings especially — rather than inventing it.
-4. Insert the object before the closing `];`, keeping one object per line and
-   the comma placement correct.
-5. Check the file still parses. Extracting the `<script>` block and running
-   `node --check` on it catches a stray comma or quote immediately.
+4. Insert the object before the closing `]`, keeping one object per line and
+   the comma placement correct. It is **JSON**, not JavaScript: double-quoted
+   keys and strings, no trailing comma after the last recipe, no comments.
+5. Check the file still parses: `node -e "JSON.parse(require('fs').readFileSync('public/recipes/recipes.json','utf8'))"`
+   catches a stray comma or quote immediately.
 6. Add a `MEAL_TAGS` entry for the new recipe in
    `public/recipes/combinator/index.html` — see below. Optional, but a recipe
    without one is treated as going with anything.
@@ -123,7 +127,7 @@ was found by counting rows against the header total.
 ## Tagging it for the Meal Builder
 
 `/recipes/combinator/` builds meals out of the same recipes. It reads them
-straight from `public/recipes/index.html`, so a new recipe appears there with
+straight from `public/recipes/recipes.json`, so a new recipe appears there with
 no extra work — but untagged it falls back to its section for a course role
 and pairs as cuisine `neutral`, meaning it will be offered alongside anything.
 

@@ -158,8 +158,8 @@
  * healthy skips the recipes altogether and throws a party on the way to
  * Deliveroo.
  *
- * Like the Meal Builder this fetches /recipes/ and lifts DEFAULT_RECIPES out
- * of it, then applies the database overlay, so new recipes appear here too.
+ * Like the Meal Builder this reads the seed recipes from
+ * /recipes/recipes.json, then applies the database overlay, so new recipes appear here too.
  * TAGS is hand-written for the recipes that existed when this page was made;
  * anything else is tagged from its section, calories and keywords.
  * ======================================================================== */
@@ -310,17 +310,16 @@ function mergeById(base, overlay) {
 }
 
 async function loadLibrary() {
-  let html = '';
+  let seed = null;
   try {
-    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    const res = await fetch('/recipes/recipes.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    html = await res.text();
+    seed = await res.json();
   } catch (e) {
     loadError = 'Could not read the recipe book.';
     return;
   }
-  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
-  if (!seed) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
+  if (!Array.isArray(seed)) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
 
   let merged = seed;
   try {

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — My Online Home</title>
-<meta name="description" content="Ben Lawman — recipes, food storage, and West Yorkshire food markets, at a glance.">
+<meta name="description" content="Recipes, food storage, and West Yorkshire food markets, at a glance.">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -29,7 +29,7 @@
     -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem 3rem; }
 
   /* ---------- header ---------- */
   .page-head { padding: 3.5rem 1.5rem 1rem; text-align: center; }
@@ -65,7 +65,6 @@
     color: var(--forest); margin-bottom: 0.5rem; line-height: 1.3;
   }
   .widget-body { font-size: 0.9rem; color: var(--charcoal); flex: 1; }
-  .widget-photo { width: calc(100% + 3rem); margin: -0.2rem -1.5rem 0.8rem; height: 150px; object-fit: cover; display: block; background: var(--cream); }
   .widget-body p { margin: 0 0 0.4rem; }
   .widget-body p:last-child { margin-bottom: 0; }
   .widget-muted { color: var(--mid-grey); font-style: italic; }
@@ -76,36 +75,10 @@
   .tag-chip { display: inline-block; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: var(--cream); color: var(--earth); margin-left: 6px; }
   .produce-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .produce-chip { font-size: 0.82rem; background: var(--cream); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
-  .shuffle-btn { align-self: flex-start; margin-top: 0.7rem; padding: 6px 14px; background: none; border: 1px solid var(--forest); color: var(--forest); border-radius: 999px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; }
-  .shuffle-btn:hover { background: var(--forest); color: var(--warm-white); }
   .room-row { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 0.88rem; }
   .room-row .room-status { color: var(--mid-grey); font-size: 0.82rem; text-align: right; }
 
-  /* ---------- launcher buttons ---------- */
-  .launchers { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-bottom: 2rem; }
-  .launcher {
-    display: flex; flex-direction: column;
-    background: var(--warm-white);
-    border: 1px solid var(--light-border);
-    border-radius: 14px;
-    padding: 1.75rem;
-    text-decoration: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  }
-  .launcher:hover, .launcher:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(45,74,62,0.12); border-color: var(--sage); outline: none; }
-  .launcher-icon { margin-bottom: 1rem; line-height: 0; }
-  .launcher-icon .ic { width: 28px; height: 28px; display: block; color: var(--rust); }
-  .launcher h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.3rem; font-weight: 700; color: var(--forest); margin-bottom: 0.35rem; letter-spacing: -0.01em; }
-  .launcher p { font-size: 0.85rem; color: var(--mid-grey); }
-  .launcher .go { margin-top: auto; padding-top: 1rem; font-size: 0.82rem; font-weight: 500; color: var(--rust); }
-  .launcher .go::after { content: ' →'; }
 
-  footer {
-    margin-top: 2.5rem; padding: 2rem 1.5rem 3rem;
-    border-top: 1px solid var(--light-border);
-    text-align: center; font-size: 0.82rem; color: var(--mid-grey);
-  }
-  footer a { color: var(--forest); border-bottom: 1px solid var(--light-border); }
 
   @media (max-width: 600px) {
     .page-head { padding: 3rem 1.25rem 0.75rem; }
@@ -126,7 +99,7 @@ transition:background .15s ease,color .15s ease}
 
 <div class="page-head">
   <h1>Dashboard</h1>
-  <p>What's on, what's fresh, and what's cooking.</p>
+  <p>What's on and what's in season.</p>
 </div>
 
 <div class="wrap">
@@ -135,44 +108,8 @@ transition:background .15s ease,color .15s ease}
     <div class="widget"><div class="widget-label">Loading…</div></div>
   </div>
 
-  <p class="section-label">Open</p>
-  <div class="launchers">
-    <a class="launcher" href="/recipes/">
-      <div class="launcher-icon"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="13" r="6.2"/><path d="M16.1 11.4 22 8.6"/><circle cx="10" cy="13" r="2.4"/></svg></div>
-      <h2>Recipes</h2>
-      <p>The full recipe book — starters, mains, sides, baking and drinks.</p>
-      <div class="go">Open the book</div>
-    </a>
-    <a class="launcher" href="/recipes/combinator/">
-      <div class="launcher-icon"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
-      <h2>Meal Builder</h2>
-      <p>Pick your courses and let it put a whole meal together.</p>
-      <div class="go">Build a meal</div>
-    </a>
-    <a class="launcher" href="/recipes/jodie/">
-      <div class="launcher-icon"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.2-2.5 3.9"/><path d="M12 17h.01"/></svg></div>
-      <h2>What does Jodie want to eat?</h2>
-      <p>Chicken, fish, veg or other meats, then a style, then a shortlist — or Deliveroo.</p>
-      <div class="go">Help her decide</div>
-    </a>
-    <a class="launcher" href="/recipes/storage/">
-      <div class="launcher-icon"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v4H4z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 12h6"/></svg></div>
-      <h2>Food Storage</h2>
-      <p>Ingredient storage guide, plus pantry &amp; store temperature and humidity logs.</p>
-      <div class="go">Check storage</div>
-    </a>
-    <a class="launcher" href="/wyfood/">
-      <div class="launcher-icon"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5h18l-1.7 9.1a2 2 0 0 1-2 1.6H6.7a2 2 0 0 1-2-1.6L3 9.5Z"/><path d="M8 9.5 11 3.5M16 9.5 13 3.5"/><path d="M8.6 13.2v3.6M12 13.2v3.6M15.4 13.2v3.6"/></svg></div>
-      <h2>Farmer's Markets</h2>
-      <p>West Yorkshire farmers markets and food &amp; drink festivals.</p>
-      <div class="go">Find a market</div>
-    </a>
-  </div>
 </div>
 
-<footer>
-  Built and maintained with Claude · <a href="/">home</a> · <a href="/recipes/">recipes</a> · <a href="/wyfood/">wy farmer's markets</a>
-</footer>
 
 <script>
 /* ===========================================================================
@@ -193,19 +130,6 @@ function extractArray(html, marker) {
   if (close < 0) return null;
   try { return (new Function('return ' + html.slice(open, close + 2) + ';'))(); }
   catch (e) { console.warn('Could not parse ' + marker, e); return null; }
-}
-function mergeById(base, overlay) {
-  const map = new Map(base.map((r) => [r.id, r]));
-  for (const r of overlay) map.set(r.id, r);
-  return [...map.values()];
-}
-function recipeMainPhoto(r) {
-  if (Array.isArray(r.photos) && r.photos.length) return r.photos[0].src;
-  return r.image || null;
-}
-function photoHtml(r) {
-  const src = recipeMainPhoto(r);
-  return src ? '<img class="widget-photo" src="' + escapeHtml(src) + '" alt="" loading="lazy">' : '';
 }
 function fmtISODate(d) {
   const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), da = String(d.getDate()).padStart(2, '0');
@@ -233,39 +157,15 @@ async function loadMarkets() {
   } catch (e) { return null; }
 }
 async function loadRecipeData() {
-  let html = '';
   try {
     const res = await fetch('/recipes/', { cache: 'no-cache' });
     if (!res.ok) return null;
-    html = await res.text();
+    const html = await res.text();
+    return {
+      seasonal: extractArray(html, 'const SEASONAL_PRODUCE = [') || [],
+      foraging: extractArray(html, 'const FORAGING_ITEMS = [') || [],
+    };
   } catch (e) { return null; }
-  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
-  const seasonal = extractArray(html, 'const SEASONAL_PRODUCE = [') || [];
-  const foraging = extractArray(html, 'const FORAGING_ITEMS = [') || [];
-  if (!seed) return { recipes: [], latest: null, seasonal, foraging };
-
-  let merged = seed, dbRecipes = [];
-  try {
-    const [a, b] = await Promise.all([
-      fetch('/api/recipes', { cache: 'no-store' }),
-      fetch('/api/recipes/deleted', { cache: 'no-store' }),
-    ]);
-    if (a.ok) {
-      const j = await a.json();
-      if (Array.isArray(j)) {
-        // A database row with no photos of its own keeps the seed's photos, same as the recipe book.
-        const seedById = new Map(seed.map((r) => [r.id, r]));
-        dbRecipes = j.map((r) => {
-          const sr = seedById.get(r.id);
-          return (!Array.isArray(r.photos) && !r.image && sr && recipeMainPhoto(sr)) ? { ...r, photos: sr.photos, image: sr.image } : r;
-        });
-        merged = mergeById(merged, dbRecipes);
-      }
-    }
-    if (b.ok) { const j = await b.json(); if (Array.isArray(j)) { const gone = new Set(j); merged = merged.filter((r) => !gone.has(r.id)); } }
-  } catch (e) { /* offline is fine — the seed is enough */ }
-
-  return { recipes: merged.filter((r) => !r.noRecipe), latest: dbRecipes[0] || null, seasonal, foraging };
 }
 async function loadStorage() {
   try {
@@ -338,24 +238,6 @@ function festivalsWidget(markets) {
   return widget('Coming up', 'Food &amp; drink festivals', body, '<a href="/wyfood/">See the full calendar</a>');
 }
 
-function latestRecipeWidget(data) {
-  if (!data || !data.latest) {
-    return widget('Recently added', 'No new recipes logged yet', '<p class="widget-muted">Recipes added through the site will show up here.</p>', '<a href="/recipes/">Open the recipe book</a>');
-  }
-  const r = data.latest;
-  const meta = [r.serves ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : ''].filter(Boolean).join(' · ');
-  return widget('Recently added', escapeHtml(r.title), photoHtml(r) + '<p>' + escapeHtml(r.description || '') + '</p>' + (meta ? '<p class="widget-muted">' + escapeHtml(meta) + '</p>' : ''), '<a href="/recipes/#recipe-' + encodeURIComponent(r.id) + '">Open recipe</a>');
-}
-
-let cookTonightPool = [];
-function renderCookTonight() {
-  const el = document.getElementById('cookTonightWidget');
-  if (!el || !cookTonightPool.length) return;
-  const r = cookTonightPool[Math.floor(Math.random() * cookTonightPool.length)];
-  const meta = [r.serves ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : ''].filter(Boolean).join(' · ');
-  el.innerHTML = widget('What to cook tonight', escapeHtml(r.title), photoHtml(r) + '<p>' + escapeHtml(r.description || '') + '</p>' + (meta ? '<p class="widget-muted">' + escapeHtml(meta) + '</p>' : '') + '<button class="shuffle-btn" onclick="renderCookTonight()">Shuffle</button>', '<a href="/recipes/#recipe-' + encodeURIComponent(r.id) + '">Open recipe</a>');
-}
-
 function seasonWidget(items, month, monthName, hashTarget, label) {
   const inSeason = items.filter((p) => isInSeasonForMonth(p, month));
   const shown = inSeason.slice(0, 14);
@@ -392,8 +274,6 @@ function storageWidget(storage) {
 
   const widgets = [
     marketsWidget(markets),
-    latestRecipeWidget(recipeData),
-    '<div id="cookTonightWidget"></div>',
     seasonWidget(recipeData ? recipeData.seasonal : [], month, monthName, 'seasonal', 'In season'),
     seasonWidget(recipeData ? recipeData.foraging : [], month, monthName, 'foraging', 'Foraging'),
     festivalsWidget(markets),
@@ -401,9 +281,6 @@ function storageWidget(storage) {
   ].filter(Boolean);
 
   document.getElementById('dashGrid').innerHTML = widgets.join('');
-
-  cookTonightPool = (recipeData && recipeData.recipes) || [];
-  renderCookTonight();
 })();
 </script>
 </body>
