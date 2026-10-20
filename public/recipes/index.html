@@ -40,6 +40,9 @@
   .section-nav { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 40; padding: 0 2rem; }
   .section-nav-inner { max-width: 1100px; margin: 0 auto; height: var(--nav-h); display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
   .section-nav-inner::-webkit-scrollbar { display: none; }
+  .section-nav-inner.more-right { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
+  .section-nav-inner.more-left { -webkit-mask-image: linear-gradient(to left, #000 85%, transparent); mask-image: linear-gradient(to left, #000 85%, transparent); }
+  .section-nav-inner.more-left.more-right { -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); }
   .pill { background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 999px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s; }
   .pill:hover { background: var(--surface2); color: var(--text); }
   .pill.active { background: var(--text); color: var(--bg); border-color: var(--text); }
@@ -842,7 +845,18 @@ function renderNav(visibleSectionIds) {
     const isActive = activeSection === s.id;
     return '<a href="#sec-' + s.id + '" class="pill' + (isActive ? ' active' : '') + '" data-section="' + s.id + '" onclick="onPillClick(event, \'' + s.id + '\')">' + s.label + '<span class="pill-count">' + count + '</span></a>';
   }).join('');
+  updatePillFade();
 }
+/* Fade whichever edge of the pill row has more pills hidden past it, so on a
+ * phone it's clear the row scrolls. */
+function updatePillFade() {
+  const nav = document.getElementById('sectionNav');
+  const max = nav.scrollWidth - nav.clientWidth;
+  nav.classList.toggle('more-left', max > 1 && nav.scrollLeft > 1);
+  nav.classList.toggle('more-right', max > 1 && nav.scrollLeft < max - 1);
+}
+document.getElementById('sectionNav').addEventListener('scroll', updatePillFade, { passive: true });
+window.addEventListener('resize', updatePillFade);
 function onPillClick(e, id) {
   activeSection = id;
   document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.dataset.section === id); });

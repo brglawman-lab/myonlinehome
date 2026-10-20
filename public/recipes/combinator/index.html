@@ -27,9 +27,6 @@
   .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
   .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
   .logo span { color: var(--accent); font-style: italic; }
-  .header-right { flex-shrink: 0; }
-  .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
-  .ghost-link:hover { background: var(--surface2); color: var(--text); }
 
   .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
 
@@ -106,7 +103,6 @@
   @media (max-width: 640px) {
     .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
     .header-inner { gap: 0.75rem; }
-    .header-right { display: none; }   /* the menu already leads back to the book */
     .intro h1 { font-size: 27px; }
     .options-row { flex-direction: column; align-items: stretch; }
     .opt, select { width: 100%; }
@@ -121,7 +117,6 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="logo">Recipe <span>Book</span></div>
-    <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
   </div>
 </header>
 

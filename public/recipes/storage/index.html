@@ -27,9 +27,6 @@
   .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
   .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
   .logo span { color: var(--accent); font-style: italic; }
-  .header-right { flex-shrink: 0; }
-  .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
-  .ghost-link:hover { background: var(--surface2); color: var(--text); }
 
   .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
   .intro { margin-bottom: 1.5rem; }
@@ -77,7 +74,10 @@
   .used-in strong { color: var(--text); font-weight: 500; }
 
   /* ---- ingredients tab ---- */
-  .ing-search { margin-bottom: 1rem; }
+  .ing-search { margin-bottom: 1rem; position: relative; max-width: 420px; }
+  .ing-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-faint); pointer-events: none; }
+  .ing-search input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color 0.15s; }
+  .ing-search input:focus { border-color: var(--accent); }
   .ing-count { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 0.85rem; }
   .ing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
   .ing-card { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: border-color 0.15s, background 0.15s; }
@@ -107,7 +107,6 @@
 
   @media (max-width: 640px) {
     .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
-    .header-right { display: none; }
     .intro h1 { font-size: 27px; }
     .form-row, .form-row.three { grid-template-columns: 1fr; }
     .charts-grid { grid-template-columns: 1fr; }
@@ -131,7 +130,6 @@ transition:background .15s ease,color .15s ease}
 <header class="site-header">
   <div class="header-inner">
     <div class="logo">Recipe <span>Book</span></div>
-    <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
   </div>
 </header>
 
@@ -151,7 +149,8 @@ transition:background .15s ease,color .15s ease}
 
   <section class="tab-panel active" id="panelIngredients">
     <div class="ing-search">
-      <input type="text" id="ingSearch" placeholder="Search ingredients…" oninput="renderIngredients()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6.5" cy="6.5" r="5"></circle><path d="M11 11l3 3"></path></svg>
+      <input type="text" id="ingSearch" aria-label="Search ingredients" placeholder="Search ingredients…" oninput="renderIngredients()">
     </div>
     <div class="ing-count" id="ingCount">Reading the recipe book…</div>
     <div class="ing-grid" id="ingGrid"></div>
