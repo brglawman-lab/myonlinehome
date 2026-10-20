@@ -159,9 +159,9 @@
 /* ===========================================================================
  * Chef Claude — Meal Builder
  *
- * The recipe book stays the single source of truth. This page fetches
- * /recipes/ and lifts DEFAULT_RECIPES and the cocktail list straight out of
- * it, then merges the database overlay the same way the recipe book does, so
+ * The recipe book stays the single source of truth. This page reads the
+ * recipes from /recipes/recipes.json and lifts the cocktail list straight out
+ * of /recipes/, then merges the database overlay the same way the recipe book does, so
  * anything Ben adds or edits on the site shows up here too.
  *
  * What lives here and nowhere else is MEAL_TAGS: the course role, cuisine and
@@ -355,18 +355,22 @@ function mergeById(base, overlay) {
 }
 
 async function loadLibrary() {
-  let html = '';
+  let html = '', seed = null;
   try {
-    const res = await fetch('/recipes/', { cache: 'no-cache' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    html = await res.text();
+    const [page, data] = await Promise.all([
+      fetch('/recipes/', { cache: 'no-cache' }),
+      fetch('/recipes/recipes.json', { cache: 'no-cache' })
+    ]);
+    if (!page.ok) throw new Error('HTTP ' + page.status);
+    if (!data.ok) throw new Error('HTTP ' + data.status);
+    html = await page.text();
+    seed = await data.json();
   } catch (e) {
     loadError = 'Could not read the recipe book.';
     return;
   }
-  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
   const drinks = extractArray(html, 'const drinks = [');
-  if (!seed) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
+  if (!Array.isArray(seed)) { loadError = 'The recipe book loaded but its recipe list could not be read.'; return; }
   COCKTAILS = drinks || [];
 
   // Same overlay the recipe book uses: the database wins by id, and deleted

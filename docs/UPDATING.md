@@ -20,7 +20,8 @@ Three separate projects were merged into one website at
 
 Everything now lives in one repository, **`brglawman-lab/myonlinehome`**:
 
-    public/recipes/index.html     Recipe Book
+    public/recipes/index.html     Recipe Book (the page)
+    public/recipes/recipes.json   Recipe Book (the recipes)
     public/wildlife/              Yorkshire Wildlife Tracker
     public/wyfood/index.html      WY Farmer's Markets — markets and festivals
     src/                          the API
@@ -75,16 +76,17 @@ apply it.
 
 ## Recipe format
 
-A recipe is a JavaScript object in the `DEFAULT_RECIPES` array in
-`public/recipes/index.html`, one object per line.
+A recipe is a JSON object in the array in `public/recipes/recipes.json`, one
+object per line (shown wrapped here). It is JSON, not JavaScript: double quotes,
+no trailing comma after the last recipe.
 
-```js
-{ id:'kebab-case-id', section:'starters', title:'Full Recipe Title', category:'starters',
-  serves:'2–3', time:'35 mins', calories:'640',
-  description:'One or two sentences for the list view.',
-  ingredients:[{amount:'250g',item:'macaroni'},{amount:'1 tsp',item:'Dijon mustard'}],
-  steps:['Step one text.','Step two text.'],
-  notes:'Optional tips, substitutions, make-ahead advice.' },
+```json
+{"id":"kebab-case-id","section":"starters","title":"Full Recipe Title","category":"starters",
+ "serves":"2–3","time":"35 mins","calories":"640",
+ "description":"One or two sentences for the list view.",
+ "ingredients":[{"amount":"250g","item":"macaroni"},{"amount":"1 tsp","item":"Dijon mustard"}],
+ "steps":["Step one text.","Step two text."],
+ "notes":"Optional tips, substitutions, make-ahead advice."},
 ```
 
 ### `section` must be one of these nine values
@@ -124,7 +126,7 @@ weeks under `section:'other'`.
   are numbered automatically.
 - **description** — describe the dish directly. Never "This recipe features…".
 - **notes** — optional. Omit the field entirely rather than leaving it empty.
-- **photos** — optional, `[{src:'/recipes/photos/<id>-1.jpg', caption:'Optional'}, …]`.
+- **photos** — optional, `[{"src":"/recipes/photos/<id>-1.jpg","caption":"Optional"}, …]`.
   The **first** photo is the main one, used as the thumbnail. Photo files have
   to be committed to `public/recipes/photos/`, so this needs repository access.
 - **noRecipe: true** — a placeholder for a dish with no recipe yet. Include

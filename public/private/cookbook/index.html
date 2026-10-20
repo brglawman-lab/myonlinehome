@@ -430,9 +430,10 @@ function recipePhotos(r) {
 async function loadData() {
   const out = { recipes: [], drinks: [], seasonal: [], foraging: [], gallery: [] };
   try {
-    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    const [res, data] = await Promise.all([fetch('/recipes/', { cache: 'no-cache' }), fetch('/recipes/recipes.json', { cache: 'no-cache' })]);
     const html = await res.text();
-    const seed = extractArray(html, 'const DEFAULT_RECIPES = [') || [];
+    const seedJson = data.ok ? await data.json() : null;
+    const seed = Array.isArray(seedJson) ? seedJson : [];
     out.drinks = extractArray(html, 'const drinks = [') || [];
     out.seasonal = extractArray(html, 'const SEASONAL_PRODUCE = [') || [];
     out.foraging = extractArray(html, 'const FORAGING_ITEMS = [') || [];

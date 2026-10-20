@@ -233,13 +233,16 @@ async function loadMarkets() {
   } catch (e) { return null; }
 }
 async function loadRecipeData() {
-  let html = '';
+  let html = '', seed = null;
   try {
-    const res = await fetch('/recipes/', { cache: 'no-cache' });
-    if (!res.ok) return null;
-    html = await res.text();
+    const [page, data] = await Promise.all([
+      fetch('/recipes/', { cache: 'no-cache' }),
+      fetch('/recipes/recipes.json', { cache: 'no-cache' }),
+    ]);
+    if (!page.ok) return null;
+    html = await page.text();
+    if (data.ok) { const j = await data.json(); if (Array.isArray(j)) seed = j; }
   } catch (e) { return null; }
-  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
   const seasonal = extractArray(html, 'const SEASONAL_PRODUCE = [') || [];
   const foraging = extractArray(html, 'const FORAGING_ITEMS = [') || [];
   if (!seed) return { recipes: [], latest: null, seasonal, foraging };

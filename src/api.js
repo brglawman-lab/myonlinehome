@@ -206,8 +206,8 @@ export async function createCustomSpecies(request, env) {
 
 /* ---------- recipes ----------
  *
- * The 51 recipes shipped in the recipe book's HTML stay there as a seed: they
- * are reference content that renders instantly and still works with no network.
+ * The recipes in public/recipes/recipes.json stay there as a seed: they
+ * are committed reference content, and the recipe book caches them for offline use.
  * The database holds the overlay — recipes Ben adds, edits to seeded ones, and
  * deletions. The client merges the two, database winning by id.
  *

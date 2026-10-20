@@ -58,9 +58,10 @@ The wildlife tracker is offline-first: the database is the source of truth,
 localStorage is a cache, and writes made with no signal or no login are queued
 and flushed automatically. See `db/SETUP.md` for the Cloudflare steps.
 
-The recipe book works the same way. The 58 recipes in
-`public/recipes/index.html` stay in the file as a seed — they render instantly
-and work offline — and the database holds the overlay: recipes added through
+The recipe book works the same way. The recipes in
+`public/recipes/recipes.json` are the seed — the page caches them in
+localStorage, so a return visit paints instantly and works offline — and the
+database holds the overlay: recipes added through
 the form, edits to seeded ones, and deletions. The database wins by id.
 Deleting a seeded recipe writes a tombstone row, otherwise the seed would put
 it straight back on the next load.

@@ -178,7 +178,7 @@ transition:background .15s ease,color .15s ease}
  * Food Storage — ingredient lookup + room temperature/humidity monitor.
  *
  * Ingredients tab: pulls the same recipe list the recipe book and Meal
- * Builder use (DEFAULT_RECIPES from /recipes/, merged with the database
+ * Builder use (/recipes/recipes.json, merged with the database
  * overlay), lists every distinct ingredient, and matches each one against a
  * hand-built storage guide — general food-safety guidance (UK FSA-style),
  * not brand- or product-specific advice.
@@ -474,7 +474,7 @@ function fallbackGuidance(rawItem) {
 
 /* ---------------------------------------------------------------------------
  * Loading the recipe list — same approach as the Meal Builder: read the
- * recipe book's own HTML and lift DEFAULT_RECIPES out of it, then merge in
+ * seed recipes from /recipes/recipes.json, then merge in
  * whatever the database holds, so anything Ben adds on the site shows up
  * here too with no extra work.
  * ------------------------------------------------------------------------- */
@@ -495,17 +495,16 @@ function mergeById(base, overlay) {
   return [...map.values()];
 }
 async function loadLibrary() {
-  let html = '';
+  let seed = null;
   try {
-    const res = await fetch('/recipes/', { cache: 'no-cache' });
+    const res = await fetch('/recipes/recipes.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    html = await res.text();
+    seed = await res.json();
   } catch (e) {
     document.getElementById('ingCount').textContent = 'Could not read the recipe book.';
     return;
   }
-  const seed = extractArray(html, 'const DEFAULT_RECIPES = [');
-  if (!seed) { document.getElementById('ingCount').textContent = 'The recipe book loaded but its recipe list could not be read.'; return; }
+  if (!Array.isArray(seed)) { document.getElementById('ingCount').textContent = 'The recipe book loaded but its recipe list could not be read.'; return; }
 
   let merged = seed;
   try {
