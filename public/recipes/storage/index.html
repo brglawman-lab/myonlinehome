@@ -27,14 +27,6 @@
   .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
   .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
   .logo span { color: var(--accent); font-style: italic; }
-  .menu-wrap { position: relative; flex-shrink: 0; }
-  .menu-btn { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; }
-  .menu-btn:hover { background: var(--surface2); }
-  .menu-dropdown { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.09); padding: 5px; z-index: 60; }
-  .menu-dropdown.open { display: block; }
-  .menu-item { display: block; width: 100%; text-align: left; padding: 9px 12px; background: none; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; text-decoration: none; transition: background 0.15s; }
-  .menu-item:hover { background: var(--surface2); }
-  .menu-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
   .header-right { flex-shrink: 0; }
   .ghost-link { font-size: 14px; color: var(--text-muted); text-decoration: none; padding: 8px 12px; border-radius: var(--radius); }
   .ghost-link:hover { background: var(--surface2); color: var(--text); }
@@ -133,26 +125,18 @@ text-decoration:none;border:1px solid rgba(45,74,62,0.22);
 box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
 transition:background .15s ease,color .15s ease}
 #mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+@media (min-width:721px) and (max-width:1340px){.site-header{padding-left:7.5rem}}
 </style>
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="menu-wrap">
-      <button class="menu-btn" onclick="toggleMainMenu(event)" aria-haspopup="true" aria-label="Menu">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12"/><path d="M2 8h12"/><path d="M2 12h12"/></svg>
-        <span>Food Storage</span>
-        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-      </button>
-      <div class="menu-dropdown" id="mainMenuDropdown">
-        <a class="menu-item" href="/recipes/">Recipes</a>
-        <a class="menu-item" href="/recipes/combinator/">Meal Builder</a>
-        <a class="menu-item active" href="/recipes/storage/">Food Storage</a>
-      </div>
-    </div>
-    <div class="logo">Chef <span>Claude</span></div>
+    <div class="logo">Recipe <span>Book</span></div>
     <div class="header-right"><a class="ghost-link" href="/recipes/">← Recipe book</a></div>
   </div>
 </header>
+
+<nav class="recipe-nav" id="recipeNav" data-current="storage"></nav>
+<script src="/assets/recipe-nav.js"></script>
 
 <main class="main">
   <div class="intro">
@@ -207,12 +191,6 @@ transition:background .15s ease,color .15s ease}
  * ======================================================================== */
 
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-
-function toggleMainMenu(e) { e.stopPropagation(); document.getElementById('mainMenuDropdown').classList.toggle('open'); }
-document.addEventListener('click', (e) => {
-  const wrap = document.querySelector('.menu-wrap');
-  if (wrap && !wrap.contains(e.target)) document.getElementById('mainMenuDropdown').classList.remove('open');
-});
 
 function switchTab(tab) {
   document.getElementById('tabBtnIngredients').classList.toggle('active', tab === 'ingredients');
