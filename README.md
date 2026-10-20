@@ -20,6 +20,7 @@ not apply — routing is in `src/index.js`. The dashboard deploy command is
 |---|---|---|
 | `/` | Landing page — "Food" (→ `/recipes/`), "Photos" (→ `/gallery/`) and a smaller "Dashboard"; Contact and Privacy in the footer | authored here |
 | `/contact/` | Contact form. Messages are stored in D1 (`contact_messages`) and read at `/private/messages/` — no email address is published | authored here |
+| `/private/sitemap/` | Site map — every page and endpoint grouped by who can reach it, with a link checker. Sign-in only. **Add new pages to its list** | authored here |
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
 | `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
 | `/private/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the Cloudflare Access login and not linked from any public page (reach it from `/private/`) | authored here |

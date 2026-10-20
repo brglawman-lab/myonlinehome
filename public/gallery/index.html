@@ -104,6 +104,14 @@
     max-width: 34rem;
     margin-left: auto; margin-right: auto;
   }
+  .hero-link {
+    display: inline-block; margin-top: 1.6rem; padding: 0.55rem 1.3rem;
+    border: 1px solid rgba(204,156,76,0.55); border-radius: 999px;
+    color: var(--accent); text-decoration: none; font-size: 0.9rem; letter-spacing: 0.02em;
+    background: rgba(0,0,0,0.25); backdrop-filter: blur(4px);
+    transition: background 0.15s, color 0.15s;
+  }
+  .hero-link:hover { background: var(--accent); color: #111; }
   .hero-scroll {
     position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
     z-index: 1; color: var(--text-dim); opacity: 0.75;
@@ -251,6 +259,7 @@
     <h1>Wildlife Photography</h1>
     <p class="hero-role">Birds and wildlife from Yorkshire and further afield</p>
     <p class="hero-tagline" id="heroTagline"></p>
+    <a class="hero-link" href="/wildlife/">Yorkshire Wildlife Tracker &rarr;</a>
   </div>
   <div class="hero-scroll" aria-hidden="true">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
@@ -279,7 +288,7 @@
 </div>
 
 <footer>
-  <div class="footer-contact">Prints &amp; usage enquiries — <a href="/contact/">get in touch</a> · <a href="/privacy/">Privacy</a></div>
+  <div class="footer-contact"><a href="/wildlife/">Yorkshire Wildlife Tracker</a> · Prints &amp; usage enquiries — <a href="/contact/">get in touch</a> · <a href="/privacy/">Privacy</a></div>
 </footer>
 
 <script>
