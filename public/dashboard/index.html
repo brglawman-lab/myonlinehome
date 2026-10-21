@@ -249,7 +249,7 @@ function seasonWidget(items, month, monthName, hashTarget, label) {
 
 function storageWidget(storage) {
   if (!storage.rooms.length) {
-    return widget('Storage watch', 'No rooms set up yet', '<p class="widget-muted">Add a pantry, store or cellar to start tracking conditions.</p>', '<a href="/recipes/storage/">Set up Food Storage</a>');
+    return widget('Storage watch', 'No rooms set up yet', '<p class="widget-muted">Add a pantry, store or cellar to start tracking conditions.</p>', '<a href="/admin/storage/">Set up the room tracker</a>');
   }
   const now = Date.now();
   const rows = storage.rooms.map((room) => {
@@ -261,7 +261,7 @@ function storageWidget(storage) {
     const readingBits = [latest.tempC != null ? latest.tempC + '°C' : '', latest.humidityPct != null ? latest.humidityPct + '%' : ''].filter(Boolean).join(', ');
     return '<div class="room-row"><span>' + escapeHtml(room.name) + '</span><span class="room-status">' + when + (readingBits ? ' · ' + readingBits : '') + '</span></div>';
   });
-  return widget('Storage watch', null, rows.join(''), '<a href="/recipes/storage/">Log a reading</a>');
+  return widget('Storage watch', null, rows.join(''), '<a href="/admin/storage/">Log a reading</a>');
 }
 
 /* ---- init ---- */

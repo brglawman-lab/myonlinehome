@@ -13,9 +13,13 @@ compatibility_date = "2026-08-26"
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "404-page"
+# /admin/ is the signed-in area, so the Worker checks the session before any
+# of its files are served. With a list here, paths NOT on it never reach the
+# Worker at all (a missing file just gets the 404 page), so the API prefixes
+# and the old /private/ addresses (redirected to /admin/) must be listed too.
+run_worker_first = ["/admin/*", "/api/*", "/private/*"]
 
-# Static assets are matched first. Anything with no matching file — /api/…,
-# /private/api/… — falls through to the Worker in src/index.js.
+# Everything else is served straight from ./public.
 
 [[d1_databases]]
 binding = "DB"

@@ -3,13 +3,13 @@
  * Offline-first. The database (Cloudflare D1, reached through /api/…) is the
  * source of truth, but everything is mirrored into localStorage so the app
  * still works with no signal — which is the normal case standing on a cliff
- * at Bempton. Writes go into a queue and are flushed when the network and an
- * Access session are both available.
+ * at Bempton. Writes go into a queue and are flushed when the network and a
+ * session from /signin/ are both available.
  *
  *   read   GET  /api/sightings              public
  *   read   GET  /api/custom-species         public
- *   write  POST /private/api/sightings      behind Cloudflare Access
- *   write  DEL  /private/api/sightings/:id  behind Cloudflare Access
+ *   write  POST /admin/api/sightings        signed in
+ *   write  DEL  /admin/api/sightings/:id    signed in
  *
  * The built-in 468-species checklist stays a static file — it is reference
  * data that never changes at runtime, so there is no reason to pay for a
@@ -23,8 +23,8 @@ const Store = (() => {
 
   const API_READ_SIGHTINGS = "/api/sightings";
   const API_READ_CUSTOM = "/api/custom-species";
-  const API_WRITE_SIGHTINGS = "/private/api/sightings";
-  const API_WRITE_CUSTOM = "/private/api/custom-species";
+  const API_WRITE_SIGHTINGS = "/admin/api/sightings";
+  const API_WRITE_CUSTOM = "/admin/api/custom-species";
 
   let species = [];
   let customSpecies = [];
@@ -175,7 +175,7 @@ const Store = (() => {
     if (status.needsSignIn) {
       el.innerHTML =
         `<strong style="color:#c4622d">${n} ${plural} saved on this device</strong><br>` +
-        `<a href="/private/" style="color:#2d4a3e" target="_blank" rel="noopener">Sign in</a>` +
+        `<a href="/signin/?next=/wildlife/" style="color:#2d4a3e">Sign in</a>` +
         ` to sync ${n === 1 ? "it" : "them"} to the database.`;
     } else if (!navigator.onLine) {
       el.innerHTML = `<strong>Offline</strong><br>${n} ${plural} will sync when you're back online.`;

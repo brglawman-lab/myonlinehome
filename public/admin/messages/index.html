@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Messages — Private</title>
+<title>Messages — Admin</title>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -38,7 +38,7 @@
   <h1>Messages</h1>
   <p class="sub">Sent through the contact form on <a href="/contact/">/contact/</a>. Messages older than a year are deleted automatically.</p>
   <div id="list"><p class="note">Loading…</p></div>
-  <a class="home" href="/private/">&larr; Private</a>
+  <a class="home" href="/admin/">&larr; Admin</a>
 </div>
 
 <script>
@@ -48,7 +48,7 @@ async function load() {
   const list = document.getElementById('list');
   let msgs;
   try {
-    const res = await fetch('/private/api/contact', { cache: 'no-store' });
+    const res = await fetch('/admin/api/contact', { cache: 'no-store' });
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'HTTP ' + res.status);
     msgs = await res.json();
   } catch (e) {
@@ -71,7 +71,7 @@ async function load() {
 
 async function removeMsg(id) {
   if (!confirm('Delete this message? This can\'t be undone.')) return;
-  const res = await fetch('/private/api/contact/' + encodeURIComponent(id), { method: 'DELETE' });
+  const res = await fetch('/admin/api/contact/' + encodeURIComponent(id), { method: 'DELETE' });
   if (res.ok) document.getElementById(id).remove();
   else alert('Could not delete it — try again.');
   if (!document.querySelector('.msg')) document.getElementById('list').innerHTML = '<p class="note">No messages yet.</p>';

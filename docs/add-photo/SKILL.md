@@ -18,9 +18,13 @@ description: >
 
 Photos live as committed JPEG files under `public/gallery/photos/`, and the gallery's data —
 one object per photo — is a JavaScript array called `PHOTOS` in a `<script>` tag in
-`public/gallery/index.html`. There is no database layer for this section (unlike the recipe
-book or wildlife tracker) — everything is driven from that one file plus the image files
-alongside it. Editing the array and committing is the whole workflow.
+`public/gallery/index.html`. Editing the array and committing is the whole workflow for this
+skill.
+
+Ben can also upload and remove photos himself at `/admin/photos/` (signed in). Those live in
+the database (`gallery_photos`, read by the gallery from `/api/gallery`), not in the repo, so
+a photo that's on the live gallery may not be in `PHOTOS`. Removing a committed photo there
+writes a tombstone row; to take one out of the repo for good, delete it from `PHOTOS` too.
 
 ## Where the photos come from
 
@@ -47,6 +51,7 @@ There are three ways a photo reaches this workflow, and only one of them require
   camera: 'Optional EXIF string, e.g. "Canon R5, 600mm f/4, 1/2000s"',
   caption: 'One short, plain sentence saying what is in the frame. A second sentence only if it
     adds a fact, e.g. what the red patch is.',
+  focus: '55% 40%', // where the subject is (x% across, y% down the full frame) — see below
   size: 'wide',   // omit entirely for a normal tile; 'wide' makes it a large 2-column tile
   hero: true },   // omit entirely; set on exactly one photo — it becomes the homepage backdrop
 ```
@@ -69,6 +74,11 @@ There are three ways a photo reaches this workflow, and only one of them require
   Ask Ben if he wants to supply them, or check EXIF if you have the original file (see below).
 - **camera** — optional, from EXIF if available and interesting; omit the field entirely rather
   than leaving it empty.
+- **focus** — required. Look at the image and give the position of the subject (for a bird,
+  roughly its head and body; for a pair, the middle of the two) as percentages of the full
+  frame. Tiles are square or 2:1 and crop the photo, and the gallery slides each crop so this
+  point sits in the middle of the tile. Overlaying a 10% grid on a small copy of the image is
+  the easiest way to read it off.
 - **hero** — exactly one photo across the whole array should carry `hero: true`. It becomes the
   full-bleed image behind the name on the gallery's landing view. When adding a new photo that
   should replace the current hero, add `hero: true` to it and remove the field from whichever

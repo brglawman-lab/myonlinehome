@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Recipes — Admin</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  .toolbar { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; margin-bottom:1.25rem; }
+  .toolbar input { max-width:320px; margin:0; }
+  .list { background:var(--warm-white); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .r { display:grid; grid-template-columns:52px minmax(0,1fr) auto; gap:0.9rem; align-items:center; padding:0.6rem 1rem; border-top:1px solid var(--border); }
+  .r:first-child { border-top:none; }
+  .r .th { width:52px; height:52px; border-radius:8px; background:rgba(45,74,62,0.08); overflow:hidden; }
+  .r .th img { width:100%; height:100%; object-fit:cover; display:block; }
+  .r .t { font-weight:500; color:var(--forest); line-height:1.3; }
+  .r .s { font-size:0.78rem; color:var(--mid-grey); }
+  .r .a { display:flex; gap:0.4rem; }
+  .sec { font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--sage); font-weight:500; padding:0.9rem 1rem 0.3rem; border-top:1px solid var(--border); background:rgba(45,74,62,0.03); }
+  .sec:first-child { border-top:none; }
+  @media (max-width:560px) { .r { grid-template-columns:44px minmax(0,1fr); } .r .th { width:44px; height:44px; } .r .a { grid-column:2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a><a href="/recipes/">View the recipe book</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Recipes</h1>
+  <p class="sub">Adding and editing use the recipe book's own form, which only appears while you're signed in. Deleting happens here.</p>
+
+  <div class="toolbar">
+    <a class="btn" href="/recipes/#add">+ Add a recipe</a>
+    <input class="f" type="search" id="q" placeholder="Search recipes…" oninput="render()">
+    <span class="note" id="count"></span>
+  </div>
+  <div class="list" id="list"><p class="note" style="padding:1rem">Loading…</p></div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* Same seed + database merge as the recipe book (public/recipes/index.html):
+ * recipes.json, overlaid by /api/recipes, minus /api/recipes/deleted. */
+const SECTIONS = { starters:'Starters', fish:'Seafood', beef:'Beef', pork:'Pork', chicken:'Chicken', veg:'Veg', sides:'Sides', dips:'Dips', baking:'Baking', 'soft-drinks':'Soft Drinks' };
+let RECIPES = [];
+
+async function load() {
+  const [seed, db, gone] = await Promise.all([
+    fetch('/recipes/recipes.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => []),
+    fetch('/api/recipes', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+    fetch('/api/recipes/deleted', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+  ]);
+  const map = new Map((Array.isArray(seed) ? seed : []).map(r => [r.id, r]));
+  for (const r of Array.isArray(db) ? db : []) {
+    const s = map.get(r.id);
+    map.set(r.id, (!Array.isArray(r.photos) && !r.image && s) ? { ...r, photos: s.photos, image: s.image } : r);
+  }
+  const goneSet = new Set(Array.isArray(gone) ? gone : []);
+  RECIPES = [...map.values()].filter(r => !goneSet.has(r.id) && r.title);
+  render();
+}
+
+function thumb(r) {
+  const p = Array.isArray(r.photos) && r.photos.length ? r.photos[0].src : r.image;
+  return p ? '<img src="' + esc(p) + '" alt="" loading="lazy">' : '';
+}
+
+function render() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const list = RECIPES.filter(r => !q || (r.title + ' ' + (r.description || '')).toLowerCase().includes(q));
+  document.getElementById('count').textContent = list.length + ' of ' + RECIPES.length;
+  const order = Object.keys(SECTIONS);
+  const rank = (s) => { const i = order.indexOf(s); return i < 0 ? order.length : i; };
+  list.sort((a, b) => rank(a.section) - rank(b.section) || a.title.localeCompare(b.title));
+  let html = '', last = null;
+  for (const r of list) {
+    if (r.section !== last) { html += '<div class="sec">' + esc(SECTIONS[r.section] || r.section || 'Other') + '</div>'; last = r.section; }
+    html += '<div class="r"><div class="th">' + thumb(r) + '</div>'
+      + '<div><div class="t">' + esc(r.title) + '</div><div class="s">' + esc(r.noRecipe ? 'No recipe saved yet' : [r.serves && r.serves !== '—' ? 'Serves ' + r.serves : '', r.time && r.time !== '—' ? r.time : ''].filter(Boolean).join(' · ')) + '</div></div>'
+      + '<div class="a"><a class="btn secondary small" href="/recipes/#edit-' + encodeURIComponent(r.id) + '">Edit</a>'
+      + '<button class="btn danger small" onclick="confirmClick(this, \'Delete?\', () => del(\'' + esc(r.id) + '\'))">Delete</button></div></div>';
+  }
+  document.getElementById('list').innerHTML = html || '<p class="note" style="padding:1rem">No recipes match that search.</p>';
+}
+
+async function del(id) {
+  const r = RECIPES.find(x => x.id === id);
+  try {
+    await adminFetch('/admin/api/recipes/' + encodeURIComponent(id), { method: 'DELETE' });
+    RECIPES = RECIPES.filter(x => x.id !== id);
+    render();
+    toast('Deleted “' + (r ? r.title : id) + '”');
+  } catch (e) { toast('Could not delete it: ' + e.message, true); }
+}
+
+load();
+</script>
+</body>
+</html>

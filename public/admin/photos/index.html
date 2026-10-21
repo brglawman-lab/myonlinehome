@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Photos — Admin</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  .drop { display:block; border:2px dashed rgba(45,74,62,0.3); border-radius:14px; padding:2.25rem 1rem; text-align:center;
+          background:var(--warm-white); cursor:pointer; transition:border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color:var(--forest); background:#fff; }
+  .drop strong { display:block; font-family:'Playfair Display',Georgia,serif; color:var(--forest); font-size:1.25rem; margin-bottom:0.25rem; }
+  .drop input { display:none; }
+
+  .draft { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(0, 1fr); gap:1.5rem; }
+  @media (max-width:820px) { .draft { grid-template-columns:1fr; } }
+  .focus-pick { position:relative; cursor:crosshair; border-radius:8px; overflow:hidden; background:#111; line-height:0; }
+  .focus-pick img { width:100%; height:auto; display:block; user-select:none; -webkit-user-drag:none; }
+  .focus-dot { position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:50%;
+               border:2px solid #fff; box-shadow:0 0 0 2px rgba(0,0,0,0.45), inset 0 0 0 2px rgba(0,0,0,0.25); pointer-events:none; }
+  .focus-dot::after { content:''; position:absolute; left:50%; top:50%; width:4px; height:4px; margin:-2px 0 0 -2px; border-radius:50%; background:#fff; }
+  .hint { font-size:0.8rem; color:var(--mid-grey); margin:0.45rem 0 0.9rem; line-height:1.45; }
+  .crops { display:flex; gap:0.6rem; align-items:flex-end; flex-wrap:wrap; }
+  .crop { background:#111; overflow:hidden; border-radius:6px; }
+  .crop img { width:100%; height:100%; object-fit:cover; display:block; }
+  .crop.square { width:120px; aspect-ratio:1/1; }
+  .crop.wide { width:200px; aspect-ratio:2/1; }
+  .crop.hero { width:150px; aspect-ratio:9/16; }
+  .crop-label { font-size:0.7rem; color:var(--mid-grey); text-transform:uppercase; letter-spacing:0.06em; margin-top:0.2rem; }
+  .tags { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.9rem; }
+  .tags label { font-size:0.8rem; border:1px solid rgba(45,74,62,0.25); border-radius:999px; padding:0.2rem 0.7rem; cursor:pointer; background:#fff; user-select:none; }
+  .tags input { display:none; }
+  .tags input:checked + span { color:var(--cream); }
+  .tags label:has(input:checked) { background:var(--forest); border-color:var(--forest); color:var(--cream); }
+  .check { display:flex; align-items:center; gap:0.5rem; font-size:0.88rem; margin-bottom:1rem; }
+  .actions { display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; }
+  .meta-line { font-size:0.78rem; color:var(--mid-grey); margin-bottom:0.9rem; }
+
+  .lib { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:0.9rem; }
+  .item { background:var(--warm-white); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .item .thumb { aspect-ratio:1/1; background:#111; overflow:hidden; }
+  .item .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .item .body { padding:0.6rem 0.75rem 0.75rem; display:flex; flex-direction:column; gap:0.4rem; flex:1; }
+  .item .t { font-weight:500; color:var(--forest); font-size:0.9rem; line-height:1.3; }
+  .item .s { font-size:0.75rem; color:var(--mid-grey); }
+  .item .row { margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:0.4rem; }
+  .badge { font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--sage); }
+  .removed-list { display:flex; flex-direction:column; gap:0.5rem; }
+  .removed-list .r { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.5rem 0; border-top:1px solid var(--border); font-size:0.9rem; }
+  .removed-list .r:first-child { border-top:none; }
+  .toolbar { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:0.75rem; margin:2.25rem 0 1rem; }
+  .toolbar input { max-width:260px; margin:0; }
+</style>
+</head>
+<body>
+<div class="wrap wide">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a><a href="/gallery/">View the gallery</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Photos</h1>
+  <p class="sub">Upload photos to the Wildlife Photography gallery, or take ones off it. Changes show on the gallery straight away.</p>
+
+  <label class="drop" id="drop">
+    <strong>Add photos</strong>
+    <span class="note">Drop photos here, or click to choose. JPEG, PNG or WebP. They're resized to 2000px on the long edge before uploading.</span>
+    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple>
+  </label>
+
+  <div id="drafts" style="margin-top:1.5rem"></div>
+
+  <div class="toolbar">
+    <h2 class="h" style="margin:0">In the gallery <span class="note" id="libCount"></span></h2>
+    <input class="f" type="search" id="libSearch" placeholder="Search photos…" oninput="renderLibrary()">
+  </div>
+  <div class="lib" id="lib"><p class="note">Loading…</p></div>
+
+  <div id="removedWrap" hidden>
+    <h2 class="h" style="margin-top:2.5rem">Removed</h2>
+    <p class="note" style="margin-bottom:0.75rem">Taken off the gallery. Restore puts a photo back where it was.</p>
+    <div class="panel removed-list" id="removed"></div>
+  </div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* ---------------------------------------------------------------------------
+ * The gallery is the PHOTOS list in /gallery/ (photos committed to the repo)
+ * plus whatever /api/gallery says has been uploaded or removed here. Uploads
+ * go to POST /admin/api/gallery; removal is DELETE /admin/api/gallery/:id,
+ * which for a committed photo writes a tombstone rather than touching the repo.
+ * ------------------------------------------------------------------------- */
+let SEED = [], TAGS = {}, OVERLAY = { added: [], removed: [] };
+let drafts = [];   // photos chosen but not uploaded yet
+
+function extractLiteral(html, marker, close) {
+  const at = html.indexOf(marker);
+  if (at < 0) return null;
+  const open = at + marker.length - 1;
+  const end = html.indexOf(close, open);
+  if (end < 0) return null;
+  try { return (new Function('return ' + html.slice(open, end + close.length - 1) + ';'))(); }
+  catch (e) { console.warn('Could not parse ' + marker, e); return null; }
+}
+
+async function loadAll() {
+  const [html, overlay] = await Promise.all([
+    fetch('/gallery/', { cache: 'no-cache' }).then(r => r.text()).catch(() => ''),
+    fetch('/api/gallery', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null),
+  ]);
+  SEED = extractLiteral(html, 'const PHOTOS = [', '\n];') || [];
+  TAGS = extractLiteral(html, 'const TAG_LABELS = {', '\n};') || {};
+  if (overlay && Array.isArray(overlay.added)) OVERLAY = overlay;
+  renderLibrary();
+  renderDrafts();
+}
+
+function currentPhotos() {
+  const gone = new Set(OVERLAY.removed.map(r => r.id));
+  const seedIds = new Set(SEED.map(p => p.id));
+  return OVERLAY.added.filter(p => !seedIds.has(p.id)).concat(SEED).filter(p => !gone.has(p.id));
+}
+function tagLabel(t) { return TAGS[t] || (t.charAt(0).toUpperCase() + t.slice(1).replace(/-/g, ' ')); }
+
+/* ---------- library: what's on the gallery now ---------- */
+function renderLibrary() {
+  const q = document.getElementById('libSearch').value.trim().toLowerCase();
+  const all = currentPhotos();
+  const list = q ? all.filter(p => [p.title, p.species, p.location, (p.tags || []).join(' ')].join(' ').toLowerCase().includes(q)) : all;
+  document.getElementById('libCount').textContent = '· ' + all.length + ' photo' + (all.length === 1 ? '' : 's');
+  document.getElementById('lib').innerHTML = list.length ? list.map(p =>
+    '<div class="item">'
+    + '<div class="thumb"><img src="' + esc(p.src) + '" alt="" loading="lazy" data-focus="' + esc(p.focus || '') + '" onload="placeFocus(this)"></div>'
+    + '<div class="body"><div class="t">' + esc(p.title) + '</div>'
+    + '<div class="s">' + esc([p.species, p.date].filter(Boolean).join(' · ')) + '</div>'
+    + '<div class="row"><span class="badge">' + (p.uploaded ? 'Uploaded here' : 'In the repo') + '</span>'
+    + '<button class="btn danger small" onclick="confirmClick(this, \'Remove?\', () => removePhoto(\'' + esc(p.id) + '\'))">Remove</button></div>'
+    + '</div></div>'
+  ).join('') : '<p class="note">' + (q ? 'No photos match that search.' : 'The gallery is empty.') + '</p>';
+
+  const removed = OVERLAY.removed;
+  document.getElementById('removedWrap').hidden = !removed.length;
+  const seedById = new Map(SEED.map(p => [p.id, p]));
+  document.getElementById('removed').innerHTML = removed.map(r => {
+    const title = (seedById.get(r.id) || {}).title || r.title || r.id;
+    return '<div class="r"><span>' + esc(title) + ' <span class="note">· removed ' + esc(new Date(r.removedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })) + '</span></span>'
+      + '<button class="btn secondary small" onclick="restorePhoto(\'' + esc(r.id) + '\', this)">Restore</button></div>';
+  }).join('');
+}
+
+async function refreshOverlay() {
+  const o = await fetch('/api/gallery', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+  if (o && Array.isArray(o.added)) OVERLAY = o;
+  renderLibrary();
+}
+
+async function removePhoto(id) {
+  const p = currentPhotos().find(x => x.id === id);
+  try {
+    await adminFetch('/admin/api/gallery/' + encodeURIComponent(id), {
+      method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title: p ? p.title : '' }),
+    });
+    toast('Removed “' + (p ? p.title : id) + '” from the gallery');
+  } catch (e) { toast('Could not remove it: ' + e.message, true); }
+  refreshOverlay();
+}
+async function restorePhoto(id, btn) {
+  btn.disabled = true;
+  try { await adminFetch('/admin/api/gallery/' + encodeURIComponent(id) + '/restore', { method: 'POST' }); toast('Restored'); }
+  catch (e) { toast('Could not restore it: ' + e.message, true); btn.disabled = false; }
+  refreshOverlay();
+}
+
+/* ---------- choosing photos ---------- */
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
+['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+
+async function addFiles(files) {
+  for (const file of [...files]) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { toast(file.name + ' isn\'t a JPEG, PNG or WebP', true); continue; }
+    const id = 'd' + Date.now() + Math.random().toString(36).slice(2, 6);
+    const exif = file.type === 'image/jpeg' ? readExif(await file.slice(0, 256 * 1024).arrayBuffer()) : {};
+    const d = { id, file, status: 'Preparing…', focus: [0.5, 0.5], blob: null, url: '', width: 0, height: 0,
+      fields: { title: '', species: '', location: '', date: exif.date || '', camera: exif.camera || '', caption: '', tags: [], wide: false } };
+    drafts.push(d);
+    renderDrafts();
+    try {
+      const out = await resizeForWeb(file);
+      Object.assign(d, out, { url: URL.createObjectURL(out.blob), status: '' });
+      // A panorama-shaped photo reads best as a wide tile.
+      d.fields.wide = out.width / out.height >= 1.9;
+    } catch (e) {
+      d.status = 'Could not read this photo: ' + e.message;
+    }
+    renderDrafts();
+  }
+}
+
+/* Resize to at most 2000px on the long edge and re-encode as JPEG. The quality
+ * steps down if needed so the file stays under the database's 1.9 MB a row. */
+async function resizeForWeb(file) {
+  let source;
+  try { source = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch (e) {
+    source = await new Promise((resolve, reject) => {
+      const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('unsupported image')); img.src = URL.createObjectURL(file);
+    });
+  }
+  const sw = source.width || source.naturalWidth, sh = source.height || source.naturalHeight;
+  const scale = Math.min(1, 2000 / Math.max(sw, sh));
+  const width = Math.round(sw * scale), height = Math.round(sh * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(source, 0, 0, width, height);
+  let blob = null;
+  for (const q of [0.85, 0.78, 0.7, 0.6, 0.5]) {
+    blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', q));
+    if (blob && blob.size < 1_800_000) break;
+  }
+  if (!blob) throw new Error('could not encode');
+  return { blob, width, height };
+}
+
+/* Just enough of EXIF for the date taken and the camera — real details from
+ * the file, rather than leaving them for someone to guess. */
+function readExif(buf) {
+  const v = new DataView(buf), out = {};
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return out;
+  let off = 2;
+  while (off + 4 < v.byteLength) {
+    const marker = v.getUint16(off), len = v.getUint16(off + 2);
+    if (marker === 0xFFE1 && v.getUint32(off + 4) === 0x45786966) {   // "Exif"
+      const t = off + 10, le = v.getUint16(t) === 0x4949;
+      const u16 = (o) => v.getUint16(t + o, le), u32 = (o) => v.getUint32(t + o, le);
+      const str = (o, n) => { let s = ''; for (let i = 0; i < n && t + o + i < v.byteLength; i++) { const c = v.getUint8(t + o + i); if (!c) break; s += String.fromCharCode(c); } return s.trim(); };
+      const readIfd = (ifd) => {
+        const tags = {};
+        if (t + ifd + 2 > v.byteLength) return tags;
+        const n = u16(ifd);
+        for (let i = 0; i < n; i++) {
+          const e = ifd + 2 + i * 12;
+          if (t + e + 12 > v.byteLength) break;
+          const tag = u16(e), type = u16(e + 2), count = u32(e + 4);
+          if (type === 2) tags[tag] = str(count > 4 ? u32(e + 8) : e + 8, count);
+          else if (type === 4 || type === 3) tags[tag] = type === 4 ? u32(e + 8) : u16(e + 8);
+        }
+        return tags;
+      };
+      try {
+        const ifd0 = readIfd(u32(4));
+        const exifIfd = ifd0[0x8769] ? readIfd(ifd0[0x8769]) : {};
+        const when = exifIfd[0x9003] || ifd0[0x0132] || '';
+        const m = /^(\d{4}):(\d{2}):(\d{2})/.exec(when);
+        if (m) out.date = m[1] + '-' + m[2] + '-' + m[3];
+        const make = ifd0[0x010F] || '', model = ifd0[0x0110] || '';
+        // "Canon" + "Canon EOS R7" → "Canon EOS R7"; "SONY" + "SLT-A68" → "SONY SLT-A68".
+        out.camera = model && make && !model.toLowerCase().startsWith(make.toLowerCase().split(' ')[0]) ? make + ' ' + model : (model || make);
+      } catch (e) { /* unreadable EXIF — leave it blank */ }
+      return out;
+    }
+    if ((marker & 0xFF00) !== 0xFF00) break;
+    off += 2 + len;
+  }
+  return out;
+}
+
+/* ---------- drafts: a card per chosen photo ---------- */
+function renderDrafts() {
+  const el = document.getElementById('drafts');
+  const allTags = Object.keys(TAGS).length ? Object.keys(TAGS) : [...new Set(SEED.flatMap(p => p.tags || []))];
+  el.innerHTML = drafts.map(d => {
+    const f = d.fields;
+    if (!d.url) return '<div class="panel"><p class="note">' + esc(d.file.name) + ' — ' + esc(d.status) + '</p>'
+      + (d.status.startsWith('Could not') ? '<button class="btn secondary small" onclick="discardDraft(\'' + d.id + '\')">Dismiss</button>' : '') + '</div>';
+    const focus = (d.focus[0] * 100).toFixed(1) + '% ' + (d.focus[1] * 100).toFixed(1) + '%';
+    const extraTags = f.tags.filter(t => !allTags.includes(t));
+    return '<div class="panel" id="card-' + d.id + '"><div class="draft">'
+      + '<div>'
+      + '<div class="focus-pick" onclick="setFocus(event, \'' + d.id + '\')"><img src="' + d.url + '" alt="">'
+      + '<div class="focus-dot" style="left:' + d.focus[0] * 100 + '%;top:' + d.focus[1] * 100 + '%"></div></div>'
+      + '<p class="hint">Click the subject — the bird\'s head, say. Wherever the gallery has to crop this photo, it keeps that point in the middle.</p>'
+      + '<div class="crops">'
+      + '<div><div class="crop square"><img src="' + d.url + '" alt="" data-focus="' + focus + '" onload="placeFocus(this)"></div><div class="crop-label">Gallery tile</div></div>'
+      + '<div><div class="crop wide"><img src="' + d.url + '" alt="" data-focus="' + focus + '" onload="placeFocus(this)"></div><div class="crop-label">Wide tile</div></div>'
+      + '<div><div class="crop hero"><img src="' + d.url + '" alt="" data-focus="' + focus + '" onload="placeFocus(this)"></div><div class="crop-label">Phone</div></div>'
+      + '</div></div>'
+      + '<div>'
+      + '<p class="meta-line">' + esc(d.file.name) + ' · ' + d.width + '×' + d.height + ' · ' + Math.round(d.blob.size / 1024) + ' KB after resizing</p>'
+      + field(d, 'title', 'Title', 'Short and plain, e.g. “Kestrel” or “Heron landing”')
+      + field(d, 'species', 'Species', 'Common name', true)
+      + '<label class="f">Tags</label><div class="tags">'
+      + allTags.concat(extraTags).map(t => '<label><input type="checkbox" ' + (f.tags.includes(t) ? 'checked ' : '') + 'onchange="toggleTag(\'' + d.id + '\', \'' + esc(t) + '\', this.checked)"><span>' + esc(tagLabel(t)) + '</span></label>').join('')
+      + '<label onclick="newTag(event, \'' + d.id + '\')"><span>+ New tag</span></label>'
+      + '</div>'
+      + '<div class="grid2">' + field(d, 'location', 'Location', 'e.g. Bempton Cliffs, East Yorkshire', true) + field(d, 'date', 'Date', '', true, 'date') + '</div>'
+      + field(d, 'camera', 'Camera', '', true)
+      + '<label class="f" for="caption-' + d.id + '">Caption <span class="opt">(optional)</span></label>'
+      + '<textarea class="f" id="caption-' + d.id + '" placeholder="One plain sentence about what\'s in the frame." oninput="setField(\'' + d.id + '\', \'caption\', this.value)">' + esc(f.caption) + '</textarea>'
+      + '<label class="check"><input type="checkbox" ' + (f.wide ? 'checked ' : '') + 'onchange="setField(\'' + d.id + '\', \'wide\', this.checked)"> Show as a wide tile (two columns)</label>'
+      + '<div class="actions"><button class="btn" id="up-' + d.id + '" onclick="uploadDraft(\'' + d.id + '\')">Upload to the gallery</button>'
+      + '<button class="btn secondary" onclick="discardDraft(\'' + d.id + '\')">Discard</button>'
+      + '<span class="note" id="st-' + d.id + '">' + esc(d.status) + '</span></div>'
+      + '</div></div></div>';
+  }).join('');
+}
+function field(d, key, label, placeholder, optional, type) {
+  return '<div><label class="f" for="' + key + '-' + d.id + '">' + label + (optional ? ' <span class="opt">(optional)</span>' : '') + '</label>'
+    + '<input class="f" id="' + key + '-' + d.id + '" type="' + (type || 'text') + '" value="' + esc(d.fields[key]) + '" placeholder="' + esc(placeholder) + '" oninput="setField(\'' + d.id + '\', \'' + key + '\', this.value)"></div>';
+}
+const draftById = (id) => drafts.find(d => d.id === id);
+function setField(id, key, value) { const d = draftById(id); if (d) d.fields[key] = value; }
+function toggleTag(id, tag, on) {
+  const d = draftById(id); if (!d) return;
+  d.fields.tags = on ? [...new Set(d.fields.tags.concat(tag))] : d.fields.tags.filter(t => t !== tag);
+}
+function newTag(e, id) {
+  e.preventDefault();
+  const name = (prompt('New tag (e.g. “Insects”)') || '').trim();
+  if (!name) return;
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!slug) return;
+  if (!TAGS[slug]) TAGS[slug] = name;
+  toggleTag(id, slug, true);
+  renderDrafts();
+}
+function setFocus(e, id) {
+  const d = draftById(id); if (!d) return;
+  const box = e.currentTarget.getBoundingClientRect();
+  d.focus = [Math.max(0, Math.min(1, (e.clientX - box.left) / box.width)), Math.max(0, Math.min(1, (e.clientY - box.top) / box.height))];
+  const card = document.getElementById('card-' + id);
+  const dot = card.querySelector('.focus-dot');
+  dot.style.left = d.focus[0] * 100 + '%'; dot.style.top = d.focus[1] * 100 + '%';
+  const focus = (d.focus[0] * 100).toFixed(1) + '% ' + (d.focus[1] * 100).toFixed(1) + '%';
+  card.querySelectorAll('.crop img').forEach(img => { img.dataset.focus = focus; placeFocus(img); });
+}
+function discardDraft(id) {
+  const d = draftById(id);
+  if (d && d.url) URL.revokeObjectURL(d.url);
+  drafts = drafts.filter(x => x.id !== id);
+  renderDrafts();
+}
+
+async function uploadDraft(id) {
+  const d = draftById(id); if (!d) return;
+  const f = d.fields;
+  if (!f.title.trim()) { toast('Give the photo a title first', true); document.getElementById('title-' + id).focus(); return; }
+  const btn = document.getElementById('up-' + id), st = document.getElementById('st-' + id);
+  btn.disabled = true; st.textContent = 'Uploading…';
+  const body = new FormData();
+  body.append('photo', d.blob, (f.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'photo') + '.jpg');
+  ['title', 'species', 'location', 'date', 'camera', 'caption'].forEach(k => body.append(k, f[k].trim()));
+  body.append('tags', JSON.stringify(f.tags));
+  body.append('size', f.wide ? 'wide' : '');
+  body.append('focus', (d.focus[0] * 100).toFixed(1) + '% ' + (d.focus[1] * 100).toFixed(1) + '%');
+  body.append('width', d.width); body.append('height', d.height);
+  try {
+    await adminFetch('/admin/api/gallery', { method: 'POST', body });
+    toast('Uploaded “' + f.title.trim() + '”');
+    discardDraft(id);
+    refreshOverlay();
+  } catch (e) {
+    btn.disabled = false; st.textContent = ''; toast('Upload failed: ' + e.message, true);
+  }
+}
+
+/* Same crop maths as the gallery: slide the crop so the focus point sits in
+ * the middle of the box, without running off the edge of the photo. */
+function parseFocus(f) {
+  const m = /^\s*([\d.]+)%?\s+([\d.]+)%?\s*$/.exec(f || '');
+  return m ? [Math.min(100, +m[1]) / 100, Math.min(100, +m[2]) / 100] : [0.5, 0.5];
+}
+function cropPosition(nw, nh, bw, bh, focus) {
+  if (!nw || !nh || !bw || !bh) return '50% 50%';
+  const [fx, fy] = parseFocus(focus);
+  const scale = Math.max(bw / nw, bh / nh);
+  const axis = (natural, box, f) => {
+    const shown = natural * scale;
+    if (shown - box < 1) return 50;
+    const p = (f * shown - box / 2) / (shown - box);
+    return Math.round(Math.max(0, Math.min(1, p)) * 1000) / 10;
+  };
+  return axis(nw, bw, fx) + '% ' + axis(nh, bh, fy) + '%';
+}
+function placeFocus(img) {
+  img.style.objectPosition = cropPosition(img.naturalWidth, img.naturalHeight, img.clientWidth, img.clientHeight, img.dataset.focus);
+}
+
+window.addEventListener('beforeunload', (e) => { if (drafts.some(d => d.url)) { e.preventDefault(); e.returnValue = ''; } });
+
+loadAll();
+</script>
+</body>
+</html>

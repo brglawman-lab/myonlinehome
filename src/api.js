@@ -6,6 +6,9 @@
  *   DEL  /private/api/sightings/:id   behind Cloudflare Access
  *   POST /private/api/custom-species  behind Cloudflare Access
  *
+ * Every /private/api/ write is also served at /admin/api/, where the router
+ * checks the site's own sign-in instead (src/auth.js). The pages use that one.
+ *
  * Reads and writes are on different path prefixes on purpose: Cloudflare Access
  * policies match on path, not on HTTP method, so splitting them is what allows
  * "anyone may read, only Ben may write" with a single Access application.
@@ -23,9 +26,14 @@ export const json = (data, status = 200) =>
 const noDb = () =>
   json({ error: "No database bound. See db/SETUP.md." }, 503);
 
-/* Access injects this header on every request it lets through. Belt and braces:
- * the Access policy should already have stopped anyone without it. */
-const authed = (request) => Boolean(request.headers.get("Cf-Access-Jwt-Assertion"));
+/* Requests the router has already checked against the /admin/ sign-in
+ * (src/auth.js). A WeakSet rather than a header, so it can't be faked. */
+export const signedInRequests = new WeakSet();
+
+/* Access injects this header on every request it lets through on /private/api/.
+ * Belt and braces: the Access policy should already have stopped anyone without it. */
+export const authed = (request) =>
+  signedInRequests.has(request) || Boolean(request.headers.get("Cf-Access-Jwt-Assertion"));
 
 /* ---------- reads ---------- */
 
