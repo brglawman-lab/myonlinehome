@@ -459,6 +459,12 @@ async function loadData() {
   try {
     const res = await fetch('/gallery/', { cache: 'no-cache' });
     out.gallery = extractArray(await res.text(), 'const PHOTOS = [') || [];
+    // Photos uploaded or removed through /admin/photos/.
+    const g = await fetch('/api/gallery', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+    if (g && Array.isArray(g.added)) {
+      const gone = new Set((g.removed || []).map(r => r.id));
+      out.gallery = g.added.concat(out.gallery).filter(p => !gone.has(p.id));
+    }
   } catch (e) { /* the interludes just go without */ }
   return out;
 }

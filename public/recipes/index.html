@@ -37,6 +37,8 @@
   .cal-input[type="number"] { -moz-appearance: textfield; }
   .add-btn { padding: 9px 16px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
   .add-btn:hover { opacity: 0.88; }
+  /* Adding, editing and deleting are for the owner: shown only once /api/session says signed in. */
+  html:not(.signed-in) .owner-only { display: none !important; }
   .section-nav { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: var(--header-h); z-index: 40; padding: 0 2rem; }
   .section-nav-inner { max-width: 1100px; margin: 0 auto; height: var(--nav-h); display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
   .section-nav-inner::-webkit-scrollbar { display: none; }
@@ -271,7 +273,7 @@ transition:background .15s ease,color .15s ease}
       <div class="cal-filter-wrap" id="calFilterWrap">
         <input type="number" id="calFilter" class="cal-input" placeholder="Max cal" min="0" step="10" inputmode="numeric" oninput="render()" title="Show recipes with calories per serving under this number">
       </div>
-      <button class="add-btn" id="addBtn" onclick="openAddModal()">+ Add</button>
+      <button class="add-btn owner-only" id="addBtn" onclick="openAddModal()">+ Add</button>
     </div>
   </div>
 </header>
@@ -369,7 +371,7 @@ let recipes = loadRecipes();
  *
  *   read   GET  /api/recipes           public
  *   read   GET  /api/recipes/deleted   public
- *   write  POST /private/api/recipes   behind the login
+ *   write  POST /admin/api/recipes     signed in (/signin/)
  *
  * Writes made while signed out or offline are queued and flushed later, so
  * nothing is lost by typing a recipe in on a train.
@@ -378,7 +380,7 @@ const RecipeSync = (() => {
   const LS_QUEUE   = 'chefclaude.pendingRecipes.v1';
   const API_READ   = '/api/recipes';
   const API_GONE   = '/api/recipes/deleted';
-  const API_WRITE  = '/private/api/recipes';
+  const API_WRITE  = '/admin/api/recipes';
 
   let queue  = [];   // recipes waiting to be written
   let gone   = [];   // ids waiting to be deleted
@@ -496,7 +498,7 @@ const RecipeSync = (() => {
     const n = status.pending, word = n === 1 ? 'change' : 'changes';
     if (status.needsSignIn) {
       el.innerHTML = '<strong style="color:#c4622d">' + n + ' ' + word + ' saved on this device</strong><br>' +
-        '<a href="/private/" target="_blank" rel="noopener" style="color:#2d4a3e">Sign in</a> to sync ' +
+        '<a href="/signin/?next=' + encodeURIComponent(location.pathname + location.hash) + '" style="color:#2d4a3e">Sign in</a> to sync ' +
         (n === 1 ? 'it' : 'them') + ' to the database.';
     } else if (!navigator.onLine) {
       el.innerHTML = '<strong>Offline</strong><br>' + n + ' ' + word + ' will sync when you are back online.';
@@ -868,7 +870,7 @@ function renderRow(r) {
   const title = escapeHtml(r.title);
   let expandInner;
   if (noRecipe) {
-    expandInner = '<div class="expand-grid"><div class="expand-empty">No recipe saved yet. Cook this dish and add the recipe with + Add.</div></div>';
+    expandInner = '<div class="expand-grid"><div class="expand-empty">No recipe saved yet.</div></div>';
   } else if (!r.ingredients || !r.ingredients.length) {
     expandInner = '<div class="expand-grid"><div class="expand-empty">No ingredients listed.</div><div class="expand-actions"><button class="text-btn" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')">View full recipe</button></div></div>';
   } else {
@@ -890,10 +892,10 @@ function renderRow(r) {
     + '<div class="recipe-meta">' + meta + '</div>'
     + '<div class="row-actions">'
     + '<button class="icon-btn" title="View full recipe" onclick="event.stopPropagation();openDetail(\'' + r.id + '\')" aria-label="View full recipe">' + openSvg + '</button>'
-    + '<button class="icon-btn" title="Edit recipe" onclick="event.stopPropagation();openAddModal(\'' + r.id + '\')" aria-label="Edit recipe">' + editSvg + '</button>'
+    + '<button class="icon-btn owner-only" title="Edit recipe" onclick="event.stopPropagation();openAddModal(\'' + r.id + '\')" aria-label="Edit recipe">' + editSvg + '</button>'
     + (isPendingDelete
-        ? '<button class="icon-btn" style="width:auto;padding:0 8px;color:#c4622d;font-size:12px;font-weight:500;" title="Click again to delete" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Confirm delete">Delete?</button>'
-        : '<button class="icon-btn" title="Delete recipe" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Delete recipe">' + trashSvg + '</button>')
+        ? '<button class="icon-btn owner-only" style="width:auto;padding:0 8px;color:#c4622d;font-size:12px;font-weight:500;" title="Click again to delete" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Confirm delete">Delete?</button>'
+        : '<button class="icon-btn owner-only" title="Delete recipe" onclick="event.stopPropagation();askDelete(\'' + r.id + '\')" aria-label="Delete recipe">' + trashSvg + '</button>')
     + '<button class="icon-btn" title="Toggle ingredients" onclick="event.stopPropagation();toggleExpand(\'' + r.id + '\')" aria-label="Toggle ingredients">' + chevronSvg + '</button>'
     + '</div></div>'
     + '<div class="recipe-expand">' + expandInner + '</div>'
@@ -914,7 +916,7 @@ function openDetail(id) {
     m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
       + '<span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span>'
       + '<h2>' + escapeHtml(r.title) + '</h2>'
-      + '<div class="no-recipe-box">No recipe saved yet.<br><br>Cook this dish and add the recipe using the + Add button.</div>';
+      + '<div class="no-recipe-box">No recipe saved yet.</div>';
   } else {
     scaleRecipeId = r.id;
     scaleBaseServes = parseBaseServes(r.serves);
@@ -1715,14 +1717,42 @@ function foragingCountBarText(q) {
   return activeCount + ' foraging now · ' + items.length + ' shown';
 }
 
+/* Whether this browser is signed in (/signin/). Only then are + Add, edit
+ * and delete shown — the html.signed-in class drives the .owner-only CSS. */
+let signedIn = false;
+const sessionReady = fetch('/api/session', { cache: 'no-store', credentials: 'same-origin' })
+  .then(r => r.ok ? r.json() : null)
+  .then(s => {
+    signedIn = Boolean(s && s.signedIn);
+    document.documentElement.classList.toggle('signed-in', signedIn);
+  })
+  .catch(() => {});
+
 /* Deep links for the Food dashboard and anywhere else that wants to jump
  * straight to a recipe or a tab: #recipe-<id> opens that recipe's detail
  * modal, #seasonal / #foraging / #drinks switches to that page. Re-run after
  * RecipeSync settles in case the link points at a recipe that only exists in
- * the database overlay (e.g. one just added through the form). */
-function openFromHash() {
+ * the database overlay (e.g. one just added through the form).
+ *
+ * #add and #edit-<id> come from /admin/recipes/ and open the form — once,
+ * so a later re-run can't wipe what's been typed. Signed out, they go to
+ * the sign-in page and come back here afterwards. */
+let formLinkDone = false;
+async function openFromHash() {
   const hash = decodeURIComponent(location.hash.slice(1));
   if (!hash) return;
+  const edit = hash.match(/^edit-(.+)$/);
+  if (hash === 'add' || edit) {
+    if (formLinkDone) return;
+    await sessionReady;
+    if (!signedIn) { location.replace('/signin/?next=' + encodeURIComponent(location.pathname + location.hash)); return; }
+    if (edit && !recipes.some(r => r.id === edit[1])) return;   // not loaded yet — try again on the next run
+    formLinkDone = true;
+    history.replaceState(null, '', location.pathname + location.search);
+    switchToPage('recipes');
+    openAddModal(edit ? edit[1] : undefined);
+    return;
+  }
   const m = hash.match(/^recipe-(.+)$/);
   if (m) {
     if (recipes.some(r => r.id === m[1])) { switchToPage('recipes'); openDetail(m[1]); }

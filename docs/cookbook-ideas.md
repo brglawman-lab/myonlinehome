@@ -1,6 +1,6 @@
 # The Cookbook — ways to make it better
 
-`/private/cookbook/` (sign-in only until it's ready to show) is built live from the recipe book, so it improves on its own as
+`/admin/cookbook/` (sign-in only until it's ready to show) is built live from the recipe book, so it improves on its own as
 recipes and photos are added. These are the things that need Ben (or a
 decision from him) rather than more code. Roughly in order of how much
 difference they would make.
@@ -10,7 +10,7 @@ difference they would make.
 1. **A photo of the cook.** The "About the cook" page shows a monogram in a
    polaroid frame. Any decent photo of Ben in the kitchen, at a market or with
    a camera would replace it — set `BOOK.cookPhoto` in
-   `public/private/cookbook/index.html`.
+   `public/admin/cookbook/index.html`.
 2. **More food photos.** A cookbook feels real when about a third of the
    recipes have a photo. Each new photo appears automatically: as a full-page
    photo facing its recipe, as a photo across the top of the recipe page, or as

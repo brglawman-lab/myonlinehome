@@ -64,7 +64,7 @@
   .hero-bg {
     position: absolute; inset: 0;
     background-size: cover;
-    background-position: center 45%;
+    background-position: 50% 45%;
     opacity: 0;
     transition: opacity 1.2s ease;
   }
@@ -148,26 +148,31 @@
   }
 
   /* ---------- gallery grid ---------- */
-  .gallery-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  /* Big tiles: three across on a wide screen, two on a laptop, one on a phone.
+   * Each photo has a focus point (the subject), and placeFocus() below slides
+   * the crop so that point sits in the middle of the tile wherever it can. */
+  .gallery-wrap { max-width: 1680px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
     grid-auto-flow: dense;
-    gap: 6px;
+    gap: 8px;
   }
   .tile {
     position: relative;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     cursor: pointer;
     background: var(--bg-raised);
   }
-  .tile.wide { aspect-ratio: 8 / 5; grid-column: span 2; }
-  @media (max-width: 640px) { .tile.wide { grid-column: span 1; aspect-ratio: 4/5; } }
+  .tile.wide { aspect-ratio: 2 / 1; grid-column: span 2; }
+  @media (max-width: 960px) { .tile.wide { grid-column: span 1; aspect-ratio: 1 / 1; } }
+  @media (max-width: 640px) { .gallery-wrap { padding: 1.5rem 0.75rem 4rem; } .grid { gap: 6px; } }
   .tile img {
     width: 100%; height: 100%; object-fit: cover; display: block;
     transition: transform .6s cubic-bezier(.2,.7,.3,1), filter .6s ease;
     filter: saturate(0.96);
+    object-position: 50% 50%;
   }
   .tile:hover img { transform: scale(1.06); }
   .tile-veil {
@@ -181,6 +186,10 @@
     transform: translateY(10px); opacity: 0; transition: transform .3s ease, opacity .3s ease;
   }
   .tile:hover .tile-caption { transform: translateY(0); opacity: 1; }
+  @media (hover: none) {
+    .tile-veil { opacity: 1; background: linear-gradient(180deg, rgba(6,6,5,0) 65%, rgba(6,6,5,0.8) 100%); }
+    .tile-caption { transform: none; opacity: 1; }
+  }
   .tile-title {
     font-family: 'Playfair Display', Georgia, serif; font-size: 1.05rem; font-weight: 600;
   }
@@ -201,13 +210,13 @@
   }
   .lightbox.open { display: block; }
   .lightbox-inner {
-    max-width: 1180px; margin: 0 auto;
-    display: grid; grid-template-columns: 1fr 320px; gap: 2.5rem; align-items: start;
+    max-width: 1560px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 300px; gap: 2.5rem; align-items: start;
   }
   @media (max-width: 860px) { .lightbox-inner { grid-template-columns: 1fr; } }
   .lightbox-img-wrap { position: relative; }
   .lightbox-img-wrap img {
-    width: 100%; height: auto; max-height: 84vh; object-fit: contain; display: block; background: #000;
+    width: 100%; height: auto; max-height: 90vh; object-fit: contain; display: block; background: #000;
   }
   .lightbox-meta { padding-top: 0.5rem; }
   .lightbox-species {
@@ -296,37 +305,37 @@
 // PHOTO DATA
 // =============================================
 const PHOTOS = [
-  { id: "osprey-post-catch", src: "/gallery/photos/osprey-post-catch.jpg", title: "Osprey with fish", species: "Osprey", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", size: "wide", hero: true, caption: "An osprey on a post with a fish it has just caught." },
-  { id: "magnificent-frigatebirds", src: "/gallery/photos/magnificent-frigatebirds.jpg", title: "Frigatebirds on a mangrove", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", size: "wide", caption: "Two frigatebirds on top of a mangrove tree. The one with the white head is a juvenile." },
-  { id: "puffin-bempton-daisies", src: "/gallery/photos/puffin-bempton-daisies.jpg", title: "Puffin", species: "Atlantic puffin", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", caption: "A puffin among sea mayweed on the cliffs." },
-  { id: "black-spiny-tailed-iguana", src: "/gallery/photos/black-spiny-tailed-iguana.jpg", title: "Black spiny-tailed iguana", species: "Black spiny-tailed iguana", tags: ["reptiles"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "An iguana resting in the grass." },
-  { id: "frigatebird-in-flight", src: "/gallery/photos/frigatebird-in-flight.jpg", title: "Frigatebird in flight", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A male frigatebird flying over the mangroves. The red patch is his throat pouch." },
-  { id: "female-frigatebird", src: "/gallery/photos/female-frigatebird.jpg", title: "Female frigatebird", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A female in the mangroves. Females have a white chest and a blue ring round the eye." },
-  { id: "golden-fronted-woodpecker", src: "/gallery/photos/golden-fronted-woodpecker.jpg", title: "Woodpecker feeding its chick", species: "Golden-fronted woodpecker", tags: ["songbirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A woodpecker feeding its chick at a nest hole in a palm trunk." },
-  { id: "american-crocodile", src: "/gallery/photos/american-crocodile.jpg", title: "Crocodile on the bank", species: "American crocodile", tags: ["reptiles"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A crocodile resting at the water's edge." },
-  { id: "bottlenose-dolphin", src: "/gallery/photos/bottlenose-dolphin.jpg", title: "Bottlenose dolphin", species: "Bottlenose dolphin", tags: ["mammals"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", size: "wide", caption: "A bottlenose dolphin surfacing close to the boat." },
-  { id: "tropical-kingbird", src: "/gallery/photos/tropical-kingbird.jpg", title: "Tropical kingbird", species: "Tropical kingbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A tropical kingbird on an old post." },
-  { id: "mangrove-warbler", src: "/gallery/photos/mangrove-warbler.jpg", title: "Mangrove warbler", species: "Yellow warbler (mangrove form)", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A mangrove warbler, the chestnut-headed form of the yellow warbler." },
-  { id: "black-vulture", src: "/gallery/photos/black-vulture.jpg", title: "Black vulture", species: "Black vulture", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A black vulture perched on a branch." },
-  { id: "melodious-blackbird", src: "/gallery/photos/melodious-blackbird.jpg", title: "Melodious blackbird", species: "Melodious blackbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A melodious blackbird in the mangroves." },
-  { id: "great-kiskadee", src: "/gallery/photos/great-kiskadee.jpg", title: "Great kiskadee", species: "Great kiskadee", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A great kiskadee perched in the mangroves." },
-  { id: "gannets-bempton", src: "/gallery/photos/gannets-bempton.jpg", title: "Gannets", species: "Northern gannet", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", size: "wide", caption: "Two gannets on the clifftop." },
-  { id: "razorbills-bempton", src: "/gallery/photos/razorbills-bempton.jpg", title: "Guillemots and razorbill", species: "Guillemot and razorbill", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", caption: "Seabirds on a ledge among sea mayweed." },
-  { id: "mandarin-drake", src: "/gallery/photos/mandarin-drake.jpg", title: "Mandarin duck", species: "Mandarin duck", tags: ["waders"], location: "", date: "2020-03-13", camera: "Sony A68", caption: "A male mandarin duck on the grass." },
-  { id: "black-headed-gull-landing", src: "/gallery/photos/black-headed-gull-landing.jpg", title: "Gull coming in to land", species: "Black-headed gull", tags: ["seabirds"], location: "", date: "2020-07-05", camera: "Sony A68", caption: "A black-headed gull landing on a dead branch." },
-  { id: "shag-on-rocks", src: "/gallery/photos/shag-on-rocks.jpg", title: "Young shag", species: "Shag", tags: ["seabirds"], location: "", date: "2019-08-27", camera: "Sony A68", caption: "A young shag on the rocks." },
-  { id: "kestrel-birch-perch", src: "/gallery/photos/kestrel-birch-perch.jpg", title: "Kestrel", species: "Kestrel", tags: ["birds-of-prey"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A kestrel on top of a young birch." },
-  { id: "stonechat-on-reed", src: "/gallery/photos/stonechat-on-reed.jpg", title: "Stonechat", species: "Stonechat", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male stonechat on top of a reed." },
-  { id: "reed-bunting-song", src: "/gallery/photos/reed-bunting-song.jpg", title: "Reed bunting", species: "Reed bunting", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male reed bunting singing from a willow." },
-  { id: "yellowhammer", src: "/gallery/photos/yellowhammer.jpg", title: "Yellowhammer", species: "Yellowhammer", tags: ["songbirds"], location: "", date: "2020-03-20", camera: "Sony A68", caption: "A male yellowhammer on a bank of bare earth." },
-  { id: "blue-tit", src: "/gallery/photos/blue-tit.jpg", title: "Blue tit", species: "Blue tit", tags: ["garden-birds"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A blue tit on a lichen-covered branch." },
-  { id: "goosander", src: "/gallery/photos/goosander.jpg", title: "Goosander", species: "Goosander", tags: ["waders"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A female goosander on a fast-flowing river." },
-  { id: "grey-wagtail", src: "/gallery/photos/grey-wagtail.jpg", title: "Grey wagtail", species: "Grey wagtail", tags: ["songbirds"], location: "", date: "2023-04-13", camera: "Canon EOS R7", caption: "A grey wagtail on a mossy rock." },
-  { id: "blackcap", src: "/gallery/photos/blackcap.jpg", title: "Blackcap", species: "Blackcap", tags: ["songbirds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A male blackcap singing in a tree." },
-  { id: "blue-tit-hawthorn", src: "/gallery/photos/blue-tit-hawthorn.jpg", title: "Blue tit in hawthorn", species: "Blue tit", tags: ["garden-birds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A blue tit among new hawthorn leaves." },
-  { id: "grey-heron-landing", src: "/gallery/photos/grey-heron-landing.jpg", title: "Grey heron landing", species: "Grey heron", tags: ["waders"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A grey heron coming in to land at the edge of a pond." },
-  { id: "jackdaw", src: "/gallery/photos/jackdaw.jpg", title: "Jackdaw", species: "Jackdaw", tags: ["songbirds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A jackdaw on a fence rail." },
-  { id: "mandarin-preening", src: "/gallery/photos/mandarin-preening.jpg", title: "Mandarin duck preening", species: "Mandarin duck", tags: ["waders"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A male mandarin duck preening among marsh marigolds." },
+  { id: "osprey-post-catch", src: "/gallery/photos/osprey-post-catch.jpg", focus: "52% 45%", title: "Osprey with fish", species: "Osprey", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", size: "wide", hero: true, caption: "An osprey on a post with a fish it has just caught." },
+  { id: "magnificent-frigatebirds", src: "/gallery/photos/magnificent-frigatebirds.jpg", focus: "50% 45%", title: "Frigatebirds on a mangrove", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", size: "wide", caption: "Two frigatebirds on top of a mangrove tree. The one with the white head is a juvenile." },
+  { id: "puffin-bempton-daisies", src: "/gallery/photos/puffin-bempton-daisies.jpg", focus: "55% 55%", title: "Puffin", species: "Atlantic puffin", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", caption: "A puffin among sea mayweed on the cliffs." },
+  { id: "black-spiny-tailed-iguana", src: "/gallery/photos/black-spiny-tailed-iguana.jpg", focus: "57% 40%", title: "Black spiny-tailed iguana", species: "Black spiny-tailed iguana", tags: ["reptiles"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "An iguana resting in the grass." },
+  { id: "frigatebird-in-flight", src: "/gallery/photos/frigatebird-in-flight.jpg", focus: "50% 38%", title: "Frigatebird in flight", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A male frigatebird flying over the mangroves. The red patch is his throat pouch." },
+  { id: "female-frigatebird", src: "/gallery/photos/female-frigatebird.jpg", focus: "43% 45%", title: "Female frigatebird", species: "Magnificent frigatebird", tags: ["seabirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A female in the mangroves. Females have a white chest and a blue ring round the eye." },
+  { id: "golden-fronted-woodpecker", src: "/gallery/photos/golden-fronted-woodpecker.jpg", focus: "55% 45%", title: "Woodpecker feeding its chick", species: "Golden-fronted woodpecker", tags: ["songbirds"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", caption: "A woodpecker feeding its chick at a nest hole in a palm trunk." },
+  { id: "american-crocodile", src: "/gallery/photos/american-crocodile.jpg", focus: "62% 57%", title: "Crocodile on the bank", species: "American crocodile", tags: ["reptiles"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A crocodile resting at the water's edge." },
+  { id: "bottlenose-dolphin", src: "/gallery/photos/bottlenose-dolphin.jpg", focus: "66% 55%", title: "Bottlenose dolphin", species: "Bottlenose dolphin", tags: ["mammals"], location: "Mexico", date: "2022-04-21", camera: "Sony A68", size: "wide", caption: "A bottlenose dolphin surfacing close to the boat." },
+  { id: "tropical-kingbird", src: "/gallery/photos/tropical-kingbird.jpg", focus: "55% 45%", title: "Tropical kingbird", species: "Tropical kingbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A tropical kingbird on an old post." },
+  { id: "mangrove-warbler", src: "/gallery/photos/mangrove-warbler.jpg", focus: "60% 35%", title: "Mangrove warbler", species: "Yellow warbler (mangrove form)", tags: ["songbirds"], location: "Mexico", date: "2022-04-19", camera: "Sony A68", caption: "A mangrove warbler, the chestnut-headed form of the yellow warbler." },
+  { id: "black-vulture", src: "/gallery/photos/black-vulture.jpg", focus: "56% 47%", title: "Black vulture", species: "Black vulture", tags: ["birds-of-prey"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A black vulture perched on a branch." },
+  { id: "melodious-blackbird", src: "/gallery/photos/melodious-blackbird.jpg", focus: "52% 50%", title: "Melodious blackbird", species: "Melodious blackbird", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A melodious blackbird in the mangroves." },
+  { id: "great-kiskadee", src: "/gallery/photos/great-kiskadee.jpg", focus: "50% 46%", title: "Great kiskadee", species: "Great kiskadee", tags: ["songbirds"], location: "Mexico", date: "2022-04-18", camera: "Sony A68", caption: "A great kiskadee perched in the mangroves." },
+  { id: "gannets-bempton", src: "/gallery/photos/gannets-bempton.jpg", focus: "50% 55%", title: "Gannets", species: "Northern gannet", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", size: "wide", caption: "Two gannets on the clifftop." },
+  { id: "razorbills-bempton", src: "/gallery/photos/razorbills-bempton.jpg", focus: "50% 55%", title: "Guillemots and razorbill", species: "Guillemot and razorbill", tags: ["seabirds"], location: "Bempton Cliffs, East Yorkshire", date: "2020-06-27", camera: "Sony A68", caption: "Seabirds on a ledge among sea mayweed." },
+  { id: "mandarin-drake", src: "/gallery/photos/mandarin-drake.jpg", focus: "45% 52%", title: "Mandarin duck", species: "Mandarin duck", tags: ["waders"], location: "", date: "2020-03-13", camera: "Sony A68", caption: "A male mandarin duck on the grass." },
+  { id: "black-headed-gull-landing", src: "/gallery/photos/black-headed-gull-landing.jpg", focus: "40% 38%", title: "Gull coming in to land", species: "Black-headed gull", tags: ["seabirds"], location: "", date: "2020-07-05", camera: "Sony A68", caption: "A black-headed gull landing on a dead branch." },
+  { id: "shag-on-rocks", src: "/gallery/photos/shag-on-rocks.jpg", focus: "72% 50%", title: "Young shag", species: "Shag", tags: ["seabirds"], location: "", date: "2019-08-27", camera: "Sony A68", caption: "A young shag on the rocks." },
+  { id: "kestrel-birch-perch", src: "/gallery/photos/kestrel-birch-perch.jpg", focus: "43% 45%", title: "Kestrel", species: "Kestrel", tags: ["birds-of-prey"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A kestrel on top of a young birch." },
+  { id: "stonechat-on-reed", src: "/gallery/photos/stonechat-on-reed.jpg", focus: "52% 33%", title: "Stonechat", species: "Stonechat", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male stonechat on top of a reed." },
+  { id: "reed-bunting-song", src: "/gallery/photos/reed-bunting-song.jpg", focus: "46% 40%", title: "Reed bunting", species: "Reed bunting", tags: ["songbirds"], location: "", date: "2023-03-12", camera: "Canon EOS R7", caption: "A male reed bunting singing from a willow." },
+  { id: "yellowhammer", src: "/gallery/photos/yellowhammer.jpg", focus: "49% 54%", title: "Yellowhammer", species: "Yellowhammer", tags: ["songbirds"], location: "", date: "2020-03-20", camera: "Sony A68", caption: "A male yellowhammer on a bank of bare earth." },
+  { id: "blue-tit", src: "/gallery/photos/blue-tit.jpg", focus: "54% 62%", title: "Blue tit", species: "Blue tit", tags: ["garden-birds"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A blue tit on a lichen-covered branch." },
+  { id: "goosander", src: "/gallery/photos/goosander.jpg", focus: "48% 52%", title: "Goosander", species: "Goosander", tags: ["waders"], location: "", date: "2023-04-08", camera: "Canon EOS R7", caption: "A female goosander on a fast-flowing river." },
+  { id: "grey-wagtail", src: "/gallery/photos/grey-wagtail.jpg", focus: "60% 55%", title: "Grey wagtail", species: "Grey wagtail", tags: ["songbirds"], location: "", date: "2023-04-13", camera: "Canon EOS R7", caption: "A grey wagtail on a mossy rock." },
+  { id: "blackcap", src: "/gallery/photos/blackcap.jpg", focus: "50% 44%", title: "Blackcap", species: "Blackcap", tags: ["songbirds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A male blackcap singing in a tree." },
+  { id: "blue-tit-hawthorn", src: "/gallery/photos/blue-tit-hawthorn.jpg", focus: "48% 40%", title: "Blue tit in hawthorn", species: "Blue tit", tags: ["garden-birds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A blue tit among new hawthorn leaves." },
+  { id: "grey-heron-landing", src: "/gallery/photos/grey-heron-landing.jpg", focus: "40% 58%", title: "Grey heron landing", species: "Grey heron", tags: ["waders"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A grey heron coming in to land at the edge of a pond." },
+  { id: "jackdaw", src: "/gallery/photos/jackdaw.jpg", focus: "45% 40%", title: "Jackdaw", species: "Jackdaw", tags: ["songbirds"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A jackdaw on a fence rail." },
+  { id: "mandarin-preening", src: "/gallery/photos/mandarin-preening.jpg", focus: "22% 45%", title: "Mandarin duck preening", species: "Mandarin duck", tags: ["waders"], location: "", date: "2025-04-27", camera: "Canon EOS R7", caption: "A male mandarin duck preening among marsh marigolds." },
 ];
 
 const TAG_LABELS = {
@@ -340,26 +349,27 @@ const TAG_LABELS = {
   'invertebrates': 'Invertebrates',
 };
 
+let GALLERY = PHOTOS.slice();   // PHOTOS plus anything uploaded on the site, minus anything removed
 let activeTag = 'all';
 let lightboxIndex = -1;
 
 function tagLabel(t) { return TAG_LABELS[t] || (t.charAt(0).toUpperCase() + t.slice(1).replace(/-/g, ' ')); }
 
 function filteredPhotos() {
-  if (activeTag === 'all') return PHOTOS;
-  return PHOTOS.filter(p => p.tags && p.tags.includes(activeTag));
+  if (activeTag === 'all') return GALLERY;
+  return GALLERY.filter(p => p.tags && p.tags.includes(activeTag));
 }
 
 function renderFilterBar() {
   const tagSet = new Set();
-  PHOTOS.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
+  GALLERY.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
   const tags = ['all', ...Array.from(tagSet)];
   const bar = document.getElementById('filterBar');
   bar.innerHTML = tags.map(t => {
     const label = t === 'all' ? 'All Photos' : tagLabel(t);
-    const count = t === 'all' ? PHOTOS.length : PHOTOS.filter(p => p.tags && p.tags.includes(t)).length;
+    const count = t === 'all' ? GALLERY.length : GALLERY.filter(p => p.tags && p.tags.includes(t)).length;
     return '<button class="filter-pill' + (activeTag === t ? ' active' : '') + '" onclick="setTag(\'' + t + '\')">' + label + '</button>';
-  }).join('') + '<span class="filter-count">' + filteredPhotos().length + ' of ' + PHOTOS.length + '</span>';
+  }).join('') + '<span class="filter-count">' + filteredPhotos().length + ' of ' + GALLERY.length + '</span>';
 }
 
 function setTag(t) { activeTag = t; renderFilterBar(); renderGrid(); }
@@ -374,9 +384,9 @@ function renderGrid() {
     return;
   }
   grid.innerHTML = list.map(p => {
-    const idx = PHOTOS.indexOf(p);
+    const idx = GALLERY.indexOf(p);
     return '<div class="tile' + (p.size === 'wide' ? ' wide' : '') + '" onclick="openLightbox(' + idx + ')">'
-      + '<img src="' + escapeHtml(p.src) + '" alt="' + escapeHtml(p.title) + ' — ' + escapeHtml(p.species) + '" loading="lazy">'
+      + '<img src="' + escapeHtml(p.src) + '" alt="' + escapeHtml(p.title) + (p.species ? ' — ' + escapeHtml(p.species) : '') + '" loading="lazy" data-focus="' + escapeHtml(p.focus || '') + '" onload="placeFocus(this)">'
       + '<div class="tile-veil"></div>'
       + '<div class="tile-caption"><div class="tile-title">' + escapeHtml(p.title) + '</div><div class="tile-species">' + escapeHtml(p.species) + '</div></div>'
       + '</div>';
@@ -384,7 +394,7 @@ function renderGrid() {
 }
 
 function renderLightbox() {
-  const p = PHOTOS[lightboxIndex];
+  const p = GALLERY[lightboxIndex];
   if (!p) return;
   const facts = [];
   if (p.location) facts.push(['Location', p.location]);
@@ -415,10 +425,10 @@ function closeLightbox() {
 }
 function stepLightbox(delta) {
   const list = filteredPhotos();
-  const currentId = PHOTOS[lightboxIndex].id;
+  const currentId = GALLERY[lightboxIndex].id;
   const posInFiltered = list.findIndex(p => p.id === currentId);
   const nextPos = (posInFiltered + delta + list.length) % list.length;
-  lightboxIndex = PHOTOS.indexOf(list[nextPos]);
+  lightboxIndex = GALLERY.indexOf(list[nextPos]);
   renderLightbox();
 }
 
@@ -435,20 +445,95 @@ document.addEventListener('keydown', e => {
 // =============================================
 // HERO
 // =============================================
-(function initHero() {
-  const heroPhoto = PHOTOS.find(p => p.hero) || PHOTOS[0];
-  if (heroPhoto) {
-    const bg = document.getElementById('heroBg');
-    bg.style.backgroundImage = "url('" + heroPhoto.src + "')";
-    const img = new Image();
-    img.onload = () => bg.classList.add('loaded');
-    img.src = heroPhoto.src;
-    
-  }
-})();
+let heroImg = null;
+function initHero() {
+  const heroPhoto = GALLERY.find(p => p.hero) || GALLERY[0];
+  if (!heroPhoto) return;
+  const bg = document.getElementById('heroBg');
+  if (heroImg && heroImg.dataset.src === heroPhoto.src) return;
+  bg.style.backgroundImage = "url('" + heroPhoto.src + "')";
+  const img = new Image();
+  img.dataset.src = heroPhoto.src;
+  img.dataset.focus = heroPhoto.focus || '';
+  img.onload = () => { heroImg = img; placeHeroFocus(); bg.classList.add('loaded'); };
+  img.src = heroPhoto.src;
+}
 
+// =============================================
+// CROPPING AROUND THE SUBJECT
+// =============================================
+/* Each photo's `focus` is where its subject is, as "x% y%" of the full frame.
+ * A cropped tile (object-fit: cover) shows a window onto the photo; this works
+ * out where that window has to sit for the subject to land in the middle of
+ * the tile, and clamps it so the window never runs off the edge of the photo.
+ * Plain CSS object-position: x% y% doesn't do this — it lines up x% of the
+ * photo with x% of the tile, which leaves an off-centre subject off-centre. */
+function parseFocus(f) {
+  const m = /^\s*([\d.]+)%?\s+([\d.]+)%?\s*$/.exec(f || '');
+  return m ? [Math.min(100, +m[1]) / 100, Math.min(100, +m[2]) / 100] : [0.5, 0.5];
+}
+function cropPosition(nw, nh, bw, bh, focus) {
+  if (!nw || !nh || !bw || !bh) return '50% 50%';
+  const [fx, fy] = parseFocus(focus);
+  const scale = Math.max(bw / nw, bh / nh);
+  const axis = (natural, box, f) => {
+    const shown = natural * scale;
+    if (shown - box < 1) return 50;
+    const p = (f * shown - box / 2) / (shown - box);
+    return Math.round(Math.max(0, Math.min(1, p)) * 1000) / 10;
+  };
+  return axis(nw, bw, fx) + '% ' + axis(nh, bh, fy) + '%';
+}
+function placeFocus(img) {
+  img.style.objectPosition = cropPosition(img.naturalWidth, img.naturalHeight, img.clientWidth, img.clientHeight, img.dataset.focus);
+}
+function placeHeroFocus() {
+  if (!heroImg) return;
+  const bg = document.getElementById('heroBg');
+  bg.style.backgroundPosition = cropPosition(heroImg.naturalWidth, heroImg.naturalHeight, bg.clientWidth, bg.clientHeight, heroImg.dataset.focus);
+}
+let refocusTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(refocusTimer);
+  refocusTimer = setTimeout(() => {
+    document.querySelectorAll('#grid img').forEach(img => { if (img.complete) placeFocus(img); });
+    placeHeroFocus();
+  }, 120);
+});
+
+// =============================================
+// PHOTOS ADDED AND REMOVED ON THE SITE
+// =============================================
+/* /admin/photos/ uploads photos to the database and removes ones from this
+ * page. /api/gallery returns both, and the last answer is kept on this
+ * device so a removed photo doesn't flash up before the network replies. */
+const GALLERY_CACHE = 'gallery.overlay.v1';
+function applyOverlay(o) {
+  if (!o || !Array.isArray(o.added)) return;
+  const gone = new Set((o.removed || []).map(r => r.id));
+  const seedIds = new Set(PHOTOS.map(p => p.id));
+  GALLERY = o.added.filter(p => !seedIds.has(p.id)).concat(PHOTOS).filter(p => !gone.has(p.id));
+}
+try { applyOverlay(JSON.parse(localStorage.getItem(GALLERY_CACHE) || 'null')); } catch (e) {}
+
+initHero();
 renderFilterBar();
 renderGrid();
+
+fetch('/api/gallery', { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : null)
+  .then(o => {
+    if (!o || !Array.isArray(o.added)) return;
+    try { localStorage.setItem(GALLERY_CACHE, JSON.stringify(o)); } catch (e) {}
+    const before = GALLERY.map(p => p.id).join('|');
+    applyOverlay(o);
+    if (GALLERY.map(p => p.id).join('|') === before) return;
+    if (activeTag !== 'all' && !GALLERY.some(p => (p.tags || []).includes(activeTag))) activeTag = 'all';
+    initHero();
+    renderFilterBar();
+    renderGrid();
+  })
+  .catch(() => { /* offline — the photos in this file are enough */ });
 </script>
 </body>
 </html>

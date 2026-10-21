@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in — My Online Home</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#f5f0e8; --warm-white:#faf8f4; --forest:#2d4a3e; --sage:#7a9e8e;
+          --rust:#c4622d; --charcoal:#2a2a2a; --mid-grey:#7a7a7a; --border:rgba(45,74,62,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',-apple-system,sans-serif; background:var(--cream);
+         color:var(--charcoal); line-height:1.6; padding:4.5rem 1.25rem 3rem; }
+  .wrap { max-width:420px; margin:0 auto; }
+  h1 { font-family:'Playfair Display',Georgia,serif; font-size:2.2rem; color:var(--forest);
+       margin-bottom:0.4rem; letter-spacing:-0.02em; }
+  .sub { color:var(--mid-grey); margin-bottom:2rem; }
+  form { background:var(--warm-white); border:1px solid var(--border); border-radius:14px; padding:1.5rem; }
+  label { display:block; font-size:0.85rem; font-weight:500; color:var(--forest); margin-bottom:0.3rem; }
+  input { width:100%; font:inherit; font-size:0.95rem; color:var(--charcoal); background:#fff;
+         border:1px solid rgba(45,74,62,0.25); border-radius:8px; padding:0.6rem 0.75rem; margin-bottom:1.1rem; }
+  input:focus { outline:2px solid var(--sage); outline-offset:1px; border-color:var(--sage); }
+  button { font:inherit; font-weight:500; background:var(--forest); color:var(--cream); border:none;
+           border-radius:999px; padding:0.65rem 1.6rem; cursor:pointer; width:100%; }
+  button:hover { background:#24392f; }
+  button:disabled { opacity:0.6; cursor:default; }
+  .status { margin-top:1rem; font-size:0.9rem; min-height:1.4em; }
+  .status.err { color:#a3361c; }
+  .fine { margin-top:1.25rem; font-size:0.8rem; color:var(--mid-grey); }
+  a { color:var(--forest); }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+</style>
+
+<div class="wrap">
+  <h1>Sign in</h1>
+  <p class="sub" id="sub">For the site owner — adding and removing photos and recipes, and the room storage tracker.</p>
+
+  <!-- A real form with username + current-password fields, so Chrome's password
+       manager offers to save it and fills it in next time. -->
+  <form id="signinForm" method="post" action="/api/signin">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+    <button type="submit" id="goBtn">Sign in</button>
+    <p class="status" id="status" role="status"></p>
+    <p class="fine">Signing in sets one cookie on this device that keeps you signed in for 30 days. See the <a href="/privacy/">privacy notice</a>.</p>
+  </form>
+</div>
+
+<script>
+/* The flow, in order:
+ *   1. Already signed in → straight on to where you were going.
+ *   2. Chrome has a saved password for this site → ask for it with the
+ *      Credential Management API. With one saved account and Chrome's
+ *      "Sign in automatically" setting on (the default), Chrome hands it over
+ *      without a prompt and this signs in on its own.
+ *   3. Otherwise the form is there, and Chrome's autofill fills it.
+ * After a successful sign-in by hand, the credential is offered to Chrome to
+ * save, which is what makes step 2 work next time. */
+const form = document.getElementById('signinForm');
+const statusEl = document.getElementById('status');
+const btn = document.getElementById('goBtn');
+
+function nextUrl() {
+  const n = new URLSearchParams(location.search).get('next') || '';
+  // Only ever a path on this site.
+  return /^\/(?!\/)/.test(n) ? n : '/admin/';
+}
+function say(text, err) { statusEl.textContent = text; statusEl.className = 'status' + (err ? ' err' : ''); }
+
+async function postSignIn(username, password) {
+  const res = await fetch('/api/signin', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ username, password }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Sign-in failed (HTTP ' + res.status + ')');
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = form.username.value.trim();
+  const password = form.password.value;
+  if (!password) { say('Enter your password.', true); return; }
+  btn.disabled = true; say('Signing in…');
+  try {
+    await postSignIn(username, password);
+    if (window.PasswordCredential && navigator.credentials) {
+      try { await navigator.credentials.store(new PasswordCredential({ id: username || 'owner', password, name: 'My Online Home' })); } catch (err) { /* saving is optional */ }
+    }
+    location.replace(nextUrl());
+  } catch (err) {
+    say(err.message, true);
+    btn.disabled = false;
+  }
+});
+
+(async function start() {
+  try {
+    const s = await fetch('/api/session', { cache: 'no-store', credentials: 'same-origin' }).then(r => r.json());
+    if (s.signedIn) { location.replace(nextUrl()); return; }
+    if (!s.configured) {
+      say('Sign-in isn\'t set up yet — an ADMIN_PASSWORD secret needs adding in Cloudflare (see db/SETUP.md).', true);
+      return;
+    }
+  } catch (e) { /* carry on — the form still works */ }
+
+  if (!window.PasswordCredential || !navigator.credentials) return;
+  let cred = null;
+  try {
+    cred = await navigator.credentials.get({ password: true, mediation: 'optional' });
+  } catch (e) { return; }   // dismissed, or not allowed here — the form is the fallback
+  if (!cred || cred.type !== 'password' || !cred.password) return;
+  try {
+    form.username.value = cred.id;
+    btn.disabled = true; say('Signing in as ' + cred.id + '…');
+    await postSignIn(cred.id, cred.password);
+    location.replace(nextUrl());
+  } catch (err) {
+    btn.disabled = false;
+    say(err.message + ' (the password saved in Chrome may be out of date)', true);
+  }
+})();
+</script>
+</body>
+</html>

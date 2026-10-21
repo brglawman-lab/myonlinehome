@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Room storage tracker — Admin</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --red: #8B2E2E; --red-light: #F5EAEA;
+    --amber: #8B5E1A; --amber-light: #FBF2E3;
+    --blue: #1A3D6B; --blue-light: #E8EEF5;
+    --teal: #1A5050; --teal-light: #E5F0F0;
+    --pink: #6B2A4A; --pink-light: #F5EAF0;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; font-size: 14px; }
+  .topbar a { color: #c4622d; text-decoration: none; }
+  .topbar .crumbs a + a::before { content: '·'; color: var(--text-faint); margin: 0 0.5rem; }
+  .link-btn { font: inherit; background: none; border: none; color: var(--accent-text); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .intro { margin-bottom: 1.5rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
+  .intro p { color: var(--text-muted); max-width: 68ch; }
+
+  /* ---- shared ---- */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.25rem 1.35rem; margin-bottom: 1.5rem; }
+  .panel-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.6rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--border-strong); background: white; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-hint { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+  .btn { padding: 9px 16px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .btn:hover { opacity: 0.88; }
+  .btn.secondary { background: none; border: 1px solid var(--border-strong); color: var(--text); }
+  .btn.danger { background: none; border: 1px solid var(--red); color: var(--red); }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .icon-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 5px; border-radius: var(--radius); display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* ---- modal (shared by ingredient detail + room/reading forms) ---- */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,16,12,0.5); z-index: 200; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 560px; padding: 1.75rem; position: relative; margin: auto; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-faint); line-height: 1; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; margin: 0 1.5rem 4px 0; line-height: 1.3; }
+  .modal-meta { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.25rem; }
+  /* ---- rooms ---- */
+  .rooms-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .room-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .room-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 0.5rem; }
+  .room-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; }
+  .room-notes { font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .room-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .chart-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px 6px; }
+  .chart-title { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
+  .chart-empty { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 2rem 0; text-align: center; }
+  .readings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .readings-table th { text-align: left; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .readings-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .readings-table tr:last-child td { border-bottom: none; }
+  .readings-more { font-size: 12px; color: var(--text-faint); margin-top: 6px; }
+  .status-pill { position: fixed; bottom: 14px; right: 14px; z-index: 999; max-width: 280px; padding: 9px 14px; border-radius: 10px; background: rgba(250,248,244,0.97); border: 1px solid rgba(45,74,62,0.22); box-shadow: 0 3px 14px rgba(0,0,0,0.14); font: 400 13px/1.4 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; color: #2a2a2a; }
+  .status-pill a { color: #2d4a3e; }
+
+  @media (max-width: 640px) {
+    .main { padding-left: 1rem; padding-right: 1rem; }
+    .intro h1 { font-size: 27px; }
+    .form-row, .form-row.three { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main class="main">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a><a href="/recipes/storage/">Food Storage guide</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <div class="intro">
+    <h1>Room storage tracker</h1>
+    <p>A running log of temperature and humidity in the places food is kept — so you can see how much they drift through the year. The latest reading from each room shows on the <a href="/dashboard/">Dashboard</a>.</p>
+  </div>
+
+  <div class="rooms-toolbar">
+    <button class="btn" onclick="openRoomForm()">+ Add a room</button>
+    <button class="btn secondary" onclick="exportAllReadingsCsv()">Export all readings (CSV)</button>
+  </div>
+  <div id="roomsList"></div>
+  <div class="empty" id="roomsEmpty" style="display:none;">
+    <p>No rooms yet. Add one for each place you keep food — pantry, garage store, cellar — and start logging readings.</p>
+  </div>
+</main>
+
+<div class="modal-overlay" id="detailOverlay" onclick="closeModal(event)">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* ===========================================================================
+ * Room storage tracker — named rooms and logged temperature/humidity
+ * readings, backed by /api/storage-rooms and /api/storage-readings (read) and
+ * /admin/api/storage-rooms and /admin/api/storage-readings (write), the same
+ * offline-first way the wildlife tracker and recipe book handle their data —
+ * readings taken with no signal are queued and sync once back online.
+ *
+ * This used to be the Room Monitor tab on /recipes/storage/; it moved here,
+ * behind the sign-in, in October 2026. The localStorage keys are unchanged,
+ * so anything queued on the old page still syncs from this one.
+ * ======================================================================== */
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('detailOverlay')) {
+    document.getElementById('detailOverlay').classList.remove('open');
+  }
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('detailOverlay').classList.remove('open'); });
+
+/* ---------------------------------------------------------------------------
+ * Room Monitor: rooms + readings, synced the same offline-first way as the
+ * rest of the site (queue writes locally, flush when online and signed in).
+ * ------------------------------------------------------------------------- */
+let ROOMS = [];
+let READINGS = [];
+const RM_ROOMS_CACHE = 'foodstorage.rooms.v1';
+const RM_READINGS_CACHE = 'foodstorage.readings.v1';
+const RM_QUEUE_KEY = 'foodstorage.pendingWrites.v1';
+
+function loadCache(key) { try { const raw = localStorage.getItem(key); const v = raw ? JSON.parse(raw) : []; return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function saveCache(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {} }
+
+const StorageSync = (() => {
+  let queue = { roomWrites: [], roomDeletes: [], readingWrites: [], readingDeletes: [] };
+  let status = { pending: 0, needsSignIn: false };
+
+  function loadQueue() {
+    try {
+      const raw = localStorage.getItem(RM_QUEUE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed === 'object') queue = Object.assign({ roomWrites: [], roomDeletes: [], readingWrites: [], readingDeletes: [] }, parsed);
+    } catch (e) {}
+  }
+  function saveQueue() {
+    try { localStorage.setItem(RM_QUEUE_KEY, JSON.stringify(queue)); } catch (e) {}
+    status.pending = queue.roomWrites.length + queue.roomDeletes.length + queue.readingWrites.length + queue.readingDeletes.length;
+    renderPill();
+  }
+  function mergeArrById(base, overlay) {
+    const map = new Map(base.map((r) => [r.id, r]));
+    for (const r of overlay) map.set(r.id, r);
+    return [...map.values()];
+  }
+
+  async function pull() {
+    let dbRooms = null, dbReadings = null;
+    try {
+      const [a, b] = await Promise.all([
+        fetch('/api/storage-rooms', { cache: 'no-store' }),
+        fetch('/api/storage-readings', { cache: 'no-store' }),
+      ]);
+      if (a.ok) { const j = await a.json(); if (Array.isArray(j)) dbRooms = j; }
+      if (b.ok) { const j = await b.json(); if (Array.isArray(j)) dbReadings = j; }
+    } catch (e) { /* offline — cached copy is enough */ }
+
+    if (dbRooms !== null) {
+      let merged = mergeArrById(dbRooms, queue.roomWrites);
+      const goneRooms = new Set(queue.roomDeletes);
+      merged = merged.filter((r) => !goneRooms.has(r.id));
+      ROOMS = merged;
+      saveCache(RM_ROOMS_CACHE, ROOMS);
+    } else {
+      ROOMS = mergeArrById(loadCache(RM_ROOMS_CACHE), queue.roomWrites).filter((r) => !queue.roomDeletes.includes(r.id));
+    }
+
+    if (dbReadings !== null) {
+      let merged = mergeArrById(dbReadings, queue.readingWrites);
+      const goneReadings = new Set(queue.readingDeletes);
+      merged = merged.filter((r) => !goneReadings.has(r.id));
+      READINGS = merged;
+      saveCache(RM_READINGS_CACHE, READINGS);
+    } else {
+      READINGS = mergeArrById(loadCache(RM_READINGS_CACHE), queue.readingWrites).filter((r) => !queue.readingDeletes.includes(r.id));
+    }
+    return dbRooms !== null || dbReadings !== null;
+  }
+
+  async function postJson(url, body) {
+    const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const type = res.headers.get('content-type') || '';
+    if (res.status === 401 || !type.includes('application/json')) { const err = new Error('Not signed in'); err.needsSignIn = true; throw err; }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+  async function del(url) {
+    const res = await fetch(url, { method: 'DELETE' });
+    const type = res.headers.get('content-type') || '';
+    if (res.status === 401 || !type.includes('application/json')) { const err = new Error('Not signed in'); err.needsSignIn = true; throw err; }
+  }
+
+  async function flush() {
+    if (!navigator.onLine) { renderPill(); return; }
+    const nothingQueued = !queue.roomWrites.length && !queue.roomDeletes.length && !queue.readingWrites.length && !queue.readingDeletes.length;
+    if (nothingQueued) { status.needsSignIn = false; renderPill(); return; }
+    try {
+      if (queue.roomWrites.length) { await postJson('/admin/api/storage-rooms', queue.roomWrites); queue.roomWrites = []; }
+      for (const id of [...queue.roomDeletes]) { await del('/admin/api/storage-rooms/' + encodeURIComponent(id)); queue.roomDeletes = queue.roomDeletes.filter((g) => g !== id); }
+      if (queue.readingWrites.length) { await postJson('/admin/api/storage-readings', queue.readingWrites); queue.readingWrites = []; }
+      for (const id of [...queue.readingDeletes]) { await del('/admin/api/storage-readings/' + encodeURIComponent(id)); queue.readingDeletes = queue.readingDeletes.filter((g) => g !== id); }
+      status.needsSignIn = false;
+    } catch (e) {
+      const networkLevel = e instanceof TypeError;
+      status.needsSignIn = Boolean(e.needsSignIn) || (navigator.onLine && networkLevel);
+      console.warn('Food storage sync failed, keeping it queued.', e);
+    }
+    saveQueue();
+  }
+
+  function renderPill() {
+    let el = document.getElementById('fs-sync-status');
+    if (status.pending === 0) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'fs-sync-status'; el.className = 'status-pill'; document.body.appendChild(el); }
+    const n = status.pending, word = n === 1 ? 'change' : 'changes';
+    if (status.needsSignIn) {
+      el.innerHTML = '<strong style="color:#c4622d">' + n + ' ' + word + ' saved on this device</strong><br><a href="/signin/?next=/admin/storage/">Sign in</a> to sync ' + (n === 1 ? 'it' : 'them') + ' to the database.';
+    } else if (!navigator.onLine) {
+      el.innerHTML = '<strong>Offline</strong><br>' + n + ' ' + word + ' will sync when you are back online.';
+    } else {
+      el.innerHTML = 'Syncing ' + n + ' ' + word + '…';
+    }
+  }
+
+  async function init() {
+    loadQueue();
+    status.pending = queue.roomWrites.length + queue.roomDeletes.length + queue.readingWrites.length + queue.readingDeletes.length;
+    await pull();
+    renderRooms();
+    await flush();
+    window.addEventListener('online', async () => { await flush(); await pull(); renderRooms(); });
+    window.addEventListener('offline', renderPill);
+  }
+
+  function pushRoom(room) { queue.roomWrites = queue.roomWrites.filter((r) => r.id !== room.id).concat([room]); saveQueue(); flush(); }
+  function removeRoom(id) { queue.roomWrites = queue.roomWrites.filter((r) => r.id !== id); if (!queue.roomDeletes.includes(id)) queue.roomDeletes.push(id); saveQueue(); flush(); }
+  function pushReading(reading) { queue.readingWrites = queue.readingWrites.filter((r) => r.id !== reading.id).concat([reading]); saveQueue(); flush(); }
+  function removeReading(id) { queue.readingWrites = queue.readingWrites.filter((r) => r.id !== id); if (!queue.readingDeletes.includes(id)) queue.readingDeletes.push(id); saveQueue(); flush(); }
+
+  return { init, pushRoom, removeRoom, pushReading, removeReading };
+})();
+
+function uid(prefix) { return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); }
+
+function openRoomForm() {
+  const m = document.getElementById('detailModal');
+  m.innerHTML = '<button class="modal-close" onclick="closeModal()">&#x2715;</button>'
+    + '<h2>Add a room</h2>'
+    + '<div class="modal-meta">Somewhere you keep food and want to track — pantry, garage store, cellar…</div>'
+    + '<div class="form-group"><label>Name</label><input type="text" id="rf-name" placeholder="e.g. Pantry"></div>'
+    + '<div class="form-group"><label>Notes (optional)</label><input type="text" id="rf-notes" placeholder="e.g. North-facing, unheated"></div>'
+    + '<button class="btn" style="width:100%;" onclick="saveRoomForm()">Save room</button>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function saveRoomForm() {
+  const name = document.getElementById('rf-name').value.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  const notes = document.getElementById('rf-notes').value.trim();
+  const room = { id: uid('room'), name, notes: notes || undefined, createdAt: new Date().toISOString() };
+  ROOMS = ROOMS.concat([room]);
+  saveCache(RM_ROOMS_CACHE, ROOMS);
+  StorageSync.pushRoom(room);
+  closeModal();
+  renderRooms();
+}
+function askDeleteRoom(id) {
+  const room = ROOMS.find((r) => r.id === id);
+  if (!room) return;
+  if (!confirm('Delete "' + room.name + '" and all its logged readings? This can\'t be undone.')) return;
+  ROOMS = ROOMS.filter((r) => r.id !== id);
+  READINGS = READINGS.filter((r) => r.roomId !== id);
+  saveCache(RM_ROOMS_CACHE, ROOMS);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.removeRoom(id);
+  renderRooms();
+}
+
+function openReadingForm(roomId) {
+  const room = ROOMS.find((r) => r.id === roomId);
+  if (!room) return;
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const nowLocal = now.toISOString().slice(0, 16);
+  const m = document.getElementById('detailModal');
+  m.innerHTML = '<button class="modal-close" onclick="closeModal()">&#x2715;</button>'
+    + '<h2>Log a reading</h2>'
+    + '<div class="modal-meta">' + escapeHtml(room.name) + '</div>'
+    + '<div class="form-group"><label>When</label><input type="datetime-local" id="rd-when" value="' + nowLocal + '"></div>'
+    + '<div class="form-row">'
+    + '<div class="form-group"><label>Temperature (°C)</label><input type="number" id="rd-temp" step="0.1" placeholder="e.g. 16.5"></div>'
+    + '<div class="form-group"><label>Humidity (% RH)</label><input type="number" id="rd-hum" step="1" min="0" max="100" placeholder="e.g. 55"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Note (optional)</label><input type="text" id="rd-note" placeholder="e.g. Door left open earlier"></div>'
+    + '<div class="form-hint" style="margin-bottom:1rem;">At least one of temperature or humidity is needed.</div>'
+    + '<button class="btn" style="width:100%;" onclick="saveReadingForm(\'' + roomId + '\')">Save reading</button>';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function saveReadingForm(roomId) {
+  const whenLocal = document.getElementById('rd-when').value;
+  const tempRaw = document.getElementById('rd-temp').value.trim();
+  const humRaw = document.getElementById('rd-hum').value.trim();
+  if (!tempRaw && !humRaw) { alert('Enter a temperature, a humidity, or both.'); return; }
+  const recordedAt = whenLocal ? new Date(whenLocal).toISOString() : new Date().toISOString();
+  const reading = {
+    id: uid('reading'),
+    roomId,
+    recordedAt,
+    tempC: tempRaw ? parseFloat(tempRaw) : undefined,
+    humidityPct: humRaw ? parseFloat(humRaw) : undefined,
+    note: document.getElementById('rd-note').value.trim() || undefined,
+    loggedAt: new Date().toISOString(),
+  };
+  READINGS = READINGS.concat([reading]);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.pushReading(reading);
+  closeModal();
+  renderRooms();
+}
+function askDeleteReading(id) {
+  READINGS = READINGS.filter((r) => r.id !== id);
+  saveCache(RM_READINGS_CACHE, READINGS);
+  StorageSync.removeReading(id);
+  renderRooms();
+}
+
+/* ---- tiny inline SVG trend chart: one series, one axis, native tooltips ---- */
+function drawTrendChart(points, color, unit) {
+  if (!points.length) return '<div class="chart-empty">No readings yet.</div>';
+  const W = 320, H = 130, padL = 34, padR = 10, padT = 10, padB = 20;
+  const ts = points.map((p) => p.t), vs = points.map((p) => p.v);
+  const minT = Math.min(...ts), maxT = Math.max(...ts);
+  let minV = Math.min(...vs), maxV = Math.max(...vs);
+  if (minV === maxV) { minV -= 1; maxV += 1; }
+  const spanV = maxV - minV;
+  minV -= spanV * 0.1; maxV += spanV * 0.1;
+  const x = (t) => padL + (maxT === minT ? 0 : (t - minT) / (maxT - minT)) * (W - padL - padR);
+  const y = (v) => H - padB - ((v - minV) / (maxV - minV)) * (H - padT - padB);
+
+  const gridVals = [minV + (maxV - minV) * 0.15, minV + (maxV - minV) * 0.5, minV + (maxV - minV) * 0.85];
+  const gridHtml = gridVals.map((v) => '<line x1="' + padL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y(v).toFixed(1) + '" stroke="var(--border)" stroke-width="1"/>'
+    + '<text x="2" y="' + (y(v) + 3).toFixed(1) + '" font-size="9" fill="var(--text-faint)">' + v.toFixed(1) + '</text>').join('');
+
+  let d = '';
+  points.forEach((p, i) => { d += (i === 0 ? 'M' : 'L') + x(p.t).toFixed(1) + ',' + y(p.v).toFixed(1) + ' '; });
+
+  const dots = points.map((p) => {
+    const dateStr = new Date(p.t).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return '<circle cx="' + x(p.t).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="2.5" fill="' + color + '"><title>' + dateStr + ': ' + p.v + unit + '</title></circle>';
+  }).join('');
+
+  const last = points[points.length - 1];
+  const firstLabel = new Date(minT).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const lastLabel = new Date(maxT).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block;">'
+    + gridHtml
+    + '<path d="' + d.trim() + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + dots
+    + '<text x="' + padL + '" y="' + (H - 4) + '" font-size="9" fill="var(--text-faint)">' + firstLabel + '</text>'
+    + '<text x="' + (W - padR) + '" y="' + (H - 4) + '" font-size="9" fill="var(--text-faint)" text-anchor="end">' + lastLabel + '</text>'
+    + '<text x="' + (W - padR) + '" y="12" font-size="10" font-weight="600" fill="' + color + '" text-anchor="end">' + last.v + unit + '</text>'
+    + '</svg>';
+}
+
+function renderRooms() {
+  const list = document.getElementById('roomsList');
+  const empty = document.getElementById('roomsEmpty');
+  if (!ROOMS.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = ROOMS.slice().sort((a, b) => a.name.localeCompare(b.name)).map((room) => {
+    const roomReadings = READINGS.filter((r) => r.roomId === room.id).sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt));
+    const tempPoints = roomReadings.filter((r) => r.tempC != null).map((r) => ({ t: new Date(r.recordedAt).getTime(), v: r.tempC }));
+    const humPoints = roomReadings.filter((r) => r.humidityPct != null).map((r) => ({ t: new Date(r.recordedAt).getTime(), v: r.humidityPct }));
+    const recent = roomReadings.slice(-8).reverse();
+    const rowsHtml = recent.map((r) => (
+      '<tr><td>' + escapeHtml(new Date(r.recordedAt).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + '</td>'
+      + '<td>' + (r.tempC != null ? r.tempC + '°C' : '—') + '</td>'
+      + '<td>' + (r.humidityPct != null ? r.humidityPct + '%' : '—') + '</td>'
+      + '<td>' + escapeHtml(r.note || '') + '</td>'
+      + '<td><button class="icon-btn" title="Delete reading" onclick="askDeleteReading(\'' + r.id + '\')">✕</button></td></tr>'
+    )).join('');
+    const tableHtml = recent.length
+      ? '<table class="readings-table"><thead><tr><th>When</th><th>Temp</th><th>Humidity</th><th>Note</th><th></th></tr></thead><tbody>' + rowsHtml + '</tbody></table>'
+        + (roomReadings.length > recent.length ? '<div class="readings-more">' + (roomReadings.length - recent.length) + ' earlier reading' + (roomReadings.length - recent.length !== 1 ? 's' : '') + ' — export CSV for the full history.</div>' : '')
+      : '<div class="chart-empty">No readings logged yet.</div>';
+
+    return '<div class="room-card">'
+      + '<div class="room-head"><div><div class="room-title">' + escapeHtml(room.name) + '</div>'
+      + (room.notes ? '<div class="room-notes">' + escapeHtml(room.notes) + '</div>' : '')
+      + '</div><button class="icon-btn" title="Delete room" onclick="askDeleteRoom(\'' + room.id + '\')">✕</button></div>'
+      + '<div class="room-actions">'
+      + '<button class="btn" onclick="openReadingForm(\'' + room.id + '\')">+ Log a reading</button>'
+      + '<button class="btn secondary" onclick="exportRoomReadingsCsv(\'' + room.id + '\')">Export CSV</button>'
+      + '</div>'
+      + '<div class="charts-grid">'
+      + '<div class="chart-box"><div class="chart-title">Temperature</div>' + drawTrendChart(tempPoints, 'var(--blue)', '°C') + '</div>'
+      + '<div class="chart-box"><div class="chart-title">Humidity</div>' + drawTrendChart(humPoints, 'var(--teal)', '%') + '</div>'
+      + '</div>'
+      + tableHtml
+      + '</div>';
+  }).join('');
+}
+
+function csvEscape(v) {
+  const s = v == null ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function downloadCsv(filename, rows) {
+  const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportRoomReadingsCsv(roomId) {
+  const room = ROOMS.find((r) => r.id === roomId);
+  if (!room) return;
+  const rows = [['room', 'recorded_at', 'temp_c', 'humidity_pct', 'note']];
+  READINGS.filter((r) => r.roomId === roomId).sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt))
+    .forEach((r) => rows.push([room.name, r.recordedAt, r.tempC ?? '', r.humidityPct ?? '', r.note || '']));
+  downloadCsv(room.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-readings.csv', rows);
+}
+function exportAllReadingsCsv() {
+  const byId = new Map(ROOMS.map((r) => [r.id, r.name]));
+  const rows = [['room', 'recorded_at', 'temp_c', 'humidity_pct', 'note']];
+  READINGS.slice().sort((a, b) => new Date(a.recordedAt) - new Date(b.recordedAt))
+    .forEach((r) => rows.push([byId.get(r.roomId) || r.roomId, r.recordedAt, r.tempC ?? '', r.humidityPct ?? '', r.note || '']));
+  downloadCsv('food-storage-readings.csv', rows);
+}
+
+StorageSync.init();
+</script>
+</body>
+</html>

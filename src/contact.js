@@ -3,9 +3,10 @@
  *   POST /api/contact                 public — the form on /contact/
  *   GET  /private/api/contact         behind Cloudflare Access — read messages
  *   DEL  /private/api/contact/:id     behind Cloudflare Access
+ *   (also at /admin/api/contact, behind the site's own sign-in)
  *
  * Messages go into the contact_messages table and are read on
- * /private/messages/, so no email address is ever published. The table is
+ * /admin/messages/, so no email address is ever published. The table is
  * created on first use, so there is no migration to run (it is also listed in
  * db/schema.sql).
  *
@@ -17,14 +18,13 @@
  * the privacy notice says.
  */
 
-import { json } from "./api.js";
+import { json, authed } from "./api.js";
 
 const MAX = { name: 100, email: 200, message: 5000 };
 const MIN_FILL_MS = 3000;
 const PER_HOUR = 5;
 const KEEP_DAYS = 365;
 
-const authed = (request) => Boolean(request.headers.get("Cf-Access-Jwt-Assertion"));
 const noDb = () => json({ error: "No database bound. See db/SETUP.md." }, 503);
 
 let tableReady = false;

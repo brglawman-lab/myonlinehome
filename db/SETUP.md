@@ -16,7 +16,8 @@ Open the new database → **Console** tab. Paste the whole of
 every statement is `CREATE TABLE IF NOT EXISTS`.
 
 Check it worked: the Tables list should show `sightings`, `custom_species`,
-`recipes`, `storage_rooms` and `storage_readings`.
+`recipes`, `storage_rooms` and `storage_readings`. (`contact_messages`,
+`gallery_photos` and `signin_failures` are created by the site on first use.)
 
 **Already have a database from before the storage feature?** Everything above
 is still safe to re-run, except one thing SQLite can't express as "if not
@@ -45,7 +46,37 @@ the change redeploys automatically.
 Sanity check: <https://myonlinehome.co.uk/api/sightings> should return `[]`
 rather than an error.
 
-## 4. Put the private area behind a login
+## 4. Set the sign-in password
+
+The owner's area (`/admin/` — photos, recipes, room storage tracker,
+messages) uses the site's own sign-in at `/signin/`. Its password lives in a
+Cloudflare secret, never in the repo.
+
+Cloudflare dashboard → **Workers & Pages** → **myonlinehome** → **Settings** →
+**Variables and Secrets** → **Add**:
+
+| Type | Name | Value |
+|---|---|---|
+| Secret | `ADMIN_PASSWORD` | a long password — let Chrome suggest one |
+| Secret | `ADMIN_USERNAME` | optional; if set, the username must match too (any case) |
+| Secret | `SESSION_SECRET` | optional; a long random string. Without it, sessions are signed with the password, so changing the password signs every device out |
+
+Save, then open <https://myonlinehome.co.uk/signin/>, type the username and
+password once, and let Chrome save them. After that Chrome signs you in
+automatically whenever you open the sign-in page (Chrome Settings → Passwords
+→ "Sign in automatically" must be on, which it is by default). Signing out
+from `/admin/` stops Chrome doing it again until you next sign in by hand.
+
+Until `ADMIN_PASSWORD` is set, the sign-in page says it isn't set up yet and
+nothing under `/admin/` can be opened.
+
+## 5. (Older) Cloudflare Access on /private/
+
+Before the sign-in above existed, the private area was behind Cloudflare
+Access. The `/private/api/` write endpoints still accept an Access session, and
+the old `/private/` pages now redirect to `/admin/`. The Access application can
+stay or be deleted — nothing on the site depends on it any more. The original
+setup, for reference:
 
 Cloudflare dashboard → **Zero Trust** → **Access** → **Applications** →
 **Add an application** → **Self-hosted**.
@@ -77,9 +108,9 @@ endpoint), because Access matches on the path prefix.
     GET  /api/custom-species         public
     POST /private/api/sightings      Ben only  Access checks before the code runs
     DEL  /private/api/sightings/:id  Ben only
-    GET  /private/                   Ben only  landing page behind the login
+    GET  /admin/                     Ben only  the site's own sign-in (step 4)
 
-The wildlife app writes to the `/private/` endpoints. If you are not signed in,
+The wildlife app writes to the `/admin/api/` endpoints. If you are not signed in,
 or have no signal, the sighting is saved on the device and queued — a small
 note appears bottom-right — and it syncs the moment you are back online and
 signed in. Nothing is lost by logging a sighting on a cliff with no bars.

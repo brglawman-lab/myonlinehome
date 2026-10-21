@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — My Online Home</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1rem; }
+  a.card { display:block; background:var(--warm-white); border:1px solid var(--border); border-radius:14px;
+           padding:1.25rem 1.4rem; text-decoration:none; color:inherit; transition:border-color .15s, transform .15s; }
+  a.card:hover { border-color:var(--sage); transform:translateY(-2px); }
+  a.card h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.2rem; color:var(--forest); margin-bottom:0.3rem; }
+  a.card p { font-size:0.9rem; color:var(--mid-grey); }
+  a.card .stat { display:block; margin-top:0.6rem; font-size:0.82rem; color:var(--forest); }
+  .section-label { font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--sage);
+                   font-weight:500; margin:2rem 0 0.75rem; }
+</style>
+</head>
+<body>
+<div class="wrap wide">
+  <div class="topbar">
+    <a href="/">&larr; Back to the site</a>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Admin</h1>
+  <p class="sub">You're signed in. Everything that changes the site is here.</p>
+
+  <div class="cards">
+    <a class="card" href="/admin/photos/">
+      <h2>Photos</h2>
+      <p>Upload new photos to the Wildlife Photography gallery, or remove ones already there.</p>
+      <span class="stat" id="photoStat"></span>
+    </a>
+    <a class="card" href="/admin/recipes/">
+      <h2>Recipes</h2>
+      <p>Add a recipe, edit one, or delete it from the recipe book.</p>
+      <span class="stat" id="recipeStat"></span>
+    </a>
+    <a class="card" href="/admin/storage/">
+      <h2>Room storage tracker</h2>
+      <p>Temperature and humidity readings for the places food is kept, with trend charts and CSV export.</p>
+      <span class="stat" id="roomStat"></span>
+    </a>
+    <a class="card" href="/admin/messages/">
+      <h2>Messages</h2>
+      <p>From the contact form.</p>
+      <span class="stat" id="msgStat"></span>
+    </a>
+  </div>
+
+  <p class="section-label">Also</p>
+  <div class="cards">
+    <a class="card" href="/admin/cookbook/">
+      <h2>The Cookbook</h2>
+      <p>Work in progress — the recipe book as a page-turning book. Not linked anywhere public until it's ready.</p>
+    </a>
+    <a class="card" href="/wildlife/">
+      <h2>Wildlife Tracker</h2>
+      <p>Log a sighting. Sightings made while signed in here sync straight to the database.</p>
+      <span class="stat" id="sightStat"></span>
+    </a>
+    <a class="card" href="/sitemap/">
+      <h2>Site map</h2>
+      <p>Every page and endpoint, with a link checker.</p>
+    </a>
+  </div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const getJson = (u) => fetch(u, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+getJson('/admin/api/contact').then(d => {
+  if (!Array.isArray(d)) return;
+  document.getElementById('msgStat').textContent = d.length
+    ? plural(d.length, 'message') + ' · latest ' + new Date(d[0].createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    : 'No messages yet.';
+});
+getJson('/api/gallery').then(d => {
+  if (!d || !Array.isArray(d.added)) return;
+  const bits = [];
+  if (d.added.length) bits.push(plural(d.added.length, 'photo') + ' uploaded here');
+  if (d.removed.length) bits.push(d.removed.length + ' removed');
+  document.getElementById('photoStat').textContent = bits.join(' · ');
+});
+getJson('/api/storage-rooms').then(d => {
+  if (Array.isArray(d)) document.getElementById('roomStat').textContent = d.length ? plural(d.length, 'room') : 'No rooms yet.';
+});
+getJson('/api/recipes').then(d => {
+  if (Array.isArray(d) && d.length) document.getElementById('recipeStat').textContent = plural(d.length, 'recipe') + ' added or edited on the site';
+});
+getJson('/api/sightings').then(d => {
+  if (Array.isArray(d)) document.getElementById('sightStat').textContent = d.length
+    ? plural(d.length, 'sighting') + ' · latest ' + d[0].date
+    : 'Nothing logged yet.';
+});
+</script>
+</body>
+</html>

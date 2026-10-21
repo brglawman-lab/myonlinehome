@@ -99,3 +99,33 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   sender_hash TEXT,
   created_at  TEXT NOT NULL
 );
+
+-- Wildlife gallery photos uploaded or removed through /admin/photos/. Also
+-- created by the Worker on first use. Uploaded photos (seed = 0) keep the
+-- JPEG in `data`; seed = 1 rows are tombstones for photos committed in
+-- public/gallery/ that have been taken off the gallery.
+CREATE TABLE IF NOT EXISTS gallery_photos (
+  id          TEXT PRIMARY KEY,
+  title       TEXT,
+  species     TEXT,
+  tags        TEXT,                     -- JSON array
+  location    TEXT,
+  date        TEXT,
+  camera      TEXT,
+  caption     TEXT,
+  size        TEXT,                     -- 'wide' or NULL
+  focus       TEXT,                     -- "x% y%": where the subject is
+  mime        TEXT,
+  data        BLOB,
+  width       INTEGER,
+  height      INTEGER,
+  seed        INTEGER NOT NULL DEFAULT 0,
+  created_at  TEXT NOT NULL,
+  deleted_at  TEXT
+);
+
+-- Failed sign-in attempts, for the 10-an-hour limit. Also created on first use.
+CREATE TABLE IF NOT EXISTS signin_failures (
+  sender_hash TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
