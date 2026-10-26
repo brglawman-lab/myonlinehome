@@ -222,6 +222,17 @@
   .modal-print-actions { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
   .print-btn { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
   .print-btn:hover { background: var(--surface2); color: var(--text); }
+  .modal-print-actions { gap: 8px; flex-wrap: wrap; }
+  .shop-picker { margin-top: 0.75rem; padding: 1rem 1.1rem; background: var(--accent-light); border-radius: var(--radius-lg); }
+  .shop-picker[hidden] { display: none !important; }
+  .shop-picker .sp-head { font-size: 13px; color: var(--accent-text); margin-bottom: 0.6rem; }
+  .shop-picker label { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; font-size: 14px; cursor: pointer; }
+  .shop-picker input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+  .shop-picker .sp-qty { color: var(--accent-text); font-weight: 500; margin-right: 4px; }
+  .shop-picker .sp-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 0.8rem; }
+  .shop-picker .sp-msg { font-size: 13px; color: var(--accent-text); }
+  .shop-picker .sp-msg a { color: var(--accent-text); }
+  @media print { .shop-picker { display: none !important; } }
   /* ── Print / recipe card view ── */
   @media print {
     .site-header, .section-nav, .main, #addOverlay, .modal-close, .modal-print-actions { display: none !important; }
@@ -750,6 +761,8 @@ function renderScaledIngredients() {
 function adjustServes(delta) {
   scaleCurrentServes = Math.max(1, scaleCurrentServes + delta);
   renderScaledIngredients();
+  const picker = document.getElementById('shopPicker');
+  if (picker && !picker.hidden) { picker.hidden = true; openShopPicker(); }
 }
 let currentPage = 'recipes'; // 'recipes' | 'drinks' | 'seasonal' | 'foraging'
 
@@ -932,6 +945,7 @@ function openDetail(id) {
     const notesHtml = r.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(r.notes) + '</div>' : '';
     const storageHtml = storageSectionHtml(r);
     const printSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+    const cartSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>';
     const titleForPrint = escapeHtml(r.title).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
     m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
       + '<span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span>'
@@ -945,9 +959,81 @@ function openDetail(id) {
       + '</div>'
       + notesHtml
       + storageHtml
-      + '<div class="modal-print-actions"><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>';
+      + '<div class="modal-print-actions"><button class="print-btn owner-only" type="button" onclick="openShopPicker()">' + cartSvg + ' Add to shopping list</button><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>'
+      + '<div class="shop-picker owner-only" id="shopPicker" hidden></div>';
   }
   document.getElementById('detailOverlay').classList.add('open');
+}
+
+/* Signed in: "Add to shopping list" in a recipe. Lists the ingredients at the
+ * servings currently shown, with pantry staples (salt, pepper, oil…) unticked,
+ * and sends the ticked ones to the shopping list at /admin/shopping/. The
+ * server folds anything already on the list into the existing line. */
+const SHOP_STAPLES = /^(salt|sea salt|flaky salt|black pepper|pepper|white pepper|water|olive oil|extra virgin olive oil|vegetable oil|sunflower oil|oil|sugar|caster sugar|ice)\b/i;
+let shopCandidates = [];
+function shopCandidatesFor(r) {
+  const factor = scaleBaseServes ? scaleCurrentServes / scaleBaseServes : 1;
+  const out = new Map();
+  const put = (name, qty, ticked) => {
+    name = String(name || '').trim(); if (!name) return;
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+    const key = name.toLowerCase();
+    const hit = out.get(key);
+    if (hit) { if (qty) hit.qty = [hit.qty, qty].filter(Boolean).join(' + '); hit.ticked = hit.ticked || ticked; }
+    else out.set(key, { name, qty: qty || null, ticked });
+  };
+  (r.ingredients || []).forEach(i => {
+    const amt = String(i.amount || '').trim();
+    if (/^to serve$/i.test(amt) || /^optional/i.test(amt)) {
+      String(i.item || '').split(/\s*,\s*/).forEach(n => put(n, null, true));
+      return;
+    }
+    const name = String(i.item || '').split(',')[0].replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    const vague = !amt || /^(to taste|pinch|a pinch|handful|a handful|splash|a splash|drizzle)$/i.test(amt);
+    put(name, vague ? null : scaleAmountString(amt, factor), !vague && !SHOP_STAPLES.test(name));
+  });
+  return [...out.values()];
+}
+function openShopPicker() {
+  const r = recipes.find(x => x.id === scaleRecipeId);
+  const box = document.getElementById('shopPicker');
+  if (!r || !box) return;
+  if (!box.hidden) { box.hidden = true; return; }
+  shopCandidates = shopCandidatesFor(r);
+  const serves = scaleBaseServes ? ' for ' + formatScaledNumber(scaleCurrentServes) + (scaleCurrentServes === 1 ? ' serving' : ' servings') : '';
+  box.innerHTML = '<div class="sp-head">Tick what you need to buy' + escapeHtml(serves) + '. Staples are left unticked.</div>'
+    + shopCandidates.map((c, k) => '<label><input type="checkbox" data-k="' + k + '"' + (c.ticked ? ' checked' : '') + '><span>'
+      + (c.qty ? '<span class="sp-qty">' + escapeHtml(c.qty) + '</span>' : '') + escapeHtml(c.name) + '</span></label>').join('')
+    + '<div class="sp-actions"><button class="add-btn" type="button" id="shopAddBtn" onclick="sendToShoppingList()">Add to the list</button>'
+    + '<span class="sp-msg" id="shopMsg"></span></div>';
+  box.hidden = false;
+  box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+async function sendToShoppingList() {
+  const r = recipes.find(x => x.id === scaleRecipeId);
+  const box = document.getElementById('shopPicker');
+  const msg = document.getElementById('shopMsg');
+  const btn = document.getElementById('shopAddBtn');
+  const chosen = [...box.querySelectorAll('input[type=checkbox]:checked')].map(cb => shopCandidates[+cb.dataset.k]);
+  if (!chosen.length) { msg.textContent = 'Nothing ticked.'; return; }
+  btn.disabled = true; msg.textContent = 'Adding…';
+  try {
+    const res = await fetch('/admin/api/shopping/add', {
+      method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ source: 'recipe', items: chosen.map(c => ({ name: c.name, qty: c.qty, recipe: r ? r.title : null })) }),
+    });
+    if (res.status === 401) { msg.innerHTML = 'You\'ve been signed out. <a href="/signin/?next=' + encodeURIComponent(location.pathname + '#recipe-' + (r ? r.id : '')) + '">Sign in</a>'; return; }
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'HTTP ' + res.status);
+    const bits = [];
+    if (d.added.length) bits.push('Added ' + d.added.length);
+    if (d.merged.length) bits.push(d.merged.length + ' already on the list, amounts added');
+    msg.innerHTML = escapeHtml(bits.join(' · ')) + ' · <a href="/admin/shopping/">Open the list</a>';
+  } catch (e) {
+    msg.textContent = 'Couldn\'t add: ' + (navigator.onLine ? e.message : 'no connection');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function closeDetail(e) {

@@ -40,6 +40,11 @@
       <p>Add a recipe, edit one, or delete it from the recipe book.</p>
       <span class="stat" id="recipeStat"></span>
     </a>
+    <a class="card" href="/admin/shopping/">
+      <h2>Shopping list</h2>
+      <p>The shared list. Tick things off in the shop, add by voice, or send a recipe's ingredients here.</p>
+      <span class="stat" id="shopStat"></span>
+    </a>
     <a class="card" href="/admin/storage/">
       <h2>Room storage tracker</h2>
       <p>Temperature and humidity readings for the places food is kept, with trend charts and CSV export.</p>
@@ -87,6 +92,11 @@ getJson('/api/gallery').then(d => {
   if (d.added.length) bits.push(plural(d.added.length, 'photo') + ' uploaded here');
   if (d.removed.length) bits.push(d.removed.length + ' removed');
   document.getElementById('photoStat').textContent = bits.join(' · ');
+});
+getJson('/admin/api/shopping').then(d => {
+  if (!Array.isArray(d)) return;
+  const n = d.filter(i => !i.done).length;
+  document.getElementById('shopStat').textContent = n ? plural(n, 'thing') + ' to buy' : 'Nothing on the list.';
 });
 getJson('/api/storage-rooms').then(d => {
   if (Array.isArray(d)) document.getElementById('roomStat').textContent = d.length ? plural(d.length, 'room') : 'No rooms yet.';
