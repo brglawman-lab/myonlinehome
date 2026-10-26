@@ -5,6 +5,7 @@
  *   POST /admin/api/shopping/add       signed in — add items, merging with ones already on the list
  *   GET  /admin/api/shopping/key       signed in — the voice key (made on first use)
  *   POST /admin/api/shopping/key       signed in — replace the voice key
+ *   POST /admin/api/shopping/transcribe signed in — audio from the page's microphone → {text}
  *   POST /api/shopping/voice           voice key — add what was said
  *   GET  /api/shopping/voice           voice key — read the list back
  *
@@ -303,4 +304,39 @@ export async function voiceShopping(request, env) {
   const all = [...added, ...merged];
   const extra = merged.length && !added.length ? " It was already on there." : "";
   return text(`Added ${sayList(all)} to the shopping list.${extra}`);
+}
+
+/* ---------- the page's microphone ----------
+ *
+ * The page records a few seconds of audio (webm/opus on Android, mp4 on an
+ * iPhone) and posts it here. Workers AI's Whisper turns it into text, which
+ * the page then splits into items exactly as it would typed text. No audio
+ * is kept. The prompt nudges Whisper towards commas between items. */
+const WHISPER = "@cf/openai/whisper-large-v3-turbo";
+const MAX_AUDIO = 4 * 1024 * 1024;
+
+function toBase64(bytes) {
+  let out = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) out += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(out);
+}
+
+export async function transcribeShopping(request, env) {
+  if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.AI) return json({ error: "Speech-to-text isn't set up (no AI binding)." }, 503);
+  const audio = new Uint8Array(await request.arrayBuffer());
+  if (audio.length < 500) return json({ error: "No audio" }, 400);
+  if (audio.length > MAX_AUDIO) return json({ error: "That recording is too long" }, 413);
+  try {
+    const res = await env.AI.run(WHISPER, {
+      audio: toBase64(audio),
+      language: "en",
+      vad_filter: true,
+      initial_prompt: "Shopping list: milk, eggs, bread, butter beans, aubergine, Greek yoghurt, smoked mackerel.",
+    });
+    return json({ text: String((res && res.text) || "").trim() });
+  } catch (err) {
+    console.error("transcribe", err);
+    return json({ error: "Couldn't transcribe: " + String(err && err.message ? err.message : err).slice(0, 200) }, 502);
+  }
 }

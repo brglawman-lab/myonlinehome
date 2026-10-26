@@ -68,6 +68,7 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     POST /admin/api/shopping             signed in — save items (newest change wins)
     POST /admin/api/shopping/add         signed in — add items, merging duplicates
     GET  /admin/api/shopping/key         signed in — the voice key (POST replaces it)
+    POST /admin/api/shopping/transcribe  signed in — audio in, {text} out (Workers AI Whisper)
     GET  /api/shopping/voice             voice key — read the list out (plain text)
     POST /api/shopping/voice             voice key — add what was said (plain text reply)
     DEL  /admin/api/contact/:id          signed in
@@ -153,7 +154,11 @@ row with no photos of its own keeps the photos listed in the file.
 between phones. It keeps a copy in localStorage and queues changes made with
 no signal, sending them when the connection comes back; each change carries
 its time and the newest wins, so two phones editing at once agree. The
-microphone button uses the browser's own speech recognition. For "Hey Siri",
+microphone button records a few seconds of audio and posts it to
+`/admin/api/shopping/transcribe`, which turns it into text with Workers AI
+(Whisper, the `AI` binding in `wrangler.toml`); the browser's own speech
+recognition is only a fallback, because on Android it can sit "listening"
+without returning anything. No audio is stored. For "Hey Siri",
 an iPhone Shortcut posts what was said to `/api/shopping/voice` with the
 voice key in an `Authorization: Bearer` header — the key is shown, copied and
 replaced on the page, is stored in D1 (`site_settings`), and reaches nothing
