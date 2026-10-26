@@ -108,7 +108,7 @@
 
   <details class="panel" id="voicePanel">
     <summary>Add by voice from your phone</summary>
-    <p class="note">The microphone button above works in Chrome on Android and in Safari on iPhone. For hands-free “Hey Siri”, set up a Shortcut once on each iPhone, using this key. The key only lets a phone add to and read this list. Nothing else on the site accepts it.</p>
+    <p class="note">The microphone button above records what you say and the site turns it into items — it works on any phone. For hands-free “Hey Siri”, set up a Shortcut once on each iPhone, using this key. The key only lets a phone add to and read this list. Nothing else on the site accepts it.</p>
     <div class="row" style="margin-top:0.75rem">
       <button class="btn secondary small" type="button" id="showKeyBtn">Show the key</button>
       <button class="btn secondary small" type="button" id="copyKeyBtn" hidden>Copy</button>
@@ -130,7 +130,7 @@
     <h3>Android</h3>
     <ol>
       <li>Open this page in Chrome, tap <strong>⋮</strong>, then <strong>Add to home screen</strong>. The list opens like an app.</li>
-      <li>Long-press the icon and choose <strong>Add by voice</strong>. Then tap the microphone and speak.</li>
+      <li>Long-press the icon and drag <strong>Add by voice</strong> onto the home screen. Tapping it opens the list already listening. Say the items, then tap the microphone (or just pause).</li>
     </ol>
     <p class="note">Google Assistant and Gemini can't send what you say to a website, so there's no true “Hey Google” route. The nearest is the free <em>HTTP Shortcuts</em> app: make a shortcut that sends a POST to the same address with the same header and a body of <code>{"text":"…"}</code>, taking the text from a prompt you answer with the keyboard microphone.</p>
   </details>
@@ -333,37 +333,122 @@ document.getElementById('pasteBtn').addEventListener('click', () => {
   toast('Added to the list');
 });
 
-/* The microphone: the browser's own speech recognition (Chrome on Android,
- * Safari on iPhone). Where there isn't any, the button stays hidden and the
- * keyboard's own dictation does the same job. */
+/* The microphone. The page records what you say and sends the audio to
+ * /admin/api/shopping/transcribe, where the site turns it into text (Workers
+ * AI, Whisper). That works the same on every phone, unlike the browsers' own
+ * speech recognition, which on Android depends on the phone's recogniser and
+ * can sit "listening" without ever returning anything. Recording stops by
+ * itself after a pause once you've spoken, or when you tap the button again.
+ * If the site can't transcribe, the browser's own recognition is the fallback;
+ * failing both, the keyboard's microphone does the same job. */
 const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 const mic = document.getElementById('micBtn'), heard = document.getElementById('heard');
-let rec = null;
-if (Rec) {
+let serverSpeech = true;          // false once the site says it can't transcribe
+let session = null;               // the recording (or recognition) in progress
+
+if (canRecord || Rec) {
   mic.hidden = false;
-  mic.addEventListener('click', () => { if (rec) rec.stop(); else listen(); });
+  mic.addEventListener('click', () => { if (session) session.stop(); else listen(); });
 }
-function listen() {
-  rec = new Rec();
-  rec.lang = 'en-GB'; rec.interimResults = true; rec.continuous = false;
-  let final = '';
-  rec.onstart = () => { mic.classList.add('listening'); heard.textContent = 'Listening… say “milk, eggs and bread”'; };
-  rec.onresult = (ev) => {
+function listen() { if (canRecord && serverSpeech) record(); else if (Rec) recognise(); }
+
+function addSpoken(text) {
+  const names = splitSpoken(text);
+  if (names.length) { addNames(names, 'voice'); heard.textContent = 'Added: ' + names.join(', '); }
+  else heard.textContent = 'Didn\'t catch any items — try again.';
+}
+
+async function record() {
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (e) {
+    heard.textContent = e.name === 'NotAllowedError' ? 'Microphone blocked — allow it for this site in the browser\'s site settings.' : 'Couldn\'t open the microphone (' + e.name + ').';
+    return;
+  }
+  const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+  const recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
+  const chunks = [];
+  let ctx = null, timer = null, maxTimer = null, spoke = false, quietSince = 0;
+  const finish = () => {
+    clearInterval(timer); clearTimeout(maxTimer);
+    if (recorder.state !== 'inactive') recorder.stop();
+  };
+  session = { stop: finish };
+  recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+  recorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    if (ctx) ctx.close().catch(() => {});
+    mic.classList.remove('listening');
+    session = null;
+    const blob = new Blob(chunks, { type: recorder.mimeType || type || 'audio/webm' });
+    if (blob.size < 1500) { heard.textContent = 'Didn\'t hear anything.'; return; }
+    heard.textContent = 'Working out what you said…';
+    try {
+      const res = await fetch(API + '/transcribe', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': blob.type }, body: blob });
+      if (res.status === 401) { location.href = '/signin/?next=' + encodeURIComponent(location.pathname); return; }
+      const d = await res.json().catch(() => ({}));
+      if (res.status === 503) { serverSpeech = false; heard.textContent = (Rec ? 'Voice isn\'t available on the site yet — tap the microphone again to use the browser\'s.' : 'Voice isn\'t available on the site yet — use your keyboard\'s microphone.'); return; }
+      if (!res.ok) throw new Error(d.error || 'HTTP ' + res.status);
+      if (d.text) heard.textContent = '“' + d.text + '”';
+      addSpoken(d.text || '');
+    } catch (e) {
+      heard.textContent = navigator.onLine ? 'Couldn\'t understand that (' + e.message + '). Try again.' : 'No signal — voice needs a connection. Type it instead and it\'ll sync later.';
+    }
+  };
+
+  recorder.start(250);
+  mic.classList.add('listening');
+  heard.textContent = 'Listening… say “milk, eggs and bread”. Tap the mic when you\'re done.';
+  maxTimer = setTimeout(finish, 15000);
+
+  // Stop by itself after a pause, once there's been some speech. If the page
+  // started listening on its own (the "Add by voice" icon), the browser may not
+  // let it measure the sound, and then it's tap-to-stop.
+  try {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') await ctx.resume().catch(() => {});
+    if (ctx.state === 'running') {
+      const analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+      const buf = new Float32Array(analyser.fftSize);
+      let floor = 0.01;
+      timer = setInterval(() => {
+        analyser.getFloatTimeDomainData(buf);
+        let sum = 0; for (let k = 0; k < buf.length; k++) sum += buf[k] * buf[k];
+        const rms = Math.sqrt(sum / buf.length);
+        if (!spoke) floor = Math.min(0.05, floor * 0.9 + rms * 0.1);
+        if (rms > Math.max(0.02, floor * 3)) { spoke = true; quietSince = 0; heard.textContent = 'Listening… pause when you\'re done.'; }
+        else if (spoke) { quietSince = quietSince || Date.now(); if (Date.now() - quietSince > 1400) finish(); }
+      }, 100);
+    }
+  } catch (e) { /* tap-to-stop still works */ }
+}
+
+/* Fallback: the browser's own speech recognition. */
+function recognise() {
+  const r = new Rec();
+  r.lang = 'en-GB'; r.interimResults = true; r.continuous = false;
+  let final = '', latest = '';
+  session = { stop: () => r.stop() };
+  r.onstart = () => { mic.classList.add('listening'); heard.textContent = 'Listening… say “milk, eggs and bread”'; };
+  r.onresult = (ev) => {
     let interim = '';
     for (let k = ev.resultIndex; k < ev.results.length; k++) {
       if (ev.results[k].isFinal) final += ev.results[k][0].transcript; else interim += ev.results[k][0].transcript;
     }
-    heard.textContent = '“' + (final + interim).trim() + '”';
+    latest = (final + interim).trim();
+    heard.textContent = '“' + latest + '”';
   };
-  rec.onerror = (ev) => {
+  r.onerror = (ev) => {
     heard.textContent = ev.error === 'not-allowed' ? 'Microphone blocked — allow it for this site in the browser settings.' : ev.error === 'no-speech' ? 'Didn\'t hear anything.' : 'Couldn\'t listen (' + ev.error + '). Your keyboard\'s microphone works too.';
   };
-  rec.onend = () => {
-    mic.classList.remove('listening'); rec = null;
-    const names = splitSpoken(final);
-    if (names.length) { addNames(names, 'voice'); heard.textContent = 'Added: ' + names.join(', '); }
+  r.onend = () => {
+    mic.classList.remove('listening'); session = null;
+    const text = final.trim() || latest;   // some phones never mark a result final
+    if (text) addSpoken(text);
   };
-  try { rec.start(); } catch (e) { rec = null; heard.textContent = 'Tap the microphone to start.'; }
+  try { r.start(); } catch (e) { session = null; heard.textContent = 'Tap the microphone to start.'; }
 }
 
 /* ---------- the voice key ---------- */
@@ -394,7 +479,7 @@ document.getElementById('voiceUrl1').textContent = location.origin + '/api/shopp
 render();
 flush();
 if (new URLSearchParams(location.search).get('voice') === '1') {
-  if (Rec) listen(); else input.focus();
+  if (canRecord || Rec) listen(); else input.focus();
 }
 </script>
 </body>

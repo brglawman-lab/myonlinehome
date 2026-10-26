@@ -21,6 +21,10 @@ run_worker_first = ["/admin/*", "/api/*", "/private/*"]
 
 # Everything else is served straight from ./public.
 
+# Workers AI — used by the shopping list's microphone (speech to text).
+[ai]
+binding = "AI"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "myonlinehome"
