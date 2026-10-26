@@ -129,3 +129,25 @@ CREATE TABLE IF NOT EXISTS signin_failures (
   sender_hash TEXT NOT NULL,
   created_at  TEXT NOT NULL
 );
+
+-- The shopping list at /admin/shopping/ (src/shopping.js). Also created by the
+-- Worker on first use. Removing an item is a soft delete so a phone that was
+-- offline can't bring it back; cleared rows are purged after a fortnight.
+CREATE TABLE IF NOT EXISTS shopping_items (
+  id          TEXT PRIMARY KEY,
+  name        TEXT NOT NULL,
+  qty         TEXT,
+  recipe      TEXT,                     -- recipe titles it's for, joined with " · "
+  done        INTEGER NOT NULL DEFAULT 0,
+  source      TEXT,                     -- web, paste, voice, recipe
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL,            -- the newest change wins
+  deleted_at  TEXT
+);
+
+-- Small site-wide settings. Holds the shopping list's voice key.
+CREATE TABLE IF NOT EXISTS site_settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);

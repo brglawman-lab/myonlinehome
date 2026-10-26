@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2d4a3e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shopping">
+<title>Shopping list — Admin</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/shopping-icon-180.png">
+<link rel="manifest" href="/assets/shopping.webmanifest">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  body { padding-top:1.25rem; }
+  .status { font-size:0.82rem; color:var(--mid-grey); margin:0 0 0.75rem; min-height:1.3em; }
+  .status.offline { color:var(--rust); }
+
+  .adder { position:sticky; top:0; z-index:5; background:var(--cream); padding:0.6rem 0 0.8rem; margin-bottom:0.5rem; }
+  .adder form { display:flex; gap:0.5rem; }
+  .adder input { flex:1; min-width:0; font:inherit; font-size:1rem; padding:0.7rem 0.9rem; border:1px solid rgba(45,74,62,0.25);
+                 border-radius:999px; background:#fff; color:var(--charcoal); }
+  .adder input:focus { outline:2px solid var(--sage); outline-offset:1px; }
+  .mic { width:46px; height:46px; flex:none; border-radius:50%; border:1px solid var(--forest); background:#fff; color:var(--forest);
+         cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+  .mic.listening { background:var(--rust); border-color:var(--rust); color:#fff; animation:pulse 1.2s infinite; }
+  .mic[hidden] { display:none; }
+  @keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(196,98,45,0.45); } 50% { box-shadow:0 0 0 10px rgba(196,98,45,0); } }
+  .heard { font-size:0.85rem; color:var(--mid-grey); margin-top:0.4rem; min-height:1.2em; padding-left:0.9rem; }
+
+  .group-head { display:flex; justify-content:space-between; align-items:baseline; margin:1.4rem 0 0.4rem; }
+  .group-head h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.15rem; color:var(--forest); }
+  .group-head .n { font-size:0.8rem; color:var(--mid-grey); margin-left:0.4rem; font-family:'DM Sans',sans-serif; font-weight:400; }
+  ul.items { list-style:none; background:var(--warm-white); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  ul.items:empty { display:none; }
+  .item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 0.6rem 0.75rem 0.9rem; border-top:1px solid var(--border); }
+  .item:first-child { border-top:none; }
+  .tick { width:26px; height:26px; flex:none; border-radius:50%; border:2px solid var(--sage); background:#fff; cursor:pointer;
+          display:inline-flex; align-items:center; justify-content:center; color:#fff; padding:0; }
+  .item.done .tick { background:var(--sage); }
+  .item .body { flex:1; min-width:0; cursor:pointer; }
+  .item .name { font-size:1rem; overflow-wrap:anywhere; }
+  .item .qty { color:var(--forest); font-weight:500; margin-right:0.35rem; }
+  .item .for { font-size:0.78rem; color:var(--mid-grey); overflow-wrap:anywhere; }
+  .item.done .name { text-decoration:line-through; color:var(--mid-grey); }
+  .item.done .qty { color:var(--mid-grey); }
+  .x { flex:none; background:none; border:none; color:var(--mid-grey); font-size:1.1rem; width:36px; height:36px; border-radius:50%; cursor:pointer; }
+  .x:hover { background:rgba(45,74,62,0.07); color:var(--danger); }
+  .edit-row { display:flex; gap:0.4rem; flex-wrap:wrap; width:100%; }
+  .edit-row input { font:inherit; font-size:0.95rem; padding:0.35rem 0.6rem; border:1px solid rgba(45,74,62,0.25); border-radius:8px; min-width:0; }
+  .edit-row .en { flex:2 1 140px; } .edit-row .eq { flex:1 1 80px; }
+  .empty { text-align:center; color:var(--mid-grey); padding:2rem 1rem; background:var(--warm-white); border:1px dashed var(--border); border-radius:14px; }
+
+  details.panel { margin-top:2rem; }
+  details.panel + details.panel { margin-top:1rem; }
+  details.panel summary { cursor:pointer; font-weight:500; color:var(--forest); }
+  details.panel[open] summary { margin-bottom:0.9rem; }
+  details.panel h3 { font-size:0.95rem; color:var(--forest); margin:1.1rem 0 0.35rem; }
+  details.panel ol { padding-left:1.3rem; font-size:0.92rem; }
+  details.panel li { margin-bottom:0.35rem; }
+  code, .keybox { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:0.85rem; background:rgba(45,74,62,0.07); padding:0.1rem 0.35rem; border-radius:4px; overflow-wrap:anywhere; }
+  .keybox { display:block; padding:0.6rem 0.75rem; margin:0.5rem 0; user-select:all; }
+  .row { display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a><a href="/recipes/">Recipe book</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Shopping list</h1>
+  <p class="status" id="status" role="status"></p>
+
+  <div class="adder">
+    <form id="addForm" autocomplete="off">
+      <input id="addInput" type="text" placeholder="Add items, with commas between" aria-label="Add to the list" enterkeyhint="done">
+      <button type="button" class="mic" id="micBtn" aria-label="Add by speaking" title="Add by speaking" hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg>
+      </button>
+      <button type="submit" class="btn">Add</button>
+    </form>
+    <div class="heard" id="heard"></div>
+  </div>
+
+  <div id="toBuyWrap">
+    <div class="group-head"><h2>To buy<span class="n" id="toBuyN"></span></h2></div>
+    <ul class="items" id="toBuy"></ul>
+    <p class="empty" id="emptyMsg" hidden>Nothing on the list. Add things above, or open a recipe and use <strong>Add to shopping list</strong>.</p>
+  </div>
+
+  <div id="doneWrap" hidden>
+    <div class="group-head">
+      <h2>In the basket<span class="n" id="doneN"></span></h2>
+      <button class="btn secondary small" id="clearBtn" type="button">Clear these</button>
+    </div>
+    <ul class="items" id="done"></ul>
+  </div>
+
+  <details class="panel">
+    <summary>Paste a list</summary>
+    <p class="note">One item per line — a list from Claude or a recipe pastes straight in. Things already on the list aren't added twice.</p>
+    <textarea class="f" id="pasteBox" rows="6" placeholder="250g macaroni&#10;Gruyère&#10;2 lemons"></textarea>
+    <button class="btn" type="button" id="pasteBtn">Add these</button>
+  </details>
+
+  <details class="panel" id="voicePanel">
+    <summary>Add by voice from your phone</summary>
+    <p class="note">The microphone button above works in Chrome on Android and in Safari on iPhone. For hands-free “Hey Siri”, set up a Shortcut once on each iPhone, using this key. The key only lets a phone add to and read this list. Nothing else on the site accepts it.</p>
+    <div class="row" style="margin-top:0.75rem">
+      <button class="btn secondary small" type="button" id="showKeyBtn">Show the key</button>
+      <button class="btn secondary small" type="button" id="copyKeyBtn" hidden>Copy</button>
+      <button class="btn danger small" type="button" id="newKeyBtn" hidden>Replace key</button>
+    </div>
+    <span class="keybox" id="keyBox" hidden></span>
+
+    <h3>iPhone — “Hey Siri, add to shopping”</h3>
+    <ol>
+      <li>Open the <strong>Shortcuts</strong> app, tap <strong>+</strong>, and name the shortcut <strong>Add to shopping</strong>.</li>
+      <li>Add the action <strong>Dictate Text</strong>. Set Language to English (UK) and Stop Listening to After Pause.</li>
+      <li>Add <strong>Get Contents of URL</strong>. URL: <code id="voiceUrl1">https://myonlinehome.co.uk/api/shopping/voice</code>. Tap the arrow to show more and set:
+        Method <strong>POST</strong>; under Headers add <code>Authorization</code> with the value <code>Bearer</code>, a space, then the key; Request Body <strong>JSON</strong>, with one Text field called <code>text</code> set to <em>Dictated Text</em>.</li>
+      <li>Add <strong>Speak Text</strong> and set it to speak <em>Contents of URL</em>. Siri then confirms what it added.</li>
+      <li>Say “Hey Siri, add to shopping”, wait for the beep, then say the items: “milk, eggs and bread”.</li>
+    </ol>
+    <p class="note">For “Hey Siri, what's on the shopping list”, make a second shortcut with just <strong>Get Contents of URL</strong> (same address and header, method GET) and <strong>Speak Text</strong>. Once the first one works, you can share it from the Shortcuts app to the other iPhone.</p>
+
+    <h3>Android</h3>
+    <ol>
+      <li>Open this page in Chrome, tap <strong>⋮</strong>, then <strong>Add to home screen</strong>. The list opens like an app.</li>
+      <li>Long-press the icon and choose <strong>Add by voice</strong>. Then tap the microphone and speak.</li>
+    </ol>
+    <p class="note">Google Assistant and Gemini can't send what you say to a website, so there's no true “Hey Google” route. The nearest is the free <em>HTTP Shortcuts</em> app: make a shortcut that sends a POST to the same address with the same header and a body of <code>{"text":"…"}</code>, taking the text from a prompt you answer with the keyboard microphone.</p>
+  </details>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* The shopping list. Kept in localStorage so it opens instantly and works with
+ * no signal; changes made offline wait in a queue and are sent when the
+ * connection comes back. Every change carries the time it was made and the
+ * server keeps the newest, so two phones editing at once agree. */
+const API = '/admin/api/shopping';
+const LS_ITEMS = 'moh.shopping.items', LS_PENDING = 'moh.shopping.pending';
+
+const load = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+let items = new Map((load(LS_ITEMS) || []).map(i => [i.id, i]));
+let pending = new Map(Object.entries(load(LS_PENDING) || {}));
+let editing = null;
+let online = true;
+
+const now = () => new Date().toISOString();
+const newId = () => 'item-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+const sameKey = (n) => String(n || '').toLowerCase().replace(/[^a-z0-9à-ÿ ]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/oes$/, 'o').replace(/s$/, '');
+
+function persist() {
+  store(LS_ITEMS, [...items.values()]);
+  store(LS_PENDING, Object.fromEntries(pending));
+}
+
+/* ---------- changes ---------- */
+
+function change(item) {
+  item.updatedAt = now();
+  if (item.deleted) items.delete(item.id); else items.set(item.id, item);
+  pending.set(item.id, Object.assign({}, item));
+  persist(); render(); flush();
+}
+
+/* "250g macaroni" → qty 250g, name macaroni. Anything that doesn't start with
+ * an amount is all name. */
+function splitQty(line) {
+  const m = String(line).trim().match(/^(\d+(?:[.,]\d+)?\s*(?:kg|g|ml|l|litres?|tbsp|tsp|x|pack|packs|tins?|cans?|bunch(?:es)?)?|[½¼¾])\s+(.+)$/i);
+  return m ? { qty: m[1].trim(), name: m[2].trim() } : { qty: null, name: String(line).trim() };
+}
+
+function addNames(lines, source) {
+  const toBuy = new Map([...items.values()].filter(i => !i.done).map(i => [sameKey(i.name), i]));
+  let added = 0; const already = [];
+  for (const line of lines) {
+    const { qty, name } = splitQty(line);
+    if (!name) continue;
+    const cap = name.charAt(0).toUpperCase() + name.slice(1);
+    const hit = toBuy.get(sameKey(cap));
+    if (hit) {
+      if (qty) { hit.qty = [hit.qty, qty].filter(Boolean).join(' + '); change(hit); }
+      already.push(hit.name); continue;
+    }
+    const t = now();
+    const item = { id: newId(), name: cap, qty, recipe: null, done: false, source, createdAt: t };
+    toBuy.set(sameKey(cap), item);
+    change(item); added++;
+  }
+  if (already.length && !added) toast(already.join(', ') + (already.length === 1 ? ' is' : ' are') + ' already on the list');
+  else if (already.length) toast('Added ' + added + ' · ' + already.length + ' already on the list');
+}
+
+/* Same splitting as the server does for Siri: commas, "and", a few pairs kept whole. */
+const KEEP = ['salt and vinegar','cheese and onion','fish and chips','mac and cheese','macaroni and cheese','sweet and sour','sour cream and chive','ham and cheese','bread and butter','oil and vinegar'];
+function splitSpoken(input) {
+  let s = String(input || '').replace(/\s+/g, ' ').trim();
+  s = s.replace(/^(please\s+)?(can you\s+)?(add|put|get|buy)\s+/i, '').replace(/\s+(to|on|onto)\s+(the|my|our)\s+(shopping\s+)?list[.!]?$/i, '').replace(/[.!?]+$/, '');
+  KEEP.forEach((p, i) => { s = s.replace(new RegExp(p, 'gi'), m => m.replace(/ and /i, ' \u0001' + i + ' ')); });
+  return s.split(/\s*(?:,|;|\n|\band\b|&|\bplus\b)\s*/i).map(x => x.replace(/ \u0001\d+ /g, ' and ').replace(/^(some|a|an)\s+/i, '').trim()).filter(Boolean);
+}
+
+/* ---------- sync ---------- */
+
+function setStatus() {
+  const el = document.getElementById('status');
+  el.classList.toggle('offline', !online);
+  if (!online) el.textContent = pending.size ? 'Offline — ' + pending.size + ' change' + (pending.size === 1 ? '' : 's') + ' will send when you\'re back online' : 'Offline — showing the list as it was';
+  else el.textContent = pending.size ? 'Saving…' : 'Up to date · refreshes by itself';
+}
+
+function adopt(serverItems) {
+  items = new Map(serverItems.map(i => [i.id, i]));
+  for (const p of pending.values()) { if (p.deleted) items.delete(p.id); else items.set(p.id, p); }
+  persist(); render();
+}
+
+let busy = false;
+async function flush() {
+  if (busy) return; busy = true;
+  try {
+    let data;
+    if (pending.size) {
+      const sent = [...pending.values()];
+      const res = await adminFetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sent) });
+      for (const s of sent) { const p = pending.get(s.id); if (p && p.updatedAt === s.updatedAt) pending.delete(s.id); }
+      data = res.items;
+    } else {
+      data = await adminFetch(API, { cache: 'no-store' });
+    }
+    online = true;
+    if (Array.isArray(data) && editing === null) adopt(data);
+  } catch (e) {
+    online = false;
+  } finally {
+    busy = false; setStatus();
+    if (online && pending.size) setTimeout(flush, 300);
+  }
+}
+
+setInterval(() => { if (document.visibilityState === 'visible') flush(); }, 15000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') flush(); });
+window.addEventListener('online', flush);
+
+/* ---------- drawing ---------- */
+
+const tickSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function itemHtml(i) {
+  if (editing === i.id) {
+    return '<li class="item" data-id="' + esc(i.id) + '"><div class="edit-row">'
+      + '<input class="eq" id="editQty" value="' + esc(i.qty || '') + '" placeholder="Amount">'
+      + '<input class="en" id="editName" value="' + esc(i.name) + '">'
+      + '<button class="btn small" data-act="save">Save</button><button class="btn secondary small" data-act="cancel">Cancel</button>'
+      + '</div></li>';
+  }
+  return '<li class="item' + (i.done ? ' done' : '') + '" data-id="' + esc(i.id) + '">'
+    + '<button class="tick" data-act="tick" aria-label="' + (i.done ? 'Put back on the list' : 'Got it') + '">' + (i.done ? tickSvg : '') + '</button>'
+    + '<div class="body" data-act="tick"><div class="name">' + (i.qty ? '<span class="qty">' + esc(i.qty) + '</span>' : '') + esc(i.name) + '</div>'
+    + (i.recipe ? '<div class="for">For ' + esc(i.recipe) + '</div>' : '') + '</div>'
+    + (i.done ? '' : '<button class="x" data-act="edit" aria-label="Edit" title="Edit">✎</button>')
+    + '<button class="x" data-act="del" aria-label="Remove" title="Remove">✕</button></li>';
+}
+
+function render() {
+  const all = [...items.values()].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+  const toBuy = all.filter(i => !i.done), done = all.filter(i => i.done);
+  document.getElementById('toBuy').innerHTML = toBuy.map(itemHtml).join('');
+  document.getElementById('done').innerHTML = done.map(itemHtml).join('');
+  document.getElementById('toBuyN').textContent = toBuy.length ? toBuy.length : '';
+  document.getElementById('doneN').textContent = done.length ? done.length : '';
+  document.getElementById('emptyMsg').hidden = toBuy.length > 0;
+  document.getElementById('doneWrap').hidden = done.length === 0;
+  setStatus();
+  if (editing) { const n = document.getElementById('editName'); if (n) n.focus(); }
+}
+
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const li = el.closest('.item'); if (!li) return;
+  const item = items.get(li.dataset.id); if (!item) return;
+  const act = el.dataset.act;
+  if (act === 'tick') { change(Object.assign({}, item, { done: !item.done })); }
+  else if (act === 'del') { change(Object.assign({}, item, { deleted: true })); }
+  else if (act === 'edit') { editing = item.id; render(); }
+  else if (act === 'cancel') { editing = null; render(); }
+  else if (act === 'save') { saveEdit(item); }
+});
+document.addEventListener('keydown', (e) => {
+  if (editing && e.key === 'Enter' && e.target.closest('.edit-row')) { const item = items.get(editing); if (item) saveEdit(item); }
+  if (editing && e.key === 'Escape') { editing = null; render(); }
+});
+function saveEdit(item) {
+  const name = document.getElementById('editName').value.trim();
+  const qty = document.getElementById('editQty').value.trim();
+  editing = null;
+  if (name) change(Object.assign({}, item, { name, qty: qty || null })); else render();
+}
+
+document.getElementById('clearBtn').addEventListener('click', (e) => {
+  confirmClick(e.currentTarget, 'Tap again to clear', () => {
+    [...items.values()].filter(i => i.done).forEach(i => change(Object.assign({}, i, { deleted: true })));
+  });
+});
+
+/* ---------- adding ---------- */
+
+const input = document.getElementById('addInput');
+document.getElementById('addForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const v = input.value.trim(); if (!v) return;
+  addNames(v.split(/\s*[,;\n]\s*/).filter(Boolean), 'web');
+  input.value = ''; input.focus();
+});
+document.getElementById('pasteBtn').addEventListener('click', () => {
+  const box = document.getElementById('pasteBox');
+  const lines = box.value.split('\n').map(l => l.replace(/^\s*(?:[-•*·]|\d+[.)])\s*/, '').trim()).filter(Boolean);
+  if (!lines.length) return;
+  addNames(lines, 'paste'); box.value = '';
+  toast('Added to the list');
+});
+
+/* The microphone: the browser's own speech recognition (Chrome on Android,
+ * Safari on iPhone). Where there isn't any, the button stays hidden and the
+ * keyboard's own dictation does the same job. */
+const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const mic = document.getElementById('micBtn'), heard = document.getElementById('heard');
+let rec = null;
+if (Rec) {
+  mic.hidden = false;
+  mic.addEventListener('click', () => { if (rec) rec.stop(); else listen(); });
+}
+function listen() {
+  rec = new Rec();
+  rec.lang = 'en-GB'; rec.interimResults = true; rec.continuous = false;
+  let final = '';
+  rec.onstart = () => { mic.classList.add('listening'); heard.textContent = 'Listening… say “milk, eggs and bread”'; };
+  rec.onresult = (ev) => {
+    let interim = '';
+    for (let k = ev.resultIndex; k < ev.results.length; k++) {
+      if (ev.results[k].isFinal) final += ev.results[k][0].transcript; else interim += ev.results[k][0].transcript;
+    }
+    heard.textContent = '“' + (final + interim).trim() + '”';
+  };
+  rec.onerror = (ev) => {
+    heard.textContent = ev.error === 'not-allowed' ? 'Microphone blocked — allow it for this site in the browser settings.' : ev.error === 'no-speech' ? 'Didn\'t hear anything.' : 'Couldn\'t listen (' + ev.error + '). Your keyboard\'s microphone works too.';
+  };
+  rec.onend = () => {
+    mic.classList.remove('listening'); rec = null;
+    const names = splitSpoken(final);
+    if (names.length) { addNames(names, 'voice'); heard.textContent = 'Added: ' + names.join(', '); }
+  };
+  try { rec.start(); } catch (e) { rec = null; heard.textContent = 'Tap the microphone to start.'; }
+}
+
+/* ---------- the voice key ---------- */
+
+let voiceKey = null;
+const keyBox = document.getElementById('keyBox');
+function showKey(k) {
+  voiceKey = k; keyBox.textContent = k; keyBox.hidden = false;
+  document.getElementById('copyKeyBtn').hidden = false; document.getElementById('newKeyBtn').hidden = false;
+  document.getElementById('showKeyBtn').hidden = true;
+}
+document.getElementById('showKeyBtn').addEventListener('click', async () => {
+  try { showKey((await adminFetch(API + '/key', { cache: 'no-store' })).key); } catch (e) { toast('Couldn\'t get the key: ' + e.message, true); }
+});
+document.getElementById('copyKeyBtn').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(voiceKey); toast('Key copied'); } catch (e) { toast('Select the key and copy it', true); }
+});
+document.getElementById('newKeyBtn').addEventListener('click', (e) => {
+  confirmClick(e.currentTarget, 'Tap again — old shortcuts stop working', async () => {
+    try { showKey((await adminFetch(API + '/key', { method: 'POST' })).key); toast('New key made. Update the Shortcut on each phone.'); }
+    catch (err) { toast('Couldn\'t replace the key: ' + err.message, true); }
+  });
+});
+document.getElementById('voiceUrl1').textContent = location.origin + '/api/shopping/voice';
+
+/* ---------- start ---------- */
+
+render();
+flush();
+if (new URLSearchParams(location.search).get('voice') === '1') {
+  if (Rec) listen(); else input.focus();
+}
+</script>
+</body>
+</html>

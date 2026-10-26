@@ -91,9 +91,10 @@ const GROUPS = [
     ['/recipes/recipes.json', 'Recipe data', 'The seed recipes the recipe pages load'],
   ]},
   { title: 'Owner only — after signing in', note: 'Everything under /admin/ sends you to the sign-in page first.', items: [
-    ['/admin/', 'Admin', 'Photos, recipes, room storage tracker, messages'],
+    ['/admin/', 'Admin', 'Photos, recipes, shopping list, room storage tracker, messages'],
     ['/admin/photos/', 'Photos', 'Upload photos to the gallery, or remove them'],
     ['/admin/recipes/', 'Recipes', 'Add, edit or delete recipes'],
+    ['/admin/shopping/', 'Shopping list', 'Shared list — tick off, add by voice, add a recipe\'s ingredients'],
     ['/admin/storage/', 'Room storage tracker', 'Temperature and humidity readings, charts, CSV export'],
     ['/admin/messages/', 'Messages', 'Contact form messages'],
     ['/admin/cookbook/', 'The Cookbook', 'Work in progress — the recipe book as a page-turning book'],
@@ -116,6 +117,8 @@ const GROUPS = [
     ['/admin/api/custom-species', 'Save custom species', 'POST · signed in', false],
     ['/admin/api/storage-rooms', 'Save storage rooms', 'POST, DELETE · signed in', false],
     ['/admin/api/storage-readings', 'Save storage readings', 'POST, DELETE · signed in', false],
+    ['/admin/api/shopping', 'Shopping list', 'GET, POST · signed in', false],
+    ['/api/shopping/voice', 'Add to the shopping list by voice (Siri Shortcut)', 'GET, POST · voice key', false],
     ['/admin/api/contact', 'Contact messages', 'GET, DELETE · signed in', false],
   ]},
 ];

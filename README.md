@@ -28,7 +28,7 @@ prefix has to be added there or it will just get the 404 page.
 | `/contact/` | Contact form. Messages are stored in D1 (`contact_messages`) and read at `/admin/messages/` — no email address is published | authored here |
 | `/sitemap/` | Site map — every page and endpoint grouped by who can reach it, with a link checker. Public. **Add new pages to its list** | authored here |
 | `/signin/` | Sign-in for the owner. A normal username/password form so Chrome's password manager saves it, plus the Credential Management API so Chrome signs straight in next time. Goes to `/admin/` | authored here |
-| `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
+| `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Shopping list** (`/admin/shopping/`), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
 | `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
 | `/admin/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the sign-in and not linked from any public page (reach it from `/admin/`) | authored here |
@@ -64,6 +64,12 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     POST /api/signout                    public
     POST /api/contact                    public (honeypot, timing check, 5/hour per connection)
     GET  /admin/api/contact              signed in
+    GET  /admin/api/shopping             signed in — the shopping list
+    POST /admin/api/shopping             signed in — save items (newest change wins)
+    POST /admin/api/shopping/add         signed in — add items, merging duplicates
+    GET  /admin/api/shopping/key         signed in — the voice key (POST replaces it)
+    GET  /api/shopping/voice             voice key — read the list out (plain text)
+    POST /api/shopping/voice             voice key — add what was said (plain text reply)
     DEL  /admin/api/contact/:id          signed in
     POST /admin/api/sightings            signed in
     DEL  /admin/api/sightings/:id        signed in
@@ -142,6 +148,21 @@ cookbook. Photo files are committed under `public/recipes/photos/` (about
 1600px on the long edge, JPEG ~82). In the database they are stored as a JSON
 array in the existing `image` column, so no migration was needed; a database
 row with no photos of its own keeps the photos listed in the file.
+
+**Shopping list.** `/admin/shopping/` (`src/shopping.js`) is a list shared
+between phones. It keeps a copy in localStorage and queues changes made with
+no signal, sending them when the connection comes back; each change carries
+its time and the newest wins, so two phones editing at once agree. The
+microphone button uses the browser's own speech recognition. For "Hey Siri",
+an iPhone Shortcut posts what was said to `/api/shopping/voice` with the
+voice key in an `Authorization: Bearer` header — the key is shown, copied and
+replaced on the page, is stored in D1 (`site_settings`), and reaches nothing
+but the shopping list. The page's "Paste a list" box takes one item per line.
+Signed in, every recipe in the book has an **Add to shopping list** button
+that ticks off pantry staples and sends the rest (scaled to the servings
+shown) to `/admin/api/shopping/add`, which folds duplicates together. The
+tables are created on first use. `/assets/shopping.webmanifest` lets the page
+be added to a phone's home screen, with an "Add by voice" shortcut.
 
 The Cookbook (`/admin/cookbook/`, sign-in only while it's unfinished) reads the same recipes, drinks, seasonal and
 foraging lists (and gallery photographs for the interludes) and typesets them

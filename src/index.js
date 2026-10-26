@@ -33,6 +33,7 @@ import {
 import { createContactMessage, listContactMessages, deleteContactMessage } from "./contact.js";
 import { getInspiration } from "./inspiration.js";
 import { isSignedIn, sameOrigin, signIn, signOut, sessionStatus } from "./auth.js";
+import { listShopping, saveShopping, addShopping, getVoiceKey, replaceVoiceKey, voiceShopping } from "./shopping.js";
 import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, restoreGalleryPhoto } from "./gallery.js";
 
 /* The old /private/ pages moved to /admin/ (and the site map to /sitemap/). */
@@ -116,6 +117,26 @@ export default {
         }
         const id = decodeURIComponent(rest);
         if (method === "DELETE") return removeGalleryPhoto(request, env, id);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+
+      // ---- shopping list: signed in, plus a key-only endpoint for voice shortcuts ----
+      if (path === "/api/shopping/voice") {
+        if (method === "POST" || method === "GET") return voiceShopping(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/admin/api/shopping") {
+        if (method === "GET") return listShopping(request, env);
+        if (method === "POST") return saveShopping(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/admin/api/shopping/add") {
+        if (method === "POST") return addShopping(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/admin/api/shopping/key") {
+        if (method === "GET") return getVoiceKey(request, env);
+        if (method === "POST") return replaceVoiceKey(request, env);
         return json({ error: `${method} not allowed here` }, 405);
       }
 
