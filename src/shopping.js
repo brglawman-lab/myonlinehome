@@ -116,9 +116,13 @@ export async function listShopping(request, env) {
   return json(await liveItems(env));
 }
 
-/* Save rows exactly as the page has them. A row only replaces what's stored if
- * its updatedAt is at least as new, so a phone that was offline for an hour
- * can't undo what the other phone did in the meantime. */
+/* Save rows exactly as the page has them. Each row says which version it was
+ * based on (`base`, the updatedAt the page last had from here). If nothing
+ * has changed since, the save wins outright — phone clocks drift, so they
+ * can't be trusted for that. Only when the other phone got in first does the
+ * time of each change decide, so a phone that was offline for an hour can't
+ * undo what the other one did in the meantime. Saved rows are stamped with
+ * this server's clock whenever the phone's is behind. */
 export async function saveShopping(request, env) {
   if (!authed(request)) return json({ error: "Not authenticated" }, 401);
   if (!env.DB) return noDb();
@@ -132,11 +136,12 @@ export async function saveShopping(request, env) {
   const now = new Date().toISOString();
   const stmt = env.DB.prepare(
     `INSERT INTO shopping_items (id, name, qty, recipe, done, source, created_at, updated_at, deleted_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
      ON CONFLICT(id) DO UPDATE SET
        name = excluded.name, qty = excluded.qty, recipe = excluded.recipe, done = excluded.done,
-       updated_at = excluded.updated_at, deleted_at = excluded.deleted_at
-     WHERE excluded.updated_at >= shopping_items.updated_at`
+       updated_at = CASE WHEN excluded.updated_at > shopping_items.updated_at THEN excluded.updated_at ELSE ?10 END,
+       deleted_at = CASE WHEN excluded.deleted_at IS NULL THEN NULL ELSE ?10 END
+     WHERE excluded.updated_at >= shopping_items.updated_at OR shopping_items.updated_at = ?11`
   );
   const batch = [];
   for (const r of rows) {
@@ -145,7 +150,7 @@ export async function saveShopping(request, env) {
     batch.push(stmt.bind(
       String(r.id).slice(0, 80), clip(r.name, 200), clip(r.qty, 120), clip(r.recipe, 400),
       r.done ? 1 : 0, clip(r.source, 20) || "web", r.createdAt || now, updated,
-      r.deleted ? updated : null
+      r.deleted ? updated : null, now, typeof r.base === "string" ? r.base : ""
     ));
   }
   if (batch.length) await env.DB.batch(batch);
@@ -267,11 +272,17 @@ async function spokenText(request) {
     const b = await request.json().catch(() => ({}));
     return String(b.text ?? b.item ?? b.items ?? "");
   }
-  if (type.includes("form")) {
+  if (type.includes("multipart/form-data")) {
     const f = await request.formData().catch(() => null);
     return f ? String(f.get("text") || "") : "";
   }
-  return await request.text();
+  const raw = await request.text();
+  if (type.includes("application/x-www-form-urlencoded")) {
+    const p = new URLSearchParams(raw);
+    // No field called text: the whole body was probably just the words.
+    return p.has("text") ? String(p.get("text")) : [...p.keys()].join(" ");
+  }
+  return raw;
 }
 
 export async function voiceShopping(request, env) {
