@@ -218,8 +218,13 @@ function setStatus() {
 }
 
 function adopt(serverItems) {
-  items = new Map(serverItems.map(i => [i.id, i]));
-  for (const p of pending.values()) { if (p.deleted) items.delete(p.id); else items.set(p.id, p); }
+  // base: the version this phone last had from the server, so the server can
+  // tell an up-to-date change from one that crossed with the other phone's.
+  items = new Map(serverItems.map(i => [i.id, Object.assign(i, { base: i.updatedAt })]));
+  for (const p of pending.values()) {
+    const s = items.get(p.id);
+    if (p.deleted) items.delete(p.id); else items.set(p.id, Object.assign({}, p, s ? { base: s.base } : {}));
+  }
   persist(); render();
 }
 
