@@ -22,7 +22,6 @@ Everything now lives in one repository, **`brglawman-lab/myonlinehome`**:
 
     public/recipes/index.html     Recipe Book (the page)
     public/recipes/recipes.json   Recipe Book (the recipes)
-    public/wildlife/              Yorkshire Wildlife Tracker
     public/wyfood/index.html      WY Farmer's Markets — markets and festivals
     src/                          the API
     db/                           database schema and setup notes
@@ -37,7 +36,7 @@ the drift this merge was done to end.
 
 ## First, work out which kind of update this is
 
-**Content** — a new recipe, a wildlife sighting, a market that has changed its
+**Content** — a new recipe, a market that has changed its
 dates. This belongs in the **database**, added through the site itself. No file
 needs editing and no repository access is needed.
 
@@ -64,7 +63,7 @@ apply it.
 ### How Ben applies it
 
 1. **Through the site.** Open the relevant page and use its own form — `+ Add`
-   on the recipe book, `Log a sighting` on the wildlife tracker. Best for a
+   on the recipe book. Best for a
    single item. It syncs to the database on its own.
 2. **Hand it to the myonlinehome project**, which has repository access and can
    push the change directly. Best for several items at once, or anything that
@@ -134,27 +133,9 @@ weeks under `section:'other'`.
 
 ---
 
-## Wildlife sighting format
-
-```js
-{ speciesId:'mammalia-roe-deer', date:'2026-08-27', time:null,
-  locationName:'Adel', county:'West Yorkshire', note:'',
-  lat:53.855889, lon:-1.5909013 }
-```
-
-`speciesId` must match an entry in `public/wildlife/data/species.json` — 468
-Yorkshire vertebrates. If the species is not on the list it has to be added as
-a custom species first. `county` is one of the four Yorkshire ceremonial
-counties. `lat`/`lon` are optional but make the map useful.
-
-Realistically, sightings are far easier logged through the app on a phone than
-handed over as data.
-
----
-
 ## One rule that catches people out
 
-The recipe book and the wildlife tracker both work the same way: the **file**
+The recipe book works like this: the **file**
 holds the original content, and the **database** holds anything Ben has added,
 edited or deleted on the site. Where both have the same item, **the database
 wins**.

@@ -14,11 +14,6 @@
 import {
   json,
   signedInRequests,
-  listSightings,
-  listCustomSpecies,
-  createSightings,
-  deleteSighting,
-  createCustomSpecies,
   listRecipes,
   listDeletedRecipes,
   saveRecipes,
@@ -201,14 +196,6 @@ async function route(request, env, ctx) {
       }
 
       // ---- public reads ----
-      if (path === "/api/sightings") {
-        if (method === "GET") return listSightings(env);
-        return json({ error: "Read-only. Write to /admin/api/sightings." }, 405);
-      }
-      if (path === "/api/custom-species") {
-        if (method === "GET") return listCustomSpecies(env);
-        return json({ error: "Read-only. Write to /admin/api/custom-species." }, 405);
-      }
       if (path === "/api/recipes") {
         if (method === "GET") return listRecipes(env);
         return json({ error: "Read-only. Write to /admin/api/recipes." }, 405);
@@ -235,19 +222,6 @@ async function route(request, env, ctx) {
       }
 
       // ---- writes, behind Cloudflare Access (/private/api/) or the sign-in (/admin/api/) ----
-      if (apiPath === "/private/api/sightings") {
-        if (method === "POST") return createSightings(request, env);
-        return json({ error: `${method} not allowed here` }, 405);
-      }
-      if (apiPath.startsWith("/private/api/sightings/")) {
-        const id = decodeURIComponent(apiPath.slice("/private/api/sightings/".length));
-        if (method === "DELETE") return deleteSighting(request, env, id);
-        return json({ error: `${method} not allowed here` }, 405);
-      }
-      if (apiPath === "/private/api/custom-species") {
-        if (method === "POST") return createCustomSpecies(request, env);
-        return json({ error: `${method} not allowed here` }, 405);
-      }
       if (apiPath === "/private/api/recipes") {
         if (method === "POST") return saveRecipes(request, env);
         return json({ error: `${method} not allowed here` }, 405);

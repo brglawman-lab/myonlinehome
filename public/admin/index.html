@@ -63,11 +63,6 @@
       <h2>The Cookbook</h2>
       <p>Work in progress — the recipe book as a page-turning book. Not linked anywhere public until it's ready.</p>
     </a>
-    <a class="card" href="/wildlife/">
-      <h2>Wildlife Tracker</h2>
-      <p>Log a sighting. Sightings made while signed in here sync straight to the database.</p>
-      <span class="stat" id="sightStat"></span>
-    </a>
     <a class="card" href="/admin/sitemap/">
       <h2>Site map</h2>
       <p>Every page and endpoint, with a link checker.</p>
@@ -103,11 +98,6 @@ getJson('/api/storage-rooms').then(d => {
 });
 getJson('/api/recipes').then(d => {
   if (Array.isArray(d) && d.length) document.getElementById('recipeStat').textContent = plural(d.length, 'recipe') + ' added or edited on the site';
-});
-getJson('/api/sightings').then(d => {
-  if (Array.isArray(d)) document.getElementById('sightStat').textContent = d.length
-    ? plural(d.length, 'sighting') + ' · latest ' + d[0].date
-    : 'Nothing logged yet.';
 });
 </script>
 </body>

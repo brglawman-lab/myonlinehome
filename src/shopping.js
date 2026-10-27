@@ -9,7 +9,7 @@
  *   POST /api/shopping/voice           voice key — add what was said
  *   GET  /api/shopping/voice           voice key — read the list back
  *
- * The list is private, so unlike recipes and sightings there is no public read.
+ * The list is private, so unlike recipes there is no public read.
  *
  * The page works offline: it keeps the list in localStorage, queues changes
  * made with no signal (a supermarket basement), and sends them when the signal

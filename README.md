@@ -32,8 +32,7 @@ prefix has to be added there or it will just get the 404 page.
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
 | `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
 | `/admin/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the sign-in and not linked from any public page (reach it from `/admin/`) | authored here |
-| `/photos/` | Photography hub — wildlife photography, work in progress | authored here |
-| `/wildlife/` | Yorkshire Wildlife Tracker — 468-species checklist, county map, sighting log | from `brglawman-lab/YorkshireWildlife` |
+| `/photos/` | Photography hub — links to the wildlife photography gallery | authored here |
 | `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/`. The row of big buttons under the header on it and its sub-pages comes from `public/assets/recipe-nav.js` — change destinations there, not in the pages | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/inspiration/` | Inspiration — a handful of recipes recently published by The Guardian, BBC Good Food and olive, read from their RSS feeds by `/api/inspiration` (`src/inspiration.js`) and cached for 3 hours | authored here |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
@@ -52,8 +51,6 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
 
 ## API
 
-    GET  /api/sightings                  public
-    GET  /api/custom-species             public
     GET  /api/recipes                    public
     GET  /api/recipes/deleted            public
     GET  /api/storage-rooms              public
@@ -76,9 +73,6 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     GET  /api/shopping/voice             voice key — read the list out (plain text)
     POST /api/shopping/voice             voice key — add what was said (plain text reply)
     DEL  /admin/api/contact/:id          signed in
-    POST /admin/api/sightings            signed in
-    DEL  /admin/api/sightings/:id        signed in
-    POST /admin/api/custom-species       signed in
     POST /admin/api/recipes              signed in
     DEL  /admin/api/recipes/:id          signed in
     POST /admin/api/storage-rooms        signed in
@@ -101,8 +95,7 @@ cover. The only authorisation now is the site's own sign-in.
 the Worker answers gets the same set from `SECURITY_HEADERS` in
 `src/index.js`. Keep the two in step. `wrangler.toml` turns off the
 `workers.dev` address and preview URLs so the Worker is only reachable on the
-real domain. Leaflet (the wildlife map) is served from
-`public/assets/vendor/`, not a CDN.
+real domain.
 
 **Signing in.** One account, whose password is the `ADMIN_PASSWORD` secret
 (optionally with an `ADMIN_USERNAME`) set in the Cloudflare dashboard — see
@@ -118,11 +111,15 @@ committed photos in `PHOTOS` have a `focus` too). Uploaded photos are stored in
 D1 (`gallery_photos`), not committed; removing a committed photo writes a
 tombstone row and can be undone from the same page.
 
-The wildlife tracker is offline-first: the database is the source of truth,
-localStorage is a cache, and writes made with no signal or no login are queued
-and flushed automatically. See `db/SETUP.md` for the Cloudflare steps.
+The Yorkshire Wildlife Tracker (sightings log, species checklist and county
+map at `/wildlife/`) was taken down in October 2026, with its
+`/api/sightings` and `/api/custom-species` endpoints and the
+work-in-progress page that linked to it. The `sightings` and `custom_species`
+tables are still in D1 but nothing reads them.
 
-The recipe book works the same way. The recipes in
+The recipe book is offline-first: the database is the source of truth,
+localStorage is a cache, and writes made with no signal or no login are
+queued and flushed automatically. The recipes in
 `public/recipes/recipes.json` are the seed — the page caches them in
 localStorage, so a return visit paints instantly and works offline — and the
 database holds the overlay: recipes added through
@@ -142,7 +139,7 @@ product-specific advice. The **Room storage tracker** (`/admin/storage/`,
 signed in) is for tracking real conditions:
 named rooms (pantry, garage store, …) with logged temperature/humidity
 readings, trend charts per room, and a CSV export for analysis outside the
-site. It follows the same offline-first pattern as sightings and recipes.
+site. It follows the same offline-first pattern as the recipes.
 
 The home page (`/`) is deliberately just a few words: Recipes goes straight
 to the recipe book, Photos to the photography hub, and a smaller Dashboard
@@ -157,7 +154,7 @@ neither is fetched or shown. Bin day comes from Leeds City Council's own
 bin-day API via `src/bins.js` — the address is picked once on the widget and
 kept in D1 (`site_settings`), never in this public repository — plus buttons into the recipe book, Meal Builder, What does Jodie want to eat?, Food
 Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography
-and work-in-progress links that used to live on the home page. The recipe
+link that used to live on the home page. The recipe
 book supports `#recipe-<id>` and `#seasonal`/`#foraging`/`#drinks` in its URL
 so the dashboard's widgets can link straight into the right recipe or tab.
 

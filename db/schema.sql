@@ -1,6 +1,11 @@
 -- myonlinehome D1 schema
 -- Run once against the D1 database (dashboard console or `wrangler d1 execute`).
 
+-- sightings and custom_species belonged to the Yorkshire Wildlife Tracker,
+-- taken down in October 2026. Nothing reads or writes them now; they stay
+-- here only so a re-run of this file matches the live database. They can be
+-- dropped (DROP TABLE sightings; DROP TABLE custom_species;) once the old
+-- records are no longer wanted.
 CREATE TABLE IF NOT EXISTS sightings (
   id            TEXT PRIMARY KEY,
   species_id    TEXT NOT NULL,

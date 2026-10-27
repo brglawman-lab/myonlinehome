@@ -15,8 +15,9 @@ Open the new database → **Console** tab. Paste the whole of
 [`db/schema.sql`](./schema.sql) and run it. It is safe to run more than once —
 every statement is `CREATE TABLE IF NOT EXISTS`.
 
-Check it worked: the Tables list should show `sightings`, `custom_species`,
-`recipes`, `storage_rooms` and `storage_readings`. (`contact_messages`,
+Check it worked: the Tables list should show `recipes`, `storage_rooms` and
+`storage_readings` (plus `sightings` and `custom_species`, left over from the
+retired wildlife tracker). (`contact_messages`,
 `gallery_photos` and `signin_failures` are created by the site on first use.)
 
 **Already have a database from before the storage feature?** Everything above
@@ -43,7 +44,7 @@ Database ID from step 1:
 The binding name must be exactly `DB` — that is what the code reads. Pushing
 the change redeploys automatically.
 
-Sanity check: <https://myonlinehome.co.uk/api/sightings> should return `[]`
+Sanity check: <https://myonlinehome.co.uk/api/recipes> should return a list
 rather than an error.
 
 ## 4. Set the sign-in password
@@ -104,13 +105,11 @@ endpoint), because Access matches on the path prefix.
 
 ## How it fits together
 
-    GET  /api/sightings              public    anyone can see what's been logged
-    GET  /api/custom-species         public
-    POST /private/api/sightings      Ben only  Access checks before the code runs
-    DEL  /private/api/sightings/:id  Ben only
-    GET  /admin/                     Ben only  the site's own sign-in (step 4)
+    GET  /api/recipes                public    the recipe book's additions and edits
+    POST /admin/api/recipes          Ben only  the site's own sign-in (step 4)
+    GET  /admin/                     Ben only
 
-The wildlife app writes to the `/admin/api/` endpoints. If you are not signed in,
-or have no signal, the sighting is saved on the device and queued — a small
+The recipe book writes to the `/admin/api/` endpoints. If you are not signed
+in, or have no signal, a change is saved on the device and queued — a small
 note appears bottom-right — and it syncs the moment you are back online and
-signed in. Nothing is lost by logging a sighting on a cliff with no bars.
+signed in.
