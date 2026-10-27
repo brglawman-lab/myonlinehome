@@ -47,6 +47,12 @@
   .msg a { color: var(--accent-text); }
   .confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13.5px; color: var(--text-muted); }
   [hidden] { display: none !important; }
+  .summary { font-size: 14px; color: var(--text-muted); }
+  .summary a { color: var(--accent-text); }
+  .row input:disabled { cursor: default; }
+  .readonly .row { cursor: default; }
+  .note { font-size: 13px; color: var(--text-muted); }
+  .note a { color: var(--accent-text); }
 
   #list { display: flex; flex-direction: column; gap: 2rem; }
   section { display: flex; flex-direction: column; }
@@ -102,16 +108,17 @@ transition:background .15s ease,color .15s ease}
 <main class="main">
   <div class="intro">
     <h1>Bar Stock</h1>
-    <p>Everything needed for every drink on the <a href="/recipes/cocktail-menu/">Cocktail Menu</a>. Tick items you have in; each line shows which cocktails use it. Ticks are saved in this browser only.</p>
+    <p>What's in the bar. Each line shows which cocktails use it. Ticks are saved to the site, so your phone and laptop see the same list, and the <a href="/recipes/cocktail-menu/">Cocktail Menu</a> crosses out any drink that can't be made.</p>
   </div>
 
   <div class="status">
-    <p class="count" id="count"><strong>0</strong> of 0 in stock</p>
+    <p class="count" id="count">Loading…</p>
     <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+    <p class="summary" id="summary"></p>
     <div class="controls">
       <button class="btn secondary" id="filter" type="button" aria-pressed="false">Show only what's missing</button>
       <button class="btn owner-only" id="shop" type="button">Add missing to shopping list</button>
-      <button class="btn secondary" id="reset" type="button">Clear all ticks</button>
+      <button class="btn secondary owner-only" id="reset" type="button">Clear all ticks</button>
       <span class="confirm" id="confirm" hidden>
         <span>Clear every tick?</span>
         <button class="btn secondary" id="resetYes" type="button">Yes, clear</button>
@@ -119,164 +126,176 @@ transition:background .15s ease,color .15s ease}
       </span>
       <span class="msg" id="msg" role="status"></span>
     </div>
+    <p class="note" id="readonlyNote" hidden>View only. <a href="/signin/?next=/recipes/bar-stock/">Sign in</a> to tick items.</p>
   </div>
 
-  <div id="list"></div>
+  <div id="list" class="readonly"></div>
   <p class="empty" id="empty" hidden>Fully stocked. Time to make a drink.</p>
 </main>
 
+<script src="/assets/bar-data.js"></script>
 <script>
-/* Bar stock checklist for the Cocktail Menu (/recipes/cocktail-menu/).
- * Each item: [name, which drinks use it, true if it's made at home rather
- * than bought]. Homemade items are left out of "Add missing to shopping
- * list". Ticks live in localStorage, so they are per browser. */
-const SECTIONS = [
-  { title: "Spirits", note: "Six bottles. These keep indefinitely once opened.", items: [
-    ["London dry gin", "Negroni, Martini, Gimlet, Tom Collins, Last Word, French 75, Martinez, Bijou, Bee's Knees, White Lady, Alexander"],
-    ["Vodka", "Martini, Cosmopolitan, Bloody Mary, Espresso Martini, White Russian, Black Russian, Chocolate Martini"],
-    ["Blanco tequila", "Margarita, Paloma, Rosita"],
-    ["Bourbon", "Old Fashioned, Manhattan, Whisky Sour, Boulevardier, Paper Plane, Gold Rush, Monte Carlo, Frisco Sour"],
-    ["Scotch whisky (Glen Moray 12 works)", "Old Fashioned, Rob Roy, Bobby Burns, Penicillin"],
-    ["Islay single malt", "Penicillin (float on top)"]
-  ]},
-  { title: "Liqueurs & Aperitifs", note: "Shelf-stable. The Chartreuse and Nonino last for years at these quantities.", items: [
-    ["Cointreau", "Margarita, Cosmopolitan, White Lady"],
-    ["Campari", "Negroni, Boulevardier, Americano, Negroni Sbagliato, Rosita"],
-    ["Aperol", "Aperol Spritz, Paper Plane"],
-    ["Amaro Nonino", "Paper Plane"],
-    ["Green Chartreuse", "Last Word, Bijou"],
-    ["Maraschino liqueur", "Last Word, Martinez"],
-    ["Coffee liqueur", "Espresso Martini, White Russian, Black Russian"],
-    ["Bénédictine", "Bobby Burns, Monte Carlo, Frisco Sour"],
-    ["Crème de cacao (Bols Cacao Brown)", "Alexander, Chocolate Martini"]
-  ]},
-  { title: "Vermouth & Sparkling", note: "Fridge once opened. Vermouth keeps about a month; buy fizz when you need it.", items: [
-    ["Sweet vermouth", "Negroni, Manhattan, Boulevardier, Rob Roy, Bobby Burns, Americano, Sbagliato, Rosita, Martinez, Bijou"],
-    ["Dry vermouth", "Martini, Rosita"],
-    ["Prosecco", "Aperol Spritz, Negroni Sbagliato"],
-    ["Champagne or crémant", "French 75"]
-  ]},
-  { title: "Bitters & Syrups", note: "Make the sugar and honey-ginger syrups at home; both keep two to three weeks in the fridge.", items: [
-    ["Angostura bitters", "Old Fashioned, Manhattan, Whisky Sour, Rob Roy, Monte Carlo, Rosita, Martinez, Bijou"],
-    ["Sugar syrup", "Old Fashioned, Whisky Sour, Gimlet, Tom Collins, French 75", true],
-    ["Honey-ginger syrup", "Penicillin", true]
-  ]},
-  { title: "Mixers", note: "Small cans or bottles go flat less quickly than big ones.", items: [
-    ["Soda water", "Tom Collins, Aperol Spritz, Americano"],
-    ["Grapefruit soda", "Paloma"],
-    ["Cranberry juice", "Cosmopolitan"],
-    ["Tomato juice", "Bloody Mary"]
-  ]},
-  { title: "Fresh", note: "Buy close to when you need them. Squeeze citrus on the day.", items: [
-    ["Limes", "Margarita, Gimlet, Cosmopolitan, Paloma, Last Word"],
-    ["Lemons", "Whisky Sour, Tom Collins, French 75, Bloody Mary, Penicillin, Paper Plane, Gold Rush, Bee's Knees, White Lady, Frisco Sour"],
-    ["Oranges", "Peel for Negroni, Old Fashioned, Boulevardier, Americano; slices for Spritz"],
-    ["Fresh ginger", "Honey-ginger syrup"],
-    ["Eggs", "Whisky Sour (egg white, optional)"],
-    ["Double cream", "White Russian, Alexander, Chocolate Martini"],
-    ["Coffee for espresso", "Espresso Martini"],
-    ["Celery", "Bloody Mary garnish"]
-  ]},
-  { title: "Pantry & Garnishes", note: "Cupboard staples, plus a couple of jars for the fridge.", items: [
-    ["Caster sugar", "Sugar syrup"],
-    ["Honey", "Honey-ginger syrup, Gold Rush, Bee's Knees, Scotch Old Fashioned"],
-    ["Flaky sea salt", "Margarita rim, Paloma"],
-    ["Worcestershire sauce", "Bloody Mary"],
-    ["Tabasco", "Bloody Mary"],
-    ["Celery salt", "Bloody Mary"],
-    ["Black pepper", "Bloody Mary"],
-    ["Green olives", "Martini"],
-    ["Cocktail cherries", "Manhattan, Rob Roy, Whisky Sour"],
-    ["Whole nutmeg", "Alexander"]
-  ]},
-  { title: "Freezer", note: "More than you think. Buy a bag if you're making several rounds.", items: [
-    ["Ice cubes", "Almost everything"]
-  ]}
-];
-
-const KEY = "bar-stock-ticks-v1";
-let ticks = {};
-try { ticks = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { ticks = {}; }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} }
-
+/* Bar stock checklist. The items come from /assets/bar-data.js (shared with
+ * the cocktail menu); what's ticked lives in the database via /api/bar-stock,
+ * so every device sees the same list. Anyone can look; only the signed-in
+ * owner can tick. The first time it's opened signed in with nothing saved
+ * yet, ticks left in this browser by the old version are carried over. */
+const { STOCK, DRINKS, missing } = window.BAR;
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const list = document.getElementById("list");
-const all = [];
 
-SECTIONS.forEach(sec => {
+let have = new Set();
+let signedIn = false;
+const list = document.getElementById("list");
+const msg = document.getElementById("msg");
+const main = document.querySelector(".main");
+
+STOCK.forEach(sec => {
   const s = document.createElement("section");
   s.innerHTML = '<div class="sec-head"><h2>' + escapeHtml(sec.title) + '<span class="n"></span></h2><p class="sec-note">' + escapeHtml(sec.note) + '</p></div>';
   const ul = document.createElement("ul");
-  sec.items.forEach(([name, uses, homemade]) => {
-    const id = "i-" + slug(name);
-    all.push({ id, name, homemade: !!homemade });
+  sec.items.forEach(it => {
     const li = document.createElement("li");
-    li.innerHTML = '<label class="row" for="' + id + '"><input type="checkbox" id="' + id + '"' + (ticks[id] ? ' checked' : '') + '>'
-      + '<span class="txt"><span class="name">' + escapeHtml(name) + (homemade ? '<span class="make">Make</span>' : '') + '</span>'
-      + '<span class="uses">' + escapeHtml(uses) + '</span></span></label>';
-    li.querySelector("input").addEventListener("change", (e) => {
-      if (e.target.checked) ticks[id] = true; else delete ticks[id];
-      save(); update();
-    });
+    li.innerHTML = '<label class="row" for="i-' + it.id + '"><input type="checkbox" id="i-' + it.id + '" data-id="' + it.id + '" disabled>'
+      + '<span class="txt"><span class="name">' + escapeHtml(it.name) + (it.homemade ? '<span class="make">Make</span>' : '') + '</span>'
+      + '<span class="uses">' + escapeHtml(it.uses) + '</span></span></label>';
+    li.querySelector("input").addEventListener("change", (e) => toggle(it.id, e.target.checked));
     ul.appendChild(li);
   });
   s.appendChild(ul);
   list.appendChild(s);
 });
 
-const main = document.querySelector(".main");
-function update() {
+function render() {
   let done = 0, total = 0;
   list.querySelectorAll("section").forEach(s => {
     const boxes = s.querySelectorAll("input");
     let d = 0;
-    boxes.forEach(b => { b.closest("li").classList.toggle("done", b.checked); if (b.checked) d++; });
+    boxes.forEach(b => {
+      b.checked = have.has(b.dataset.id);
+      b.disabled = !signedIn;
+      b.closest("li").classList.toggle("done", b.checked);
+      if (b.checked) d++;
+    });
     done += d; total += boxes.length;
     s.querySelector(".n").textContent = d + " / " + boxes.length;
     s.classList.toggle("all-done", d === boxes.length);
   });
+  list.classList.toggle("readonly", !signedIn);
+  document.getElementById("readonlyNote").hidden = signedIn;
   document.getElementById("count").innerHTML = "<strong>" + done + "</strong> of " + total + " in stock";
   document.getElementById("bar").style.width = (total ? done / total * 100 : 0) + "%";
+  const can = DRINKS.filter(d => missing(d, have).length === 0).length;
+  document.getElementById("summary").innerHTML = 'The <a href="/recipes/cocktail-menu/">menu</a> can offer <strong>' + can + '</strong> of ' + DRINKS.length + ' drinks.';
   document.getElementById("empty").hidden = !(main.classList.contains("hide-done") && done === total);
 }
+
+async function load() {
+  const res = await fetch('/api/bar-stock', { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+async function save(set) {
+  const res = await fetch('/admin/api/bar-stock', {
+    method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ set }),
+  });
+  if (res.status === 401) {
+    signedIn = false; document.documentElement.classList.remove('signed-in'); render();
+    throw new Error('signed out');
+  }
+  const d = await res.json();
+  if (!res.ok) throw new Error(d.error || 'HTTP ' + res.status);
+  return d;
+}
+
+async function toggle(id, on) {
+  if (on) have.add(id); else have.delete(id);
+  render();
+  msg.textContent = 'Saving…';
+  try {
+    const d = await save({ [id]: on });
+    have = new Set(d.have);
+    render();
+    msg.textContent = 'Saved';
+  } catch (e) {
+    if (on) have.delete(id); else have.add(id);
+    render();
+    msg.innerHTML = e.message === 'signed out'
+      ? 'You\'ve been signed out. <a href="/signin/?next=/recipes/bar-stock/">Sign in</a>'
+      : 'Couldn\'t save: ' + escapeHtml(navigator.onLine ? e.message : 'no connection');
+  }
+}
+
+/* Ticks saved in this browser by the first version of the page, keyed by
+ * "i-" + a slug of the item name. */
+function legacyTicks() {
+  let old = {};
+  try { old = JSON.parse(localStorage.getItem("bar-stock-ticks-v1") || "{}") || {}; } catch (e) { return null; }
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const set = {};
+  STOCK.forEach(sec => sec.items.forEach(it => { if (old["i-" + slug(it.name)]) set[it.id] = true; }));
+  return Object.keys(set).length ? set : null;
+}
+
+async function start() {
+  const [stock, session] = await Promise.all([
+    load().catch(e => { document.getElementById("count").textContent = 'Couldn\'t load the stock list: ' + e.message; return null; }),
+    fetch('/api/session', { cache: 'no-store', credentials: 'same-origin' }).then(r => r.ok ? r.json() : null).catch(() => null),
+  ]);
+  signedIn = Boolean(session && session.signedIn);
+  document.documentElement.classList.toggle('signed-in', signedIn);
+  if (!stock) return;
+  have = new Set(stock.have);
+  if (signedIn && !stock.updatedAt) {
+    const carried = legacyTicks();
+    if (carried) {
+      try { const d = await save(carried); have = new Set(d.have); msg.textContent = 'Brought over the ticks saved in this browser.'; } catch (e) {}
+    }
+  }
+  render();
+}
+
+/* Pick up ticks made on another device when coming back to the tab. */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  load().then(d => { have = new Set(d.have); render(); }).catch(() => {});
+});
 
 const filter = document.getElementById("filter");
 filter.addEventListener("click", () => {
   const on = filter.getAttribute("aria-pressed") !== "true";
   filter.setAttribute("aria-pressed", String(on));
   main.classList.toggle("hide-done", on);
-  update();
+  render();
 });
 
 const reset = document.getElementById("reset"), confirmBox = document.getElementById("confirm");
 reset.addEventListener("click", () => { confirmBox.hidden = false; reset.hidden = true; });
 document.getElementById("resetNo").addEventListener("click", () => { confirmBox.hidden = true; reset.hidden = false; });
-document.getElementById("resetYes").addEventListener("click", () => {
-  ticks = {}; save();
-  list.querySelectorAll("input").forEach(b => b.checked = false);
+document.getElementById("resetYes").addEventListener("click", async () => {
   confirmBox.hidden = true; reset.hidden = false;
-  update();
+  const set = {};
+  STOCK.forEach(sec => sec.items.forEach(it => { set[it.id] = false; }));
+  msg.textContent = 'Clearing…';
+  try { const d = await save(set); have = new Set(d.have); render(); msg.textContent = 'Cleared'; }
+  catch (e) { msg.textContent = 'Couldn\'t clear: ' + e.message; }
 });
 
 /* Owner only: send everything unticked (except homemade syrups) to the
  * shopping list at /admin/shopping/. The list merges duplicates itself. */
-fetch('/api/session', { cache: 'no-store', credentials: 'same-origin' })
-  .then(r => r.ok ? r.json() : null)
-  .then(s => document.documentElement.classList.toggle('signed-in', Boolean(s && s.signedIn)))
-  .catch(() => {});
-
-const shopBtn = document.getElementById("shop"), msg = document.getElementById("msg");
+const shopBtn = document.getElementById("shop");
 shopBtn.addEventListener("click", async () => {
-  const missing = all.filter(it => !it.homemade && !document.getElementById(it.id).checked);
-  if (!missing.length) { msg.textContent = "Nothing missing."; return; }
+  const want = [];
+  STOCK.forEach(sec => sec.items.forEach(it => { if (!it.homemade && !have.has(it.id)) want.push(it); }));
+  if (!want.length) { msg.textContent = "Nothing missing."; return; }
   shopBtn.disabled = true; msg.textContent = "Adding…";
   try {
     const res = await fetch('/admin/api/shopping/add', {
       method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ source: 'recipe', items: missing.map(it => ({ name: it.name.replace(/\s*\(.*\)\s*$/, ''), recipe: 'Bar stock' })) }),
+      body: JSON.stringify({ source: 'recipe', items: want.map(it => ({ name: it.name.replace(/\s*\(.*\)\s*$/, ''), recipe: 'Bar stock' })) }),
     });
-    if (res.status === 401) { msg.innerHTML = 'You\'ve been signed out. <a href="/signin/?next=' + encodeURIComponent(location.pathname) + '">Sign in</a>'; return; }
+    if (res.status === 401) { msg.innerHTML = 'You\'ve been signed out. <a href="/signin/?next=/recipes/bar-stock/">Sign in</a>'; return; }
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'HTTP ' + res.status);
     const bits = [];
@@ -290,7 +309,7 @@ shopBtn.addEventListener("click", async () => {
   }
 });
 
-update();
+start();
 </script>
 </body>
 </html>

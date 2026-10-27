@@ -35,6 +35,7 @@ import { getInspiration } from "./inspiration.js";
 import { isSignedIn, sameOrigin, signIn, signOut, sessionStatus } from "./auth.js";
 import { listShopping, saveShopping, addShopping, getVoiceKey, replaceVoiceKey, voiceShopping, transcribeShopping } from "./shopping.js";
 import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, restoreGalleryPhoto } from "./gallery.js";
+import { getBarStock, saveBarStock } from "./barstock.js";
 
 /* The old /private/ pages moved to /admin/ (and the site map to /sitemap/). */
 const MOVED = {
@@ -141,6 +142,17 @@ export default {
       if (path === "/admin/api/shopping/key") {
         if (method === "GET") return getVoiceKey(request, env);
         if (method === "POST") return replaceVoiceKey(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+
+      // ---- bar stock: public read (the guest cocktail menu), signed-in write ----
+      if (path === "/api/bar-stock") {
+        if (method === "GET") return getBarStock(env);
+        return json({ error: "Read-only. Write to /admin/api/bar-stock." }, 405);
+      }
+      if (path === "/admin/api/bar-stock") {
+        if (method === "GET") return getBarStock(env);
+        if (method === "POST") return saveBarStock(request, env);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

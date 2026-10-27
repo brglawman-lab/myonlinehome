@@ -151,3 +151,12 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value      TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+-- Bar stock for /recipes/bar-stock/ and the guest cocktail menu
+-- (src/barstock.js). Also created by the Worker on first use. One row per
+-- item id from public/assets/bar-data.js.
+CREATE TABLE IF NOT EXISTS bar_stock (
+  id          TEXT PRIMARY KEY,
+  have        INTEGER NOT NULL DEFAULT 0,
+  updated_at  TEXT NOT NULL
+);

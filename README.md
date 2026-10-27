@@ -39,8 +39,8 @@ prefix has to be added there or it will just get the 404 page.
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
 | `/recipes/jodie/` | What does Jodie want to eat? — a mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
 | `/recipes/storage/` | Food Storage — how to store each ingredient once opened. (The room temperature/humidity tracker moved to `/admin/storage/`) | authored here |
-| `/recipes/cocktail-menu/` | Cocktail Menu — the house cocktail list in two pages: Classics (to memorise), then Modern & Lesser-Known drinks the bar stock can make. Prints as two pages | authored here |
-| `/recipes/bar-stock/` | Bar Stock — checklist of everything the cocktail menu needs, with which drinks use each item. Ticks are saved per browser; when signed in, "Add missing to shopping list" sends unticked items to `/admin/shopping/` | authored here |
+| `/recipes/cocktail-menu/` | Cocktail Menu — the guest-facing menu to send visitors. Reads `/api/bar-stock` and crosses out any drink the bar can't make, saying what's missing. Drinks and what each needs are in `public/assets/bar-data.js` | authored here |
+| `/recipes/bar-stock/` | Bar Stock — what's in, synced through `/api/bar-stock` (D1 `bar_stock`). Anyone can view it; ticking needs the sign-in. "Add missing to shopping list" sends unticked items to `/admin/shopping/`. The item list is in `public/assets/bar-data.js` | authored here |
 | `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
 | `/gallery/` | Wildlife Photography — portfolio gallery. Photos committed in `PHOTOS`, plus any uploaded or removed at `/admin/photos/` | authored here |
 | `/assets/` | Photographs (Ben's own) and site favicon | — |
@@ -62,6 +62,8 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     GET  /api/gallery                    public — {added, removed}
     GET  /api/gallery/image/:id          public — an uploaded photo
     GET  /api/session                    public — {signedIn, configured}
+    GET  /api/bar-stock                  public — {have: [item ids], updatedAt}
+    POST /admin/api/bar-stock            signed in — {set: {itemId: true|false}}
     POST /api/signin                     public (10 wrong attempts/hour per connection)
     POST /api/signout                    public
     POST /api/contact                    public (honeypot, timing check, 5/hour per connection)
