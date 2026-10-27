@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benicity Cloake — Recipe Book</title>
+<meta name="description" content="Recipes researched, argued over and tested before they earn a place in the recipe book — how other cooks do it, and the version worth making.">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #B0AAA4;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --warm: #B5562A; --warm-light: #F7E9E1;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  a { color: var(--accent); }
+  button { font: inherit; }
+
+  /* ---- header, matched to the recipe book ---- */
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+  .intro { margin-bottom: 1.5rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 400; line-height: 1.15; margin-bottom: 0.4rem; }
+  .intro h1 em { color: var(--accent); }
+  .intro p { color: var(--text-muted); max-width: 68ch; }
+  .intro .nod { font-size: 13px; color: var(--text-faint); margin-top: 0.4rem; }
+
+  /* ---- dish picker ---- */
+  .dishes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 2.25rem; }
+  .dish-btn { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; cursor: pointer; color: var(--text); transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+  .dish-btn:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(20,16,12,0.08); }
+  .dish-btn.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .dish-btn .t { font-family: 'Playfair Display', serif; font-size: 19px; line-height: 1.25; display: block; }
+  .dish-btn .s { font-size: 12.5px; color: var(--text-muted); display: block; margin-top: 4px; }
+  .status { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--warm-light); color: var(--warm); margin-top: 8px; }
+  .status.in-book { background: var(--accent-light); color: var(--accent-text); }
+
+  /* ---- the essay ---- */
+  .essay { max-width: 720px; }
+  .kicker { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; }
+  .essay h2 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 400; line-height: 1.2; margin: 0.2rem 0 0.8rem; }
+  .standfirst { font-size: 17px; color: var(--text); margin-bottom: 1.2rem; line-height: 1.55; }
+  .essay p { margin-bottom: 0.9rem; }
+  .essay h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; margin: 1.8rem 0 0.5rem; }
+  .verdict-line { background: var(--accent-light); border-left: 3px solid var(--accent); padding: 0.6rem 0.9rem; border-radius: 0 var(--radius) var(--radius) 0; color: var(--accent-text); font-size: 14.5px; margin: 0.4rem 0 1rem; }
+  .verdict-line b { font-weight: 700; }
+  .untested { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--warm); border: 1px solid var(--warm); border-radius: 999px; padding: 0 6px; margin-left: 4px; vertical-align: 2px; }
+
+  .contenders { list-style: none; border-top: 1px solid var(--border); margin: 0.6rem 0 1rem; }
+  .contenders li { border-bottom: 1px solid var(--border); padding: 0.55rem 0; font-size: 14px; display: grid; grid-template-columns: 210px 1fr; gap: 12px; }
+  .contenders .who { font-weight: 500; }
+  .contenders .who a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border-strong); }
+  .contenders .who a:hover { color: var(--accent); border-color: var(--accent); }
+  .contenders .gist { color: var(--text-muted); }
+
+  /* ---- the recipe builder ---- */
+  .builder { margin-top: 2.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .builder-head { padding: 1.2rem 1.4rem 1rem; border-bottom: 1px solid var(--border); }
+  .builder-head h3 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; line-height: 1.2; }
+  .builder-head p { color: var(--text-muted); font-size: 14px; margin-top: 0.2rem; max-width: 70ch; }
+  .builder-body { display: grid; grid-template-columns: 330px 1fr; }
+  .controls { padding: 1.2rem 1.4rem; border-right: 1px solid var(--border); background: #FCFBF8; }
+  .recipe { padding: 1.2rem 1.6rem 1.6rem; min-width: 0; }
+
+  .ctl-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 500; margin: 1.1rem 0 0.45rem; }
+  .ctl-label:first-child { margin-top: 0; }
+  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .preset { border: 1px solid var(--border-strong); background: var(--surface); border-radius: var(--radius-lg); padding: 8px 6px; cursor: pointer; text-align: center; line-height: 1.2; color: var(--text); }
+  .preset .p1 { display: block; font-weight: 500; font-size: 13px; }
+  .preset .p2 { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .preset.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .preset.active .p2 { color: rgba(255,255,255,0.8); }
+  .preset-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; min-height: 1.2em; }
+
+  .opt { margin-top: 0.9rem; }
+  .opt-name { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 5px; }
+  .choice { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 999px; padding: 4px 11px; font-size: 12.5px; cursor: pointer; line-height: 1.35; text-align: left; }
+  .choice:hover:not(:disabled) { border-color: var(--accent); }
+  .choice[aria-pressed="true"] { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); font-weight: 500; }
+  .choice:disabled { opacity: 0.4; cursor: not-allowed; }
+  .opt-note { font-size: 12px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
+  .opt-note .who { color: var(--accent-text); }
+
+  .serves { display: flex; align-items: center; gap: 8px; }
+  .serves button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; font-size: 16px; line-height: 1; color: var(--text); }
+  .serves button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .serves span { min-width: 5.5em; text-align: center; font-weight: 500; font-size: 14px; }
+
+  .meter { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-size: 13.5px; color: var(--text-muted); padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+  .meter b { color: var(--text); font-weight: 500; }
+  .dots { display: inline-flex; gap: 3px; vertical-align: -1px; margin-left: 4px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--border); display: inline-block; }
+  .dots i.on { background: var(--warm); }
+  .version { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
+  .recipe h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 500; margin: 0 0 0.5rem; }
+  .ing-group { font-size: 12px; font-weight: 700; color: var(--accent-text); margin: 0.6rem 0 0.15rem; }
+  .ings { list-style: none; margin-bottom: 1.3rem; }
+  .ings li { display: grid; grid-template-columns: 6.5em 1fr; gap: 10px; padding: 4px 0; border-bottom: 1px dotted var(--border); font-size: 14px; }
+  .ings .amt { color: var(--text-muted); text-align: right; }
+  .steps { padding-left: 1.4rem; margin-bottom: 1.2rem; }
+  .steps li { margin-bottom: 0.65rem; font-size: 14.5px; padding-left: 0.2rem; }
+  .steps li::marker { color: var(--accent); font-weight: 700; }
+  .recipe-notes { background: var(--surface2); border-left: 3px solid var(--border-strong); padding: 0.7rem 1rem; font-size: 13px; color: var(--text-muted); border-radius: 0 var(--radius) var(--radius) 0; }
+  .recipe-notes p + p { margin-top: 0.4rem; }
+
+  /* ---- first cook ---- */
+  .cook { border-top: 1px solid var(--border); padding: 1.2rem 1.4rem 1.4rem; background: #FCFBF8; }
+  .cook h3 { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 400; }
+  .cook > p { font-size: 13.5px; color: var(--text-muted); margin: 0.2rem 0 0.7rem; max-width: 72ch; }
+  .cook textarea { width: 100%; min-height: 96px; resize: vertical; font: inherit; font-size: 14px; padding: 0.6rem 0.7rem; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); }
+  .cook-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 0.8rem; }
+  .btn { padding: 9px 16px; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .btn.armed { background: var(--warm); border-color: var(--warm); }
+  .btn:disabled { opacity: 0.6; cursor: progress; }
+  .btn-quiet { background: none; color: var(--accent); border: 1px solid var(--border-strong); }
+  .cook-msg { font-size: 13px; color: var(--text-muted); }
+  .cook-msg.err { color: var(--warm); }
+  .saved-hint { font-size: 12px; color: var(--text-faint); }
+
+  .closing { max-width: 720px; margin-top: 2rem; font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; color: var(--text-muted); }
+
+  @media (max-width: 860px) {
+    .builder-body { grid-template-columns: 1fr; }
+    .controls { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+  @media (max-width: 640px) {
+    .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .intro h1 { font-size: 29px; }
+    .essay h2 { font-size: 26px; }
+    .standfirst { font-size: 16px; }
+    .contenders li { grid-template-columns: 1fr; gap: 2px; }
+    .builder-head, .controls, .recipe, .cook { padding-left: 1rem; padding-right: 1rem; }
+    .ings li { grid-template-columns: 5.5em 1fr; }
+  }
+  @media print {
+    #mohome-back, .site-header, .recipe-nav, .dishes, .essay, .controls, .cook, .closing, .intro { display: none !important; }
+    body { background: #fff; }
+    .main { padding: 0; }
+    .builder { border: none; margin: 0; }
+    .builder-body { display: block; }
+  }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+@media (max-width:720px){.site-header{padding-left:6.5rem}}
+@media (min-width:721px) and (max-width:1340px){.site-header{padding-left:7.5rem}}
+</style>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">Recipe <span>Book</span></div>
+  </div>
+</header>
+
+<nav class="recipe-nav" id="recipeNav" data-current="benicity"></nav>
+<script src="/assets/recipe-nav.js"></script>
+
+<main class="main">
+  <div class="intro">
+    <h1>Benicity <em>Cloake</em></h1>
+    <p>The testing kitchen. Each dish here is researched first — how other cooks make it and where they disagree — then boiled down to one version worth cooking. Once it has been cooked and tweaked, it goes into the recipe book.</p>
+    <p class="nod">With a nod to Felicity Cloake's “How to make the perfect…” column in the Guardian.</p>
+  </div>
+
+  <div class="dishes" id="dishes" role="tablist" aria-label="Dishes in testing"></div>
+  <div id="dish"></div>
+</main>
+
+<script>
+/* ===========================================================================
+ * Benicity Cloake — recipes in development.
+ *
+ * Each entry in DISHES is a researched write-up (contenders, the arguments,
+ * a verdict for each) plus a recipe *builder*: `options` are the choices that
+ * change effort or style, `presets` set the effort-related ones in one go,
+ * and `build(o, q)` returns the ingredients and method for those choices,
+ * with quantities scaled by the serves stepper through the `q` helpers.
+ *
+ * When a dish has been cooked, "Add to the recipe book" (signed in only)
+ * writes the chosen version — plus the cook's notes — to /admin/api/recipes,
+ * the same endpoint the recipe book's own form uses. It then shows in the
+ * book like any other database-overlay recipe. `bookId` is the recipe id it
+ * is written under, and `section` must be one of the book's SECTIONS_ORDER
+ * ids or the recipe won't appear in any section.
+ *
+ * To add a dish: append to DISHES. Nothing else on the page needs changing.
+ * ======================================================================== */
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+/* Quantity helpers, bound to a scale factor k (serves / baseServes). */
+function makeQ(k) {
+  const quarter = (v) => {
+    const r = Math.round(v * 4) / 4, w = Math.floor(r), f = r - w;
+    const fs = f === 0.25 ? '¼' : f === 0.5 ? '½' : f === 0.75 ? '¾' : '';
+    return (w ? String(w) : '') + fs;
+  };
+  const half = (v) => { const r = Math.max(0.5, Math.round(v * 2) / 2); return r === 0.5 ? '½' : (Number.isInteger(r) ? String(r) : Math.floor(r) + '½'); };
+  return {
+    k,
+    g:    (x) => { const v = x * k; return (v >= 100 ? Math.round(v / 10) * 10 : Math.max(5, Math.round(v / 5) * 5)) + 'g'; },
+    ml:   (x) => { const v = x * k; return (v >= 100 ? Math.round(v / 10) * 10 : Math.max(5, Math.round(v / 5) * 5)) + 'ml'; },
+    tsp:  (x) => { const v = x * k; return v < 0.1 ? 'pinch' : v < 0.19 ? '⅛ tsp' : quarter(v) + ' tsp'; },
+    tbsp: (x) => { const v = x * k; return v < 0.4 ? quarter(v * 3) + ' tsp' : quarter(Math.round(v * 2) / 2) + ' tbsp'; },
+    half: (x) => half(x * k),                       // "½", "1", "1½" …
+    n:    (x) => String(Math.max(1, Math.round(x * k))),
+  };
+}
+
+/* ======================================================================== */
+const DISHES = [
+
+/* --------------------------------------------------------------------- */
+{
+  id: 'coconut-prawns',
+  bookId: 'coconut-prawns',
+  section: 'starters',
+  category: 'fish',
+  bookTitle: 'Coconut prawns',
+  bookDescription: 'Crisp coconut-and-panko prawns with a sweet, hot, sharp dip — developed in Benicity Cloake.',
+  short: 'Coconut prawns',
+  sub: 'Breading, batter or air fryer — and what to dip them in',
+  title: 'How to make the perfect coconut prawns',
+  standfirst: 'Sweet, crunchy and a little bit seventies, coconut shrimp is the dish every American seafood shack seems to serve. The arguments are about the glue, the coconut and how hot the oil should be — and they matter more than you would think.',
+  contenders: [
+    { who: "America's Test Kitchen", url: 'https://www.americastestkitchen.com/articles/8515-how-to-make-coconut-shrimp', gist: 'Salt and bicarbonate of soda brine, cornflour, frothed egg whites, sweetened coconut with less panko than usual, fried at 163°C.' },
+    { who: 'Nagi, RecipeTin Eats', url: 'https://www.recipetineats.com/coconut-shrimp-prawns-with-spicy-thai-mango-sauce/', gist: 'No flour: egg, then equal parts desiccated coconut and panko. 45 seconds in the oil. Fresh mango and chilli sauce.' },
+    { who: "Sally's Baking Addiction", url: 'https://sallysbakingaddiction.com/easy-coconut-shrimp/', gist: 'The classic flour, whole egg, sweetened coconut and panko. Shallow-fried; dip of sweet chilli and apricot jam.' },
+    { who: 'Foodiecrush', url: 'https://www.foodiecrush.com/wprm_print/coconut-shrimp-recipe', gist: 'Cornflour and egg whites, sweetened coconut and panko, shallow-fried in coconut oil.' },
+    { who: 'Emeril Lagasse', url: 'https://www.emerils.com/node/126203', gist: 'Beer batter seasoned with his Essence, then unsweetened coconut flakes pressed on. Fried at 182°C.' },
+    { who: 'Paul Prudhomme', url: 'https://www.lysator.liu.se/etexts/recept/us/coconut-shrimp.html', gist: "From Chef Paul Prudhomme's Louisiana Kitchen: spice, flour, beer batter, unsweetened coconut. Marmalade, mustard and horseradish dip." },
+    { who: 'Cheeca Lodge, Florida Keys', url: 'https://gardenandgun.com/recipe/coconut-shrimp-with-pineapple-and-jalapeno-chutney', gist: 'Butterflied prawns, egg whites, coconut blitzed with cornflour and no panko at all. Fried or baked. Pineapple and jalapeño chutney.' },
+  ],
+  sections: [
+    { h: 'The prawns',
+      body: "<p>Everyone uses big raw prawns, and most leave the tails on as a handle — ATK and Foodiecrush both do, and it makes dipping easier. Cheeca Lodge butterflies theirs, which gives more surface for the coating. Frozen raw peeled king prawns are fine here; there are no shells to use, so nothing is lost.</p><p>America's Test Kitchen tosses the prawns with salt and a little bicarbonate of soda and chills them for 15 minutes. Their explanation is that raising the pH stops the proteins squeezing out water as they cook, so the prawn stays plump inside its crust. It costs nothing but time.</p>",
+      verdict: 'Raw king prawns, tails on, brined with salt and bicarb for 15 minutes.' },
+    { h: 'The glue',
+      body: "<p>This is where the camps split. Sally's Baking Addiction does the textbook three stages: seasoned flour, beaten egg, crumbs. Nagi at RecipeTin Eats skips the flour and dunks straight into egg, which is quicker and works well enough. ATK changes two things: cornflour instead of flour, because the gluten in flour made their coating tough, and whites whisked to a froth instead of whole egg, because the fat in the yolk knocked the crispness out. Foodiecrush and Cheeca Lodge also use whites.</p><p>Then there is the batter school. Prudhomme's 1980s Louisiana recipe and Emeril's both dip the prawns in a beer batter and press coconut onto that. The result is puffier and more pub-like, and it can only be deep-fried.</p>",
+      verdict: "Cornflour, frothed egg white, then crumbs — the lightest, crispest crust. Plain egg is fine for a weeknight." },
+    { h: 'The coconut',
+      body: "<p>American recipes nearly all call for sweetened shredded coconut. ATK tested it against unsweetened and found the sweetened kind tasted far more of coconut; Sally says the sugar helps it go golden and crisp. Emeril and Prudhomme use unsweetened. In a British supermarket the choice is made for you: it's desiccated, which is fine and unsweetened.</p><p>Coconut on its own doesn't make a crunchy coat — Nagi tried it and said the first batch wasn't crunchy without panko. Most cooks go half and half; ATK cut the panko by a third so the coconut comes through. Cheeca Lodge goes the other way and blitzes the coconut with cornflour, no panko at all.</p><p>To get closer to the American sweetened coconut, the builder offers a workaround: dampen desiccated coconut with a little sugar syrup and let it sit. <span class=\"untested\">Untested</span> — this is what the first cook is for.</p>",
+      verdict: 'Desiccated coconut and panko, roughly two to one by weight.' },
+    { h: 'The cooking',
+      body: "<p>Temperatures range from ATK's 163°C to Emeril's 182°C. The sugar in the coconut is the problem at the top end: it browns before the prawn is cooked. Nagi gives hers only 45 seconds; Foodiecrush and Sally shallow-fry for about two minutes a side. ATK deep-fries in just a litre of oil in a saucepan rather than a full fryer's worth.</p><p>Baking is the weak option. Sally says the prawns lose their crispness in the oven, and Cheeca Lodge gives an oven method only as an alternative to frying. An air fryer is the same idea with better airflow — a paler, drier crust, but no pan of oil to deal with.</p>",
+      verdict: '170°C and about two minutes, in a deep pan. Air fryer if it has to be a weeknight.' },
+    { h: 'The dip',
+      body: "<p>Every dip is some balance of fruit, heat and acid. Foodiecrush serves plain Thai sweet chilli sauce. Sally stretches it with apricot or orange jam. ATK makes a dip from apricot jam, rice vinegar and sriracha. Prudhomme's is orange marmalade sharpened with brown mustard and horseradish — the oldest and the most interesting. Emeril serves a mango and orange chutney, Cheeca Lodge a pineapple and jalapeño one, and Nagi blitzes fresh mango with coriander, fish sauce, chilli and a little coconut milk.</p>",
+      verdict: 'Fresh mango for the full version, apricot and sriracha for a proper one, a bottle of sweet chilli and a lime on a weeknight.' },
+  ],
+  verdictIntro: 'The verdict, built to your effort level. Pick a starting point, then change any choice — the ingredients and method rewrite themselves.',
+  closing: 'Beer batter or breadcrumbs — and is there a better dip than marmalade and horseradish?',
+  baseServes: 4,
+  servesChoices: [2, 4, 6, 8],
+  servesLabel: (n) => n + ' as a starter',
+  presets: [
+    { id: 'weeknight', label: 'Weeknight', sub: 'about 35 mins', values: { coating: 'two', coconut: 'desiccated', cook: 'air', sauce: 'bottle', brine: 'yes' }, note: 'Egg and crumb, air-fried, a bottle of sweet chilli. Good, not great.' },
+    { id: 'proper', label: 'Proper', sub: 'about 50 mins', values: { coating: 'three', coconut: 'desiccated', cook: 'shallow', sauce: 'apricot', brine: 'yes' }, note: "The ATK coating, shallow-fried, with a quick apricot and sriracha dip." },
+    { id: 'full', label: 'Full Benicity', sub: 'about 1 hr', values: { coating: 'three', coconut: 'sweet', cook: 'deep', sauce: 'mango', brine: 'yes' }, note: 'Everything the research says is worth doing, including the untested sweetened-coconut trick.' },
+  ],
+  defaultPreset: 'proper',
+  options: [
+    { id: 'coating', name: 'The coating', choices: [
+      { id: 'two',    label: 'Egg, then crumbs', note: 'Nagi at RecipeTin Eats: no flour, straight into beaten egg. Quickest.' },
+      { id: 'three',  label: 'Cornflour, egg white, crumbs', note: "America's Test Kitchen: cornflour and frothed whites make the lightest, crispest crust." },
+      { id: 'batter', label: 'Beer batter', note: 'Prudhomme and Emeril: puffier, pub-style, coconut pressed onto the batter. Deep-fry only.' },
+    ]},
+    { id: 'coconut', name: 'The coconut', choices: [
+      { id: 'desiccated', label: 'Desiccated, as it comes', note: 'What British shops sell. Unsweetened.' },
+      { id: 'sweet',      label: 'Sweetened (DIY)', note: 'Dampened with sugar syrup to imitate American sweetened coconut — more coconut flavour, deeper colour. Untested.' },
+    ]},
+    { id: 'cook', name: 'Cooking', choices: [
+      { id: 'air',     label: 'Air fryer', note: 'Paler and drier than frying, but no oil to deal with.', blockedBy: (o) => o.coating === 'batter' ? 'Batter drips through an air fryer basket — needs hot oil' : null },
+      { id: 'oven',    label: 'Oven', note: 'The weakest option for crunch, but hands-off.', blockedBy: (o) => o.coating === 'batter' ? 'Batter needs hot oil' : null },
+      { id: 'shallow', label: 'Shallow-fry', note: 'A centimetre of oil in a frying pan, turned once.' },
+      { id: 'deep',    label: 'Deep-fry', note: 'Most even colour and crunch. A litre of oil in a deep saucepan is enough.' },
+    ]},
+    { id: 'sauce', name: 'The dip', choices: [
+      { id: 'bottle',    label: 'Sweet chilli and lime', note: 'Foodiecrush serves it straight from the bottle; lime makes it less cloying.' },
+      { id: 'apricot',   label: 'Apricot and sriracha', note: "After ATK: apricot jam, rice vinegar and sriracha, warmed together." },
+      { id: 'marmalade', label: 'Marmalade and horseradish', note: "After Paul Prudhomme: orange marmalade, mustard and horseradish. Sharp and old-fashioned." },
+      { id: 'mango',     label: 'Fresh mango and chilli', note: 'After Nagi: mango blitzed with coriander, chilli, fish sauce and coconut milk.' },
+    ]},
+    { id: 'brine', name: 'Brine the prawns first?', choices: [
+      { id: 'yes', label: 'Yes, 15 minutes', note: "ATK's salt and bicarbonate of soda. Keeps them plump." },
+      { id: 'no',  label: 'No', note: 'Just season with salt before coating.' },
+    ]},
+  ],
+  build(o, q) {
+    const ing = [], steps = [], notes = [];
+    let mins = 25, effort = 1;
+    const crumb = o.coating !== 'batter';
+
+    ing.push({ group: 'Prawns' });
+    ing.push({ amount: q.g(300), item: 'raw peeled king prawns, tails on (about ' + q.n(20) + ')' });
+    if (o.brine === 'yes') {
+      ing.push({ amount: q.tsp(0.5), item: 'fine salt' });
+      ing.push({ amount: q.tsp(0.125), item: 'bicarbonate of soda' });
+      mins += 10;
+    } else {
+      ing.push({ amount: '', item: 'fine salt' });
+    }
+
+    ing.push({ group: 'Coating' });
+    if (o.coating === 'two') {
+      ing.push({ amount: q.n(2), item: 'large eggs' });
+    } else if (o.coating === 'three') {
+      ing.push({ amount: q.g(40), item: 'cornflour' });
+      ing.push({ amount: q.tsp(0.25), item: 'cayenne pepper' });
+      ing.push({ amount: q.n(2), item: 'large egg whites' });
+      mins += 5; effort += 0.5;
+    } else {
+      ing.push({ amount: q.g(120), item: 'plain flour' });
+      ing.push({ amount: q.tsp(1), item: 'baking powder' });
+      ing.push({ amount: q.tsp(1), item: 'caster sugar' });
+      ing.push({ amount: q.tsp(0.25), item: 'cayenne pepper' });
+      ing.push({ amount: q.n(1), item: 'large egg' });
+      ing.push({ amount: q.ml(150), item: 'cold lager' });
+      mins += 10; effort += 1.5;
+    }
+    ing.push({ amount: q.g(crumb ? 75 : 110), item: 'desiccated coconut' });
+    if (crumb) ing.push({ amount: q.g(35), item: 'panko breadcrumbs' });
+    if (o.coconut === 'sweet') {
+      ing.push({ amount: q.tbsp(1), item: 'caster sugar, for the coconut' });
+      ing.push({ amount: q.tbsp(1), item: 'just-boiled water, for the coconut' });
+      mins += 5; effort += 0.5;
+    }
+
+    ing.push({ group: 'To cook' });
+    if (o.cook === 'deep') { ing.push({ amount: '1 litre', item: 'sunflower or groundnut oil' }); mins += 10; effort += 1.5; }
+    else if (o.cook === 'shallow') { ing.push({ amount: 'about 300ml', item: 'sunflower oil (1cm depth in a large frying pan)' }); mins += 5; effort += 1; }
+    else ing.push({ amount: '', item: 'oil spray, or 2 tbsp sunflower oil in a spray bottle' });
+
+    ing.push({ group: 'The dip' });
+    if (o.sauce === 'bottle') {
+      ing.push({ amount: q.tbsp(6), item: 'Thai sweet chilli sauce' });
+      ing.push({ amount: q.half(0.5), item: 'lime, juiced' });
+    } else if (o.sauce === 'apricot') {
+      ing.push({ amount: q.tbsp(6), item: 'apricot jam' });
+      ing.push({ amount: q.tbsp(1.5), item: 'rice vinegar' });
+      ing.push({ amount: q.tsp(1.5), item: 'sriracha, or to taste' });
+      mins += 5; effort += 0.5;
+    } else if (o.sauce === 'marmalade') {
+      ing.push({ amount: q.tbsp(6), item: 'fine-cut orange marmalade' });
+      ing.push({ amount: q.tbsp(1), item: 'wholegrain mustard' });
+      ing.push({ amount: q.tbsp(1), item: 'hot horseradish sauce' });
+      mins += 2;
+    } else {
+      ing.push({ amount: q.half(1), item: 'ripe mango, flesh only' });
+      ing.push({ amount: '', item: 'small handful of coriander' });
+      ing.push({ amount: q.half(1), item: 'small shallot, roughly chopped' });
+      ing.push({ amount: q.half(0.5), item: 'red chilli (seeds in for more heat)' });
+      ing.push({ amount: q.tsp(1), item: 'fish sauce' });
+      ing.push({ amount: q.tsp(1), item: 'sriracha' });
+      ing.push({ amount: q.tbsp(3), item: 'coconut milk, plus more to loosen' });
+      ing.push({ amount: q.half(0.5), item: 'lime, juiced' });
+      mins += 10; effort += 1;
+    }
+    ing.push({ amount: '', item: 'lime wedges and flaky salt, to serve' });
+
+    // ---- method ----
+    steps.push('Devein the prawns if they need it: run a small knife down the back and pull out the dark thread. Leave the tails on as a handle. Pat them very dry with kitchen paper.');
+    if (o.brine === 'yes') steps.push('Toss the prawns with the salt and bicarbonate of soda and put them in the fridge for 15 minutes (no longer than an hour). Make the dip while they sit, then pat them dry again.');
+    else steps.push('Season the prawns lightly with salt.');
+
+    if (o.sauce === 'bottle') steps.push('For the dip, stir the lime juice into the sweet chilli sauce.');
+    else if (o.sauce === 'apricot') steps.push('For the dip, warm the apricot jam, rice vinegar and sriracha in a small pan, stirring, until runny. Sieve out any big pieces of fruit if you want it smooth, and leave to cool. Taste — it should be sweet, sharp and hot in that order.');
+    else if (o.sauce === 'marmalade') steps.push('For the dip, stir the marmalade, mustard and horseradish together. Loosen with a teaspoon of hot water if it is stiff.');
+    else steps.push('For the dip, blitz the mango, coriander, shallot, chilli, fish sauce, sriracha and coconut milk until smooth. Add the lime juice, taste, and loosen with a little more coconut milk if needed — it should coat a spoon.');
+
+    if (o.coconut === 'sweet') steps.push('Stir the sugar into the just-boiled water until dissolved. Toss with the desiccated coconut until it is evenly damp, then leave for 10 minutes and rub it between your fingers to break up any clumps.');
+
+    if (o.coating === 'two') {
+      steps.push('Set up two shallow bowls: the eggs beaten with a pinch of salt in one, the coconut and panko mixed together in the other.');
+      steps.push('Holding each prawn by the tail, dip it in egg, let the excess drip off, then press it firmly into the coconut mix on both sides. Lay on a tray.');
+    } else if (o.coating === 'three') {
+      steps.push('Set up three shallow bowls: the cornflour mixed with the cayenne and a pinch of salt; the egg whites whisked with a pinch of salt until frothy with big bubbles (not to peaks); and the coconut and panko mixed together.');
+      steps.push('Holding each prawn by the tail, coat it in cornflour and shake off the excess, dip it in egg white, then press it firmly into the coconut mix on both sides. Lay on a tray. If there is time, 10 minutes in the fridge helps the coating set.');
+    } else {
+      steps.push('Put 2 tablespoons of the flour in a shallow bowl and the coconut in another. Whisk the rest of the flour with the baking powder, sugar, cayenne, a pinch of salt, the egg and the lager to a smooth batter about as thick as double cream.');
+      steps.push('Coat the prawns as you fry them, not before: dust each in flour, dip in batter, let the excess drip off, then roll it in coconut, pressing it on.');
+    }
+
+    if (o.cook === 'deep') steps.push('Heat the oil in a deep, heavy saucepan (no more than a third full) to 170°C. Fry 5 or 6 prawns at a time for about 2 minutes, until deep golden and curled into a loose C. Lift out onto a rack or kitchen paper and sprinkle with flaky salt. Let the oil come back to 170°C between batches. If the coconut is darkening before the 2 minutes are up, the oil is too hot.');
+    else if (o.cook === 'shallow') steps.push('Heat a centimetre of oil in a large frying pan to 175°C — a crumb dropped in should sizzle straight away. Fry in batches without crowding, 1½–2 minutes a side, until golden. Drain on kitchen paper and sprinkle with flaky salt.');
+    else if (o.cook === 'air') steps.push('Heat the air fryer to 200°C. Spray the basket, lay the prawns in a single layer and spray them well — any dry patch stays pale. Cook for 7–9 minutes, turning and spraying again halfway, until golden. Sprinkle with flaky salt.');
+    else steps.push('Heat the oven to 220°C (200°C fan) with a wire rack on a baking tray. Spray the prawns well, lay them on the rack and bake for 8–10 minutes, turning halfway, until golden. Sprinkle with flaky salt.');
+
+    steps.push('Serve straight away with the dip and lime wedges. A cooked prawn curls into a C; an O means it has gone too far.');
+
+    notes.push('Leftovers reheat in a 220°C oven in 3–5 minutes (from RecipeTin Eats) — any longer and the prawns toughen.');
+    if (o.coconut === 'sweet') notes.push('The sweetened-coconut trick is untested: check whether it browns too fast and whether the damp coconut clumps on the prawns.');
+    if (o.cook === 'air' || o.cook === 'oven') notes.push('Without oil the coating stays paler. A light extra spray halfway through makes the most difference.');
+
+    return { ing, steps, notes, mins, effort };
+  },
+  summary(o) {
+    const c = { two: 'egg-and-crumb coating', three: 'cornflour, egg white and crumb coating', batter: 'beer batter' }[o.coating];
+    const k = { deep: 'deep-fried', shallow: 'shallow-fried', air: 'air-fried', oven: 'oven-baked' }[o.cook];
+    const s = { bottle: 'sweet chilli and lime', apricot: 'apricot and sriracha', marmalade: 'marmalade and horseradish', mango: 'fresh mango' }[o.sauce];
+    return c + (o.coconut === 'sweet' ? ', sweetened coconut' : '') + ', ' + k + ', ' + s + ' dip' + (o.brine === 'yes' ? ', brined' : '');
+  },
+},
+
+/* --------------------------------------------------------------------- */
+{
+  id: 'chilli-prawn-linguine',
+  bookId: 'chilli-prawn-linguine',
+  section: 'fish',
+  category: 'fish',
+  bookTitle: 'Chilli prawn linguine',
+  bookDescription: 'Linguine with prawns, garlic, chilli and lemon, the sauce built on the prawns themselves — developed in Benicity Cloake.',
+  short: 'Chilli prawn linguine',
+  sub: 'Shell-on with a prawn stock, or peeled and quick',
+  title: 'How to make the perfect chilli prawn linguine',
+  standfirst: 'Prawns, garlic, chilli, lemon, pasta: five things, ten minutes, every pub menu in the country. And yet most versions taste of garlic and chilli with prawns in them, rather than of prawn. The fix is in the bit most recipes throw away.',
+  contenders: [
+    { who: 'Jamie Oliver', url: 'https://www.jamieoliver.com/recipes/pasta/prawn-linguine', gist: 'Heads and shells fried with onion, saffron and anchovy, simmered with Riesling and tomatoes, then blitzed and sieved. Fennel, rocket, lemon.' },
+    { who: "America's Test Kitchen", url: 'https://www.americastestkitchen.com/recipes/12624-spaghettini-with-shrimp', gist: 'Shells browned in oil, simmered five minutes in white wine and strained. Prawns poached in it; butter, parsley and lemon zest off the heat.' },
+    { who: 'Lorraine Elliott, Not Quite Nigella', url: 'https://www.notquitenigella.com/2026/06/08/prawn-shrimp-linguine/', gist: 'Shells and heads cooked into a prawn butter with shallot, paprika and tomato paste, then strained. Chilli oil to finish.' },
+    { who: 'Pasta di Giovanni', url: 'https://kazerne.com/en/2021/05/13/linguine-con-gamberi/', gist: 'Heads caramelised hard in oil, deglazed with cognac, then saffron and cherry tomatoes. Pasta water is the only stock.' },
+    { who: 'No Regretti Spaghetti', url: 'https://noregrettispaghetti.substack.com/p/i-take-my-linguine-very-seriously', gist: 'An hour-long head stock with vegetables, ladled into tomatoes like a risotto. Anchovy pangrattato on top.' },
+    { who: 'BBC Good Food', url: 'https://www.bbcgoodfoodme.com/recipes/chilli-prawn-linguine/', gist: 'Peeled king prawns, garlic and chilli, cherry tomatoes, basil, sugar snaps cooked with the pasta. Fast and light.' },
+    { who: 'Lorraine Pascale', url: 'https://www.goodreads.com/author_blog_posts/7083563-quick-linguine-with-prawns-clams-garlic-and-chilli', gist: 'Shallots softened slowly, then garlic, two chillies, prawns, clams and a glass of white wine under a lid. Rocket and lemon.' },
+    { who: 'olive magazine', url: 'https://www.olivemagazine.com/recipes/fish-and-seafood/linguine-with-prawns-spring-greens-and-chilli/', gist: 'Frozen peeled prawns, chilli and garlic over linguine, with spring greens cooked in the pasta pot.' },
+  ],
+  sections: [
+    { h: 'The prawns',
+      body: "<p>The quick recipes — BBC Good Food, olive, Lorraine Pascale — all use raw peeled king prawns, and olive points out that frozen are fine. That is the realistic option in most shops. But the recipes built for the most prawn flavour all start with shell-on prawns, because the shells and especially the heads hold most of the flavour. Shell-on raw prawns are harder to find; fishmongers and the freezers of Asian supermarkets are the best bet, usually head-on.</p><p>The same salt-and-bicarbonate brine that ATK uses on coconut prawns helps here too: their test kitchen found it does most good when prawns are cooked fast and hot.</p>",
+      verdict: 'Shell-on if you can find them, ideally head-on. Peeled is fine with the adjustments below.' },
+    { h: 'What to do with the shells',
+      body: "<p>This is the real argument, and it runs from five minutes to an hour. ATK fries the shells in oil until they brown in spots, adds white wine, simmers for five minutes and strains: a small amount of concentrated liquor, done while the pasta water boils. Pasta di Giovanni caramelises the heads hard and deglazes the pan with cognac. Lorraine Elliott at Not Quite Nigella cooks them into butter with shallot, paprika and tomato paste and strains it into a prawn butter that keeps for a day.</p><p>Jamie Oliver goes furthest in a single pan: heads and shells with onion, saffron and anchovy, Riesling and tinned tomatoes, then the whole lot blitzed and pushed through a sieve — a quick bisque. No Regretti Spaghetti makes a proper stock with carrot, celery and bay over an hour, then cooks it down into tomatoes a ladle at a time.</p>",
+      verdict: "Headless shells: ATK's quick browned-shell stock. Heads too: brown them hard, crush them, and blitz and sieve as Jamie does — the heads are where the sweetness is." },
+    { h: 'Without the shells',
+      body: "<p>With peeled prawns, depth has to come from somewhere else. Jamie's sauce includes anchovies even though it has prawn heads; melted into the oil they add a savoury background without tasting of fish. A spoonful of tomato purée fried until it darkens does the job of the shells' colour. White wine, reduced hard, and starchy pasta water make the liquid.</p>",
+      verdict: 'Anchovy and tomato purée melted into the oil, wine, pasta water. A splash of fish stock if there is some.' },
+    { h: 'Chilli and garlic',
+      body: "<p>Fresh red chilli, finely sliced, is in almost every version. Lorraine Pascale uses two; No Regretti Spaghetti infuses a whole dried chilli in the oil and fishes it out. BBC Good Food warns against browning the garlic and gives it 30 seconds; Pascale softens shallots for ten minutes first, which makes a sweeter, rounder dish.</p>",
+      verdict: 'Fresh chilli for fruitiness plus a pinch of dried flakes for warmth. Sliced garlic, cooked gently until it barely colours.' },
+    { h: 'Tomato, or not',
+      body: "<p>ATK uses none at all. BBC Good Food and Jamie add a few cherry tomatoes at the end; Not Quite Nigella's quick version and No Regretti Spaghetti are properly tomato-sauced. Too much and it becomes prawns in tomato sauce, which is a different dish.</p>",
+      verdict: 'A handful of cherry tomatoes, for sweetness and sharpness, not a sauce.' },
+    { h: 'Cooking the prawns',
+      body: "<p>Three schools. Sear hard on a high heat (BBC Good Food, Jamie). Poach gently under a lid in the sauce for a couple of minutes (ATK). Or chop them raw and stir them in at the very end so they cook in the residual heat (No Regretti Spaghetti, Not Quite Nigella). Searing gives colour; poaching keeps them tender. Doing both — a fast sear, then back into the sauce for the last minute — gets most of each.</p>",
+      verdict: 'Sear for 45 seconds a side, set aside, and return them to finish in the sauce.' },
+    { h: 'The finish',
+      body: "<p>ATK stirs in cold butter, parsley and lemon zest off the heat. Jamie and Lorraine Pascale finish with rocket, lemon and olive oil; Not Quite Nigella with chilli oil. No Regretti Spaghetti scatters an anchovy pangrattato over the top — fried breadcrumbs, the traditional stand-in for cheese in Italian seafood pasta, where Parmesan is frowned on.</p>",
+      verdict: 'Cold butter tossed with pasta water into a glossy sauce, lemon and parsley, and crunchy crumbs at the table.' },
+  ],
+  verdictIntro: 'The verdict, built to your effort level. Pick a starting point, then change any choice — the ingredients and method rewrite themselves.',
+  closing: 'Butter or no butter — and does a prawn pasta need cheese, Italian rules or not?',
+  baseServes: 2,
+  servesChoices: [1, 2, 3, 4, 6],
+  servesLabel: (n) => n === 1 ? '1 person' : n + ' people',
+  presets: [
+    { id: 'weeknight', label: 'Weeknight', sub: 'about 25 mins', values: { prawns: 'peeled', finish: 'plain', brine: 'no' }, note: 'Peeled prawns, anchovy and tomato purée for depth. No stock.' },
+    { id: 'proper', label: 'Proper', sub: 'about 50 mins', values: { prawns: 'shell', finish: 'crumb', brine: 'yes' }, note: "Shell-on prawns and ATK's quick shell stock, with garlic and lemon crumbs." },
+    { id: 'full', label: 'Full Benicity', sub: 'about 1 hr', values: { prawns: 'whole', finish: 'anchovy', brine: 'yes' }, note: 'Head-on prawns, heads crushed into a blitzed and sieved stock, anchovy pangrattato.' },
+  ],
+  defaultPreset: 'proper',
+  options: [
+    { id: 'prawns', name: 'The prawns', choices: [
+      { id: 'peeled', label: 'Peeled', note: 'Raw peeled king prawns, fresh or frozen. Depth comes from anchovy and tomato purée instead of stock.' },
+      { id: 'shell',  label: 'Shell-on, no heads', note: "The shells go into ATK's quick stock: browned in oil, simmered with wine and water, strained." },
+      { id: 'whole',  label: 'Whole, head-on', note: "Heads and shells browned and crushed, then blitzed and sieved as Jamie Oliver does. The most prawn flavour." },
+    ]},
+    { id: 'heat', name: 'Heat', choices: [
+      { id: 'mild',   label: 'Mild', note: 'One chilli, deseeded.' },
+      { id: 'medium', label: 'Medium', note: 'One chilli, seeds in, and a pinch of dried flakes.' },
+      { id: 'hot',    label: 'Hot', note: 'Two chillies and more flakes.' },
+    ]},
+    { id: 'tomato', name: 'Tomatoes', choices: [
+      { id: 'cherry', label: 'A few cherry tomatoes', note: 'For sweetness and a little acidity, not a sauce.' },
+      { id: 'none',   label: 'None', note: "ATK's way: pure prawn, garlic and lemon." },
+    ]},
+    { id: 'finish', name: 'On top', choices: [
+      { id: 'plain',   label: 'Parsley and lemon', note: 'Nothing extra.' },
+      { id: 'crumb',   label: 'Garlic and lemon crumbs', note: 'A quick pangrattato for crunch.' },
+      { id: 'anchovy', label: 'Anchovy crumbs', note: "No Regretti Spaghetti's anchovy pangrattato: salty, savoury, crunchy." },
+    ]},
+    { id: 'fat', name: 'Finish the sauce with', choices: [
+      { id: 'butter', label: 'Cold butter', note: 'ATK: butter tossed with pasta water makes a glossy sauce that clings.' },
+      { id: 'oil',    label: 'Extra virgin olive oil', note: 'Lighter and more Italian; the sauce is looser.' },
+    ]},
+    { id: 'brine', name: 'Brine the prawns first?', choices: [
+      { id: 'yes', label: 'Yes, 15 minutes', note: "ATK's salt and bicarbonate of soda — done while the stock simmers." },
+      { id: 'no',  label: 'No', note: 'Just season them before searing.' },
+    ]},
+  ],
+  build(o, q) {
+    const ing = [], steps = [], notes = [];
+    let mins = 25, effort = 1;
+    const stock = o.prawns !== 'peeled';
+
+    ing.push({ group: 'Prawns' });
+    if (o.prawns === 'whole')      { ing.push({ amount: q.g(450), item: 'raw head-on, shell-on king prawns (about ' + q.n(12) + ')' }); mins += 30; effort += 3; }
+    else if (o.prawns === 'shell') { ing.push({ amount: q.g(300), item: 'raw shell-on king prawns, heads off' }); mins += 20; effort += 1.5; }
+    else                           { ing.push({ amount: q.g(200), item: 'raw peeled king prawns' }); }
+    if (o.brine === 'yes') {
+      ing.push({ amount: q.tsp(0.25), item: 'fine salt' });
+      ing.push({ amount: q.tsp(0.125), item: 'bicarbonate of soda' });
+      if (!stock) mins += 10;
+    }
+
+    if (stock) {
+      ing.push({ group: o.prawns === 'whole' ? 'Head stock' : 'Shell stock' });
+      ing.push({ amount: q.tbsp(2), item: 'olive oil' });
+      ing.push({ amount: q.tsp(1), item: 'tomato purée' });
+      ing.push({ amount: q.ml(100), item: 'dry white wine (or dry vermouth)' });
+      ing.push({ amount: q.ml(o.prawns === 'whole' ? 300 : 250), item: 'water' });
+      ing.push({ amount: '', item: 'stalks from the parsley below' });
+      if (o.prawns === 'whole') ing.push({ amount: 'pinch', item: 'saffron (optional)' });
+    }
+
+    ing.push({ group: 'Pasta and sauce' });
+    ing.push({ amount: q.g(200), item: 'dried linguine, ideally bronze-cut' });
+    ing.push({ amount: q.tbsp(3), item: 'olive oil' });
+    ing.push({ amount: q.n(3), item: 'garlic cloves, thinly sliced' });
+    if (o.heat === 'mild')        ing.push({ amount: q.half(1), item: 'red chilli, deseeded and finely chopped' });
+    else if (o.heat === 'medium') { ing.push({ amount: q.half(1), item: 'red chilli, finely chopped, seeds in' }); ing.push({ amount: q.tsp(0.25), item: 'dried chilli flakes' }); }
+    else                          { ing.push({ amount: q.half(2), item: 'red chillies, finely chopped, seeds in' }); ing.push({ amount: q.tsp(0.5), item: 'dried chilli flakes' }); }
+    if (!stock) {
+      ing.push({ amount: q.n(2), item: 'anchovy fillets in oil' });
+      ing.push({ amount: q.tsp(2), item: 'tomato purée' });
+      ing.push({ amount: q.ml(100), item: 'dry white wine (or dry vermouth)' });
+    }
+    if (o.tomato === 'cherry') ing.push({ amount: q.g(150), item: 'cherry tomatoes, quartered' });
+    ing.push({ amount: '', item: 'small bunch of flat-leaf parsley, leaves chopped' + (stock ? ', stalks for the stock' : '') });
+    ing.push({ amount: q.half(1), item: 'lemon, zested, then juiced' });
+    if (o.fat === 'butter') ing.push({ amount: q.g(30), item: 'cold unsalted butter, cubed' });
+    else ing.push({ amount: q.tbsp(2), item: 'good extra virgin olive oil' });
+
+    if (o.finish !== 'plain') {
+      ing.push({ group: o.finish === 'anchovy' ? 'Anchovy crumbs' : 'Garlic and lemon crumbs' });
+      ing.push({ amount: q.g(40), item: 'fresh breadcrumbs (ciabatta or sourdough) or panko' });
+      ing.push({ amount: q.tbsp(1.5), item: 'olive oil' });
+      if (o.finish === 'anchovy') ing.push({ amount: q.n(2), item: 'anchovy fillets' });
+      ing.push({ amount: q.half(1), item: 'small garlic clove, finely grated' });
+      ing.push({ amount: 'pinch', item: 'dried chilli flakes' });
+      ing.push({ amount: '', item: 'a little of the lemon zest' });
+      mins += o.finish === 'anchovy' ? 8 : 6; effort += 0.5;
+    }
+
+    // ---- method ----
+    if (o.prawns === 'whole') steps.push('Twist the heads off the prawns and peel the bodies, keeping every head and shell. Run a small knife down the back of each prawn and pull out the dark vein.');
+    else if (o.prawns === 'shell') steps.push('Peel the prawns, keeping all the shells. Run a small knife down the back of each and pull out the dark vein.');
+    else steps.push('Devein the prawns if they need it — run a small knife down the back and pull out the dark thread — and pat them dry. If frozen, thaw them in the fridge first.');
+    if (o.brine === 'yes') steps.push('Toss the prawns with the salt and bicarbonate of soda and put them in the fridge for 15 minutes' + (stock ? ' while the stock simmers.' : '.'));
+
+    if (o.prawns === 'whole') {
+      steps.push('For the stock, heat the oil in a saucepan over a high heat. Add the heads and shells and fry for 3–4 minutes, pressing the heads with a potato masher or wooden spoon, until the shells are pink with brown spots and the pan smells sweet and toasty. Stir in the tomato purée for 30 seconds.');
+      steps.push('Take the pan off the heat and pour in the wine (it will spit), then put it back on and bubble until halved. Add the water, parsley stalks and saffron, and simmer for 10 minutes, crushing the heads now and then.');
+      steps.push("Blitz briefly with a stick blender, shells and all, then push everything through a sieve, pressing hard. You want about " + q.ml(200) + " of thick, orange stock; boil it down if there is more.");
+    } else if (o.prawns === 'shell') {
+      steps.push('For the stock, heat the oil in a saucepan over a high heat. Add the shells and fry for 2–3 minutes, stirring, until pink with brown spots. Stir in the tomato purée for 30 seconds.');
+      steps.push('Take the pan off the heat and pour in the wine (it will spit), then put it back on and bubble until halved. Add the water and parsley stalks and simmer for 8 minutes. Strain, pressing the shells hard — you want about ' + q.ml(150) + '.');
+    }
+
+    if (o.finish !== 'plain') {
+      steps.push((o.finish === 'anchovy' ? 'For the crumbs, warm the oil in a large frying pan and mash the anchovies into it until they melt. ' : 'For the crumbs, warm the oil in a large frying pan. ') + 'Add the breadcrumbs and toast over a medium heat, stirring often, for 4–5 minutes until golden. Add the garlic and chilli flakes for the last 30 seconds, then tip into a bowl, stir in a little lemon zest and a pinch of salt, and wipe out the pan.');
+    }
+
+    steps.push('Bring a large pan of well-salted water to the boil and cook the linguine for 2 minutes less than the packet says. Keep a mugful of the cooking water before draining.');
+    steps.push('Meanwhile, heat 1 tablespoon of the olive oil in a large frying pan over a high heat. ' + (o.brine === 'yes' ? 'Pat the prawns dry' : 'Season the prawns with salt') + ' and sear them for about 45 seconds a side, until pink at the edges but still translucent in the middle. Lift out onto a plate.');
+
+    const chilliBit = o.heat === 'mild' ? 'chilli' : 'chilli and chilli flakes';
+    if (stock) {
+      steps.push('Turn the heat down to medium-low, add the rest of the oil, the garlic and the ' + chilliBit + '. Cook gently for about 2 minutes, until the garlic is soft and only just turning gold — do not let it brown.');
+      steps.push((o.tomato === 'cherry' ? 'Add the cherry tomatoes and cook for a minute until they start to soften, then pour in the stock' : 'Pour in the stock') + ' and simmer until reduced by about a third.');
+    } else {
+      steps.push('Turn the heat down to medium-low, add the rest of the oil and the anchovies and mash them until they melt. Add the garlic and the ' + chilliBit + ' and cook gently for about 2 minutes, until the garlic is soft and only just turning gold. Stir in the tomato purée and fry for a minute until it darkens to brick red.');
+      steps.push('Pour in the wine and bubble for a minute until it no longer smells of alcohol. ' + (o.tomato === 'cherry' ? 'Add the cherry tomatoes and cook for a minute, then add' : 'Add') + ' a ladleful (about ' + q.ml(100) + ') of the pasta cooking water.');
+    }
+
+    steps.push('Lift the linguine straight into the sauce with tongs, bringing some water with it, and toss over a high heat for 1–2 minutes until the pasta is al dente and the sauce clings. Return the prawns and their juices and toss for another minute, until just cooked through.');
+    if (o.fat === 'butter') steps.push('Take the pan off the heat. Add the cold butter, the lemon zest, the juice of half the lemon and the parsley, and toss hard until the sauce turns glossy and creamy. Loosen with a splash of pasta water if it tightens; taste for salt and lemon.');
+    else steps.push('Take the pan off the heat. Add the extra virgin olive oil, the lemon zest, the juice of half the lemon and the parsley, and toss well. Loosen with a splash of pasta water if needed; taste for salt and lemon.');
+    steps.push(o.finish === 'plain' ? 'Serve straight away, with the rest of the lemon in wedges.' : 'Serve straight away and scatter the crumbs over at the table so they stay crunchy. Lemon wedges on the side.');
+
+    if (stock) notes.push('The stock can be made a day ahead and kept in the fridge.');
+    else notes.push('A splash of fish or shellfish stock in place of some of the pasta water adds depth if you have it.');
+    notes.push('No Parmesan — the usual Italian rule for seafood pasta.' + (o.finish === 'plain' ? '' : ' The crumbs do the job instead.'));
+
+    return { ing, steps, notes, mins, effort };
+  },
+  summary(o) {
+    const p = { peeled: 'peeled prawns with an anchovy and tomato purée base', shell: 'shell-on prawns with a quick shell stock', whole: 'head-on prawns with a blitzed head stock' }[o.prawns];
+    const f = { plain: '', crumb: ', garlic and lemon crumbs', anchovy: ', anchovy crumbs' }[o.finish];
+    return p + ', ' + o.heat + ' heat' + (o.tomato === 'cherry' ? ', cherry tomatoes' : ', no tomato') + ', finished with ' + (o.fat === 'butter' ? 'butter' : 'olive oil') + f + (o.brine === 'yes' ? ', brined' : '');
+  },
+},
+
+];
+/* ======================================================================== */
+
+const LS_PREFIX = 'benicity.v1.';
+function lsGet(key) { try { const v = localStorage.getItem(LS_PREFIX + key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function lsSet(key, val) { try { localStorage.setItem(LS_PREFIX + key, JSON.stringify(val)); } catch (e) {} }
+
+const state = {};          // per dish: { opts, preset, serves }
+let current = null;        // dish id
+let signedIn = false;
+let bookIds = new Set();   // recipe ids currently in the recipe book
+
+function dishById(id) { return DISHES.find(d => d.id === id); }
+
+function initState(d) {
+  if (state[d.id]) return state[d.id];
+  const saved = lsGet('state.' + d.id) || {};
+  const preset = d.presets.find(p => p.id === d.defaultPreset) || d.presets[0];
+  const opts = {};
+  for (const opt of d.options) opts[opt.id] = opt.choices[0].id;
+  Object.assign(opts, preset.values);
+  if (saved.opts) for (const k in saved.opts) {
+    const opt = d.options.find(x => x.id === k);
+    if (opt && opt.choices.some(c => c.id === saved.opts[k])) opts[k] = saved.opts[k];
+  }
+  const serves = d.servesChoices.includes(saved.serves) ? saved.serves : d.baseServes;
+  state[d.id] = { opts, serves };
+  fixBlocked(d, opts);
+  return state[d.id];
+}
+function saveState(d) { lsSet('state.' + d.id, state[d.id]); }
+
+/* If a choice is blocked by another (batter + air fryer), move it to the
+ * first choice that isn't. Returns a message about what changed, if anything. */
+function fixBlocked(d, opts) {
+  let msg = '';
+  for (const opt of d.options) {
+    const cur = opt.choices.find(c => c.id === opts[opt.id]);
+    if (cur && cur.blockedBy && cur.blockedBy(opts)) {
+      const alt = opt.choices.slice().reverse().find(c => !(c.blockedBy && c.blockedBy(opts)));
+      if (alt) { msg = cur.label + ' isn\'t possible with that — switched to ' + alt.label.toLowerCase() + '.'; opts[opt.id] = alt.id; }
+    }
+  }
+  return msg;
+}
+function matchingPreset(d, opts) {
+  const p = d.presets.find(p => Object.keys(p.values).every(k => opts[k] === p.values[k]));
+  return p ? p.id : null;
+}
+
+/* ---- rendering ---- */
+function renderPicker() {
+  document.getElementById('dishes').innerHTML = DISHES.map(d => {
+    const inBook = bookIds.has(d.bookId);
+    return '<button class="dish-btn' + (d.id === current ? ' active' : '') + '" role="tab" aria-selected="' + (d.id === current) + '" data-dish="' + d.id + '">'
+      + '<span class="t">' + esc(d.short) + '</span><span class="s">' + esc(d.sub) + '</span>'
+      + '<span class="status' + (inBook ? ' in-book' : '') + '">' + (inBook ? 'In the recipe book' : 'Not yet cooked') + '</span></button>';
+  }).join('');
+}
+
+function renderDish() {
+  const d = dishById(current);
+  const el = document.getElementById('dish');
+  el.innerHTML =
+    '<article class="essay">'
+    + '<p class="kicker">In testing</p>'
+    + '<h2>' + esc(d.title) + '</h2>'
+    + '<p class="standfirst">' + esc(d.standfirst) + '</p>'
+    + '<h3>The contenders</h3>'
+    + '<ul class="contenders">' + d.contenders.map(c =>
+        '<li><span class="who"><a href="' + esc(c.url) + '" target="_blank" rel="noopener">' + esc(c.who) + '</a></span><span class="gist">' + esc(c.gist) + '</span></li>').join('') + '</ul>'
+    + d.sections.map(s => '<h3>' + esc(s.h) + '</h3>' + s.body + '<p class="verdict-line"><b>Verdict:</b> ' + esc(s.verdict) + '</p>').join('')
+    + '</article>'
+    + '<section class="builder" aria-label="The recipe">'
+    +   '<div class="builder-head"><h3>The Benicity ' + esc(d.short.toLowerCase()) + '</h3><p>' + esc(d.verdictIntro) + '</p></div>'
+    +   '<div class="builder-body"><div class="controls" id="controls"></div><div class="recipe" id="recipe"></div></div>'
+    +   '<div class="cook" id="cook"></div>'
+    + '</section>'
+    + '<p class="closing">' + esc(d.closing) + '</p>';
+  renderControls();
+  renderRecipe();
+  renderCook();
+}
+
+function renderControls(flash) {
+  const d = dishById(current), st = state[d.id];
+  const active = matchingPreset(d, st.opts);
+  const activeP = d.presets.find(p => p.id === active);
+  let h = '<p class="ctl-label">Effort</p><div class="presets">'
+    + d.presets.map(p => '<button class="preset' + (p.id === active ? ' active' : '') + '" data-preset="' + p.id + '" aria-pressed="' + (p.id === active) + '"><span class="p1">' + esc(p.label) + '</span><span class="p2">' + esc(p.sub) + '</span></button>').join('')
+    + '</div><p class="preset-note">' + esc(flash || (activeP ? activeP.note : 'Your own mix.')) + '</p>';
+  h += '<p class="ctl-label">Serves</p><div class="serves">'
+    + '<button data-serves="-1" aria-label="Fewer"' + (st.serves === d.servesChoices[0] ? ' disabled' : '') + '>−</button>'
+    + '<span>' + esc(d.servesLabel(st.serves)) + '</span>'
+    + '<button data-serves="1" aria-label="More"' + (st.serves === d.servesChoices[d.servesChoices.length - 1] ? ' disabled' : '') + '>+</button></div>';
+  h += '<p class="ctl-label">Choices</p>';
+  for (const opt of d.options) {
+    const sel = opt.choices.find(c => c.id === st.opts[opt.id]);
+    h += '<div class="opt"><div class="opt-name">' + esc(opt.name) + '</div><div class="choices">'
+      + opt.choices.map(c => {
+          const why = c.blockedBy ? c.blockedBy(st.opts) : null;
+          return '<button class="choice" data-opt="' + opt.id + '" data-choice="' + c.id + '" aria-pressed="' + (c.id === st.opts[opt.id]) + '"' + (why ? ' disabled title="' + esc(why) + '"' : '') + '>' + esc(c.label) + '</button>';
+        }).join('')
+      + '</div>' + (sel && sel.note ? '<div class="opt-note">' + esc(sel.note) + '</div>' : '') + '</div>';
+  }
+  document.getElementById('controls').innerHTML = h;
+}
+
+function currentBuild() {
+  const d = dishById(current), st = state[d.id];
+  return d.build(st.opts, makeQ(st.serves / d.baseServes));
+}
+
+function fmtMins(m) { m = Math.round(m / 5) * 5; return m < 60 ? m + ' mins' : Math.floor(m / 60) + ' hr' + (m % 60 ? ' ' + (m % 60) + ' mins' : ''); }
+
+function renderRecipe() {
+  const d = dishById(current), st = state[d.id];
+  const b = currentBuild();
+  const effort = Math.max(1, Math.min(5, Math.round(b.effort)));
+  let h = '<div class="meter"><span>Time <b>' + fmtMins(b.mins) + '</b></span>'
+    + '<span>Effort <span class="dots" aria-label="' + effort + ' out of 5">' + [1, 2, 3, 4, 5].map(i => '<i class="' + (i <= effort ? 'on' : '') + '"></i>').join('') + '</span></span>'
+    + '<span>Serves <b>' + esc(d.servesLabel(st.serves)) + '</b></span></div>'
+    + '<p class="version">This version: ' + esc(d.summary(st.opts)) + '.</p>';
+  h += '<h4>Ingredients</h4><ul class="ings">';
+  for (const i of b.ing) {
+    if (i.group) { h += '</ul><div class="ing-group">' + esc(i.group) + '</div><ul class="ings">'; continue; }
+    h += '<li><span class="amt">' + esc(i.amount) + '</span><span>' + esc(i.item) + '</span></li>';
+  }
+  h += '</ul><h4>Method</h4><ol class="steps">' + b.steps.map(s => '<li>' + esc(s) + '</li>').join('') + '</ol>';
+  if (b.notes.length) h += '<div class="recipe-notes">' + b.notes.map(n => '<p>' + esc(n) + '</p>').join('') + '</div>';
+  document.getElementById('recipe').innerHTML = h.replace('<ul class="ings"></ul>', '');
+}
+
+function renderCook(msg, isErr) {
+  const d = dishById(current);
+  const inBook = bookIds.has(d.bookId);
+  const notes = lsGet('notes.' + d.id) || '';
+  let action;
+  if (signedIn) {
+    action = '<button class="btn" id="promote">' + (inBook ? 'Update the recipe-book copy' : 'Add this version to the recipe book') + '</button>';
+  } else {
+    action = '<a class="btn btn-quiet" href="/signin/?next=' + encodeURIComponent('/recipes/benicity/#' + d.id) + '">Sign in to add it to the recipe book</a>';
+  }
+  const link = inBook ? ' <a href="/recipes/#recipe-' + encodeURIComponent(d.bookId) + '">See it in the recipe book</a>' : '';
+  document.getElementById('cook').innerHTML =
+    '<h3>After the first cook</h3>'
+    + '<p>Note what worked and what to change. When you are happy, add the version you cooked to the recipe book — your notes go in with it, in the recipe\'s Notes section.</p>'
+    + '<textarea id="cookNotes" placeholder="e.g. Coating stuck well. Oil a touch hot — try 165°C. Dip needed more lime.">' + esc(notes) + '</textarea>'
+    + '<div class="cook-row">' + action + '<span class="saved-hint" id="savedHint">Notes are kept in this browser.</span></div>'
+    + '<p class="cook-msg' + (isErr ? ' err' : '') + '" id="cookMsg">' + (msg || '') + (msg ? '' : link) + '</p>';
+}
+
+/* ---- adding to the recipe book ---- */
+function bookRecipe() {
+  const d = dishById(current), st = state[d.id];
+  const b = currentBuild();
+  const cookNotes = (lsGet('notes.' + d.id) || '').trim();
+  const flat = [];
+  for (const i of b.ing) {
+    if (i.group) continue;
+    flat.push({ amount: i.amount, item: i.item });
+  }
+  const noteText = [
+    'Developed in Benicity Cloake. This version: ' + d.summary(st.opts) + '.',
+    cookNotes ? 'From the first cook: ' + cookNotes.replace(/\s*\n+\s*/g, ' ') : '',
+    b.notes.join(' '),
+  ].filter(Boolean).join(' ');
+  return {
+    id: d.bookId, section: d.section, category: d.category, title: d.bookTitle,
+    serves: String(st.serves), time: fmtMins(b.mins), calories: '',
+    description: d.bookDescription,
+    ingredients: flat, steps: b.steps.slice(), notes: noteText,
+  };
+}
+
+let armTimer = null;
+async function promote(btn) {
+  if (!btn.classList.contains('armed')) {
+    btn.classList.add('armed');
+    btn.dataset.label = btn.textContent;
+    btn.textContent = bookIds.has(dishById(current).bookId) ? 'Replace it? Click again' : 'Add it? Click again';
+    clearTimeout(armTimer);
+    armTimer = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = btn.dataset.label; }, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const d = dishById(current);
+  try {
+    const res = await fetch('/admin/api/recipes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify([bookRecipe()]) });
+    const type = res.headers.get('content-type') || '';
+    if (res.status === 401) { signedIn = false; renderCook('Your sign-in has expired — sign in again and retry.', true); return; }
+    if (!res.ok || !type.includes('application/json')) throw new Error('HTTP ' + res.status);
+    bookIds.add(d.bookId);
+    renderPicker();
+    renderCook('Saved. <a href="/recipes/#recipe-' + encodeURIComponent(d.bookId) + '">Open it in the recipe book</a>');
+  } catch (e) {
+    renderCook('Couldn\'t save just now (' + esc(e.message) + '). Nothing was changed — try again in a moment.', true);
+  }
+}
+
+/* ---- events ---- */
+document.getElementById('dishes').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-dish]');
+  if (!b) return;
+  selectDish(b.dataset.dish, true);
+});
+document.getElementById('dish').addEventListener('click', (e) => {
+  const d = dishById(current); if (!d) return;
+  const st = state[d.id];
+  const p = e.target.closest('[data-preset]');
+  const c = e.target.closest('[data-choice]');
+  const s = e.target.closest('[data-serves]');
+  if (p) {
+    Object.assign(st.opts, d.presets.find(x => x.id === p.dataset.preset).values);
+    const msg = fixBlocked(d, st.opts);
+    saveState(d); renderControls(msg); renderRecipe();
+  } else if (c && !c.disabled) {
+    st.opts[c.dataset.opt] = c.dataset.choice;
+    const msg = fixBlocked(d, st.opts);
+    saveState(d); renderControls(msg); renderRecipe();
+  } else if (s && !s.disabled) {
+    const i = d.servesChoices.indexOf(st.serves) + Number(s.dataset.serves);
+    st.serves = d.servesChoices[Math.max(0, Math.min(d.servesChoices.length - 1, i))];
+    saveState(d); renderControls(); renderRecipe();
+  } else if (e.target.id === 'promote') {
+    promote(e.target);
+  }
+});
+let notesTimer = null;
+document.getElementById('dish').addEventListener('input', (e) => {
+  if (e.target.id !== 'cookNotes') return;
+  const val = e.target.value;
+  clearTimeout(notesTimer);
+  notesTimer = setTimeout(() => {
+    lsSet('notes.' + current, val);
+    const h = document.getElementById('savedHint'); if (h) h.textContent = 'Saved in this browser.';
+  }, 400);
+});
+
+function selectDish(id, push) {
+  if (!dishById(id)) id = DISHES[0].id;
+  current = id;
+  initState(dishById(id));
+  if (push) history.replaceState(null, '', '#' + id);
+  renderPicker();
+  renderDish();
+}
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (id && id !== current && dishById(id)) selectDish(id, false); });
+
+/* ---- start ---- */
+selectDish(decodeURIComponent(location.hash.slice(1)) || DISHES[0].id, false);
+
+/* Which dishes are already in the book (seed file + database overlay, less
+ * deletions), and whether this browser is signed in. Both only change labels,
+ * so the page renders first and these fill in after. */
+(async function loadStatus() {
+  const get = (url) => fetch(url, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+  const [seed, overlay, gone, session] = await Promise.all([get('/recipes/recipes.json'), get('/api/recipes'), get('/api/recipes/deleted'), get('/api/session')]);
+  const ids = new Set();
+  for (const list of [seed, overlay]) if (Array.isArray(list)) for (const r of list) if (r && r.id) ids.add(r.id);
+  if (Array.isArray(gone)) for (const id of gone) ids.delete(id);
+  bookIds = ids;
+  signedIn = !!(session && session.signedIn === true);
+  renderPicker();
+  renderCook();
+})();
+</script>
+</body>
+</html>
