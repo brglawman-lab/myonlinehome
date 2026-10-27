@@ -70,6 +70,7 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     POST /admin/api/shopping/add         signed in — add items, merging duplicates
     GET  /admin/api/shopping/key         signed in — the voice key (POST replaces it)
     POST /admin/api/shopping/transcribe  signed in — audio in, {text} out (Workers AI Whisper)
+    GET  /admin/api/shopping/categories  signed in — {categories, learned}: aisles, and where you've put things
     GET  /api/shopping/voice             voice key — read the list out (plain text)
     POST /api/shopping/voice             voice key — add what was said (plain text reply)
     DEL  /admin/api/contact/:id          signed in
@@ -178,6 +179,16 @@ an iPhone Shortcut posts what was said to `/api/shopping/voice` with the
 voice key in an `Authorization: Bearer` header — the key is shown, copied and
 replaced on the page, is stored in D1 (`site_settings`), and reaches nothing
 but the shopping list. The page's "Paste a list" box takes one item per line.
+**Aisles.** "To buy" is grouped by aisle (Fruit & veg, Bakery, Meat & fish,
+Dairy & eggs, …) in the order you'd walk round a shop. The aisles and the word
+list that places items are in `public/assets/shopping-categories.js`, an ES
+module the page imports and `src/shopping.js` bundles, so both sort the same
+way: a choice you've made before wins, then words like "frozen" or "tinned",
+then the longest matching phrase in the word list. Anything it doesn't know is
+sent to Workers AI once and the answer remembered (D1 `shopping_categories`).
+Moving an item with ✎ → Aisle teaches the list for next time. To fix a
+wrongly placed common word, add it to the word list; the longer phrase wins
+("peanut butter" is Cupboard, not Dairy).
 Signed in, every recipe in the book has an **Add to shopping list** button
 that ticks off pantry staples and sends the rest (scaled to the servings
 shown) to `/admin/api/shopping/add`, which folds duplicates together. The

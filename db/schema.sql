@@ -147,7 +147,19 @@ CREATE TABLE IF NOT EXISTS shopping_items (
   source      TEXT,                     -- web, paste, voice, recipe
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL,            -- the newest change wins
-  deleted_at  TEXT
+  deleted_at  TEXT,
+  category    TEXT                      -- aisle id from public/assets/shopping-categories.js
+);
+
+-- Where you've put shopping items before, so the list sorts them the same way
+-- next time (src/shopping.js). source: "you" (moved on the page) or "ai"
+-- (Workers AI's answer for something the word list didn't know). Also created
+-- by the Worker on first use; it adds shopping_items.category to an older table.
+CREATE TABLE IF NOT EXISTS shopping_categories (
+  key        TEXT PRIMARY KEY,
+  category   TEXT NOT NULL,
+  source     TEXT NOT NULL,
+  updated_at TEXT NOT NULL
 );
 
 -- Small site-wide settings. Holds the shopping list's voice key and the bin-day

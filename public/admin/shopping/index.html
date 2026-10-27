@@ -51,6 +51,14 @@
   .edit-row { display:flex; gap:0.4rem; flex-wrap:wrap; width:100%; }
   .edit-row input { font:inherit; font-size:0.95rem; padding:0.35rem 0.6rem; border:1px solid rgba(45,74,62,0.25); border-radius:8px; min-width:0; }
   .edit-row .en { flex:2 1 140px; } .edit-row .eq { flex:1 1 80px; }
+  .aisle { margin-top:0.9rem; }
+  .aisle:first-child { margin-top:0; }
+  .aisle-head { font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--sage); font-weight:500;
+                margin:0 0 0.35rem 0.2rem; display:flex; gap:0.4rem; align-items:baseline; }
+  .aisle-head .n { color:var(--mid-grey); letter-spacing:0; font-size:0.75rem; }
+  .edit-row select { font:inherit; font-size:0.9rem; padding:0.35rem 0.5rem; border:1px solid rgba(45,74,62,0.25); border-radius:8px;
+                     background:#fff; color:var(--charcoal); flex:1 1 100%; }
+  .edit-row label.aisle-pick { flex:1 1 100%; font-size:0.78rem; color:var(--mid-grey); display:flex; flex-direction:column; gap:0.2rem; }
   .empty { text-align:center; color:var(--mid-grey); padding:2rem 1rem; background:var(--warm-white); border:1px dashed var(--border); border-radius:14px; }
 
   details.panel { margin-top:2rem; }
@@ -87,7 +95,7 @@
 
   <div id="toBuyWrap">
     <div class="group-head"><h2>To buy<span class="n" id="toBuyN"></span></h2></div>
-    <ul class="items" id="toBuy"></ul>
+    <div id="toBuy"></div>
     <p class="empty" id="emptyMsg" hidden>Nothing on the list. Add things above, or open a recipe and use <strong>Add to shopping list</strong>.</p>
   </div>
 
@@ -143,7 +151,7 @@
  * connection comes back. Every change carries the time it was made and the
  * server keeps the newest, so two phones editing at once agree. */
 const API = '/admin/api/shopping';
-const LS_ITEMS = 'moh.shopping.items', LS_PENDING = 'moh.shopping.pending';
+const LS_ITEMS = 'moh.shopping.items', LS_PENDING = 'moh.shopping.pending', LS_LEARNED = 'moh.shopping.learned';
 
 const load = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
 const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -152,6 +160,21 @@ let items = new Map((load(LS_ITEMS) || []).map(i => [i.id, i]));
 let pending = new Map(Object.entries(load(LS_PENDING) || {}));
 let editing = null;
 let online = true;
+
+/* Categories: which part of the shop each item is in. The word list lives in
+ * /assets/shopping-categories.js, shared with the server. `learned` is where
+ * you've put things before (from the server, kept here for offline use).
+ * Until the file loads — or if it can't — the list simply shows ungrouped. */
+let Cat = null;
+let learned = load(LS_LEARNED) || {};
+import('/assets/shopping-categories.js').then((m) => { Cat = m; render(); }).catch(() => {});
+async function refreshLearned() {
+  try {
+    const d = await adminFetch(API + '/categories', { cache: 'no-store' });
+    if (d && d.learned) { learned = d.learned; store(LS_LEARNED, learned); }
+  } catch (e) {}
+}
+const catOf = (i) => i.category || (Cat && Cat.categorise(i.name, learned)) || 'other';
 
 const now = () => new Date().toISOString();
 const newId = () => 'item-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
@@ -164,10 +187,11 @@ function persist() {
 
 /* ---------- changes ---------- */
 
-function change(item) {
+function change(item, opts) {
   item.updatedAt = now();
   if (item.deleted) items.delete(item.id); else items.set(item.id, item);
-  pending.set(item.id, Object.assign({}, item));
+  // learn: tells the server you chose this group, so it remembers next time
+  pending.set(item.id, Object.assign({}, item, opts && opts.learn ? { learn: true } : {}));
   persist(); render(); flush();
 }
 
@@ -191,7 +215,8 @@ function addNames(lines, source) {
       already.push(hit.name); continue;
     }
     const t = now();
-    const item = { id: newId(), name: cap, qty, recipe: null, done: false, source, createdAt: t };
+    const item = { id: newId(), name: cap, qty, recipe: null, done: false, source, createdAt: t,
+                   category: Cat ? Cat.categorise(cap, learned) : null };
     toBuy.set(sameKey(cap), item);
     change(item); added++;
   }
@@ -264,6 +289,8 @@ function itemHtml(i) {
     return '<li class="item" data-id="' + esc(i.id) + '"><div class="edit-row">'
       + '<input class="eq" id="editQty" value="' + esc(i.qty || '') + '" placeholder="Amount">'
       + '<input class="en" id="editName" value="' + esc(i.name) + '">'
+      + (Cat ? '<label class="aisle-pick">Aisle<select id="editCat">' + Cat.CATEGORIES.map(c =>
+          '<option value="' + c.id + '"' + (c.id === catOf(i) ? ' selected' : '') + '>' + esc(c.label) + '</option>').join('') + '</select></label>' : '')
       + '<button class="btn small" data-act="save">Save</button><button class="btn secondary small" data-act="cancel">Cancel</button>'
       + '</div></li>';
   }
@@ -275,10 +302,21 @@ function itemHtml(i) {
     + '<button class="x" data-act="del" aria-label="Remove" title="Remove">✕</button></li>';
 }
 
+/* To buy, grouped by aisle in the order you'd walk round the shop. */
+function toBuyHtml(list) {
+  if (!list.length) return '';
+  if (!Cat) return '<ul class="items">' + list.map(itemHtml).join('') + '</ul>';
+  const groups = new Map(Cat.CATEGORIES.map(c => [c.id, []]));
+  list.forEach(i => (groups.get(catOf(i)) || groups.get('other')).push(i));
+  return Cat.CATEGORIES.filter(c => groups.get(c.id).length).map(c =>
+    '<section class="aisle"><h3 class="aisle-head">' + esc(c.label) + '<span class="n">' + groups.get(c.id).length + '</span></h3>'
+    + '<ul class="items">' + groups.get(c.id).map(itemHtml).join('') + '</ul></section>').join('');
+}
+
 function render() {
   const all = [...items.values()].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
   const toBuy = all.filter(i => !i.done), done = all.filter(i => i.done);
-  document.getElementById('toBuy').innerHTML = toBuy.map(itemHtml).join('');
+  document.getElementById('toBuy').innerHTML = toBuyHtml(toBuy);
   document.getElementById('done').innerHTML = done.map(itemHtml).join('');
   document.getElementById('toBuyN').textContent = toBuy.length ? toBuy.length : '';
   document.getElementById('doneN').textContent = done.length ? done.length : '';
@@ -306,8 +344,20 @@ document.addEventListener('keydown', (e) => {
 function saveEdit(item) {
   const name = document.getElementById('editName').value.trim();
   const qty = document.getElementById('editQty').value.trim();
+  const pick = document.getElementById('editCat');
   editing = null;
-  if (name) change(Object.assign({}, item, { name, qty: qty || null })); else render();
+  if (!name) { render(); return; }
+  const before = catOf(item);
+  const picked = pick ? pick.value : before;
+  if (picked !== before) {
+    // You moved it: put it there, and remember for next time.
+    if (Cat) { learned[Cat.itemKey(name)] = picked; store(LS_LEARNED, learned); }
+    change(Object.assign({}, item, { name, qty: qty || null, category: picked }), { learn: true });
+  } else {
+    // Renamed (or just the amount): let the new name decide its group.
+    const category = name !== item.name && Cat ? (Cat.categorise(name, learned) || item.category) : item.category;
+    change(Object.assign({}, item, { name, qty: qty || null, category }));
+  }
 }
 
 document.getElementById('clearBtn').addEventListener('click', (e) => {
@@ -478,6 +528,7 @@ document.getElementById('voiceUrl1').textContent = location.origin + '/api/shopp
 
 render();
 flush();
+refreshLearned();
 if (new URLSearchParams(location.search).get('voice') === '1') {
   if (canRecord || Rec) listen(); else input.focus();
 }

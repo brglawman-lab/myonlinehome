@@ -6,6 +6,7 @@
  *   GET  /admin/api/shopping/key       signed in — the voice key (made on first use)
  *   POST /admin/api/shopping/key       signed in — replace the voice key
  *   POST /admin/api/shopping/transcribe signed in — audio from the page's microphone → {text}
+ *   GET  /admin/api/shopping/categories signed in — {categories, learned}: where you've put things
  *   POST /api/shopping/voice           voice key — add what was said
  *   GET  /api/shopping/voice           voice key — read the list back
  *
@@ -22,9 +23,21 @@
  * Bearer header instead. The key only reaches the shopping list — nothing else
  * on the site accepts it — and it can be replaced from the page at any time.
  * Replies are plain text so the shortcut can speak them as they are.
+ *
+ * Categories. Every item carries a `category` (an id from
+ * public/assets/shopping-categories.js — the same file the page uses, so both
+ * place things identically). The page sets it as you type; anything that
+ * arrives without one (Siri, a recipe, an older phone) is filled in here:
+ * first from where you've put that item before, then the word list, then —
+ * for the odd thing the word list has never heard of — Workers AI, whose
+ * answer is remembered so it's only ever asked once per item. Moving an item
+ * to another group on the page teaches the list: the save carries
+ * `learn: true` and the choice is stored in shopping_categories, where it
+ * beats both the word list and the AI from then on.
  */
 
 import { json, authed } from "./api.js";
+import { CATEGORIES, CATEGORY_IDS, categorise, itemKey } from "../public/assets/shopping-categories.js";
 
 let tablesReady = false;
 async function ensureTables(env) {
@@ -50,7 +63,17 @@ async function ensureTables(env) {
          updated_at TEXT NOT NULL
        )`
     ),
+    env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS shopping_categories (
+         key        TEXT PRIMARY KEY,           -- itemKey(name): lower case, singular
+         category   TEXT NOT NULL,
+         source     TEXT NOT NULL,              -- you | ai
+         updated_at TEXT NOT NULL
+       )`
+    ),
   ]);
+  // Lists made before categories existed have no category column yet.
+  try { await env.DB.prepare(`ALTER TABLE shopping_items ADD COLUMN category TEXT`).run(); } catch { /* already there */ }
   tablesReady = true;
 }
 
@@ -92,6 +115,7 @@ const rowOut = (r) => ({
   id: r.id,
   name: r.name,
   qty: r.qty,
+  category: r.category || null,
   recipe: r.recipe,
   done: Boolean(r.done),
   source: r.source,
@@ -101,7 +125,7 @@ const rowOut = (r) => ({
 
 async function liveItems(env) {
   const { results } = await env.DB.prepare(
-    `SELECT id, name, qty, recipe, done, source, created_at, updated_at
+    `SELECT id, name, qty, recipe, done, source, category, created_at, updated_at
        FROM shopping_items WHERE deleted_at IS NULL ORDER BY created_at ASC`
   ).all();
   return (results || []).map(rowOut);
@@ -114,6 +138,7 @@ export async function listShopping(request, env) {
   // Bought items that were cleared more than a fortnight ago are no use to anyone.
   await env.DB.prepare(`DELETE FROM shopping_items WHERE deleted_at IS NOT NULL AND deleted_at < ?`)
     .bind(new Date(Date.now() - 14 * 86400_000).toISOString()).run();
+  await fillCategories(env);
   return json(await liveItems(env));
 }
 
@@ -136,10 +161,11 @@ export async function saveShopping(request, env) {
 
   const now = new Date().toISOString();
   const stmt = env.DB.prepare(
-    `INSERT INTO shopping_items (id, name, qty, recipe, done, source, created_at, updated_at, deleted_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
+    `INSERT INTO shopping_items (id, name, qty, recipe, done, source, created_at, updated_at, deleted_at, category)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?12)
      ON CONFLICT(id) DO UPDATE SET
        name = excluded.name, qty = excluded.qty, recipe = excluded.recipe, done = excluded.done,
+       category = COALESCE(excluded.category, shopping_items.category),
        updated_at = CASE WHEN excluded.updated_at > shopping_items.updated_at THEN excluded.updated_at ELSE ?10 END,
        deleted_at = CASE WHEN excluded.deleted_at IS NULL THEN NULL ELSE ?10 END
      WHERE excluded.updated_at >= shopping_items.updated_at OR shopping_items.updated_at = ?11`
@@ -148,14 +174,21 @@ export async function saveShopping(request, env) {
   for (const r of rows) {
     if (!r || !r.id || !clip(r.name, 200)) return json({ error: "Each item needs an id and a name" }, 400);
     const updated = typeof r.updatedAt === "string" && r.updatedAt <= now ? r.updatedAt : now;
+    const category = CATEGORY_IDS.includes(r.category) ? r.category : null;
     batch.push(stmt.bind(
       String(r.id).slice(0, 80), clip(r.name, 200), clip(r.qty, 120), clip(r.recipe, 400),
       r.done ? 1 : 0, clip(r.source, 20) || "web", r.createdAt || now, updated,
-      r.deleted ? updated : null, now, typeof r.base === "string" ? r.base : ""
+      r.deleted ? updated : null, now, typeof r.base === "string" ? r.base : "", category
     ));
+    // You moved it to another group: remember that for next time.
+    if (r.learn && category && !r.deleted) {
+      const key = itemKey(r.name);
+      if (key) batch.push(learnStmt(env, key, category, "you", now));
+    }
   }
   if (batch.length) await env.DB.batch(batch);
-  return json({ saved: batch.length, items: await liveItems(env) });
+  await fillCategories(env);
+  return json({ saved: rows.length, items: await liveItems(env) });
 }
 
 /* Add items, folding each into one already on the list (and not yet bought)
@@ -164,6 +197,7 @@ export async function saveShopping(request, env) {
 async function addItems(env, items, source) {
   await ensureTables(env);
   const existing = (await liveItems(env)).filter((i) => !i.done);
+  const learned = await loadLearned(env);
   const byKey = new Map(existing.map((i) => [sameKey(i.name), i]));
   const now = new Date().toISOString();
   const writes = [];
@@ -188,15 +222,106 @@ async function addItems(env, items, source) {
     } else {
       const row = { id: newId(), name, qty, recipe };
       writes.push(env.DB.prepare(
-        `INSERT INTO shopping_items (id, name, qty, recipe, done, source, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 0, ?, ?, ?)`
-      ).bind(row.id, name, qty, recipe, source, now, now));
+        `INSERT INTO shopping_items (id, name, qty, recipe, done, source, created_at, updated_at, category)
+         VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)`
+      ).bind(row.id, name, qty, recipe, source, now, now, categorise(name, learned)));
       byKey.set(key, row);
       added.push(name);
     }
   }
   if (writes.length) await env.DB.batch(writes);
+  await fillCategories(env);
   return { added, merged };
+}
+
+/* ---------- categories ---------- */
+
+const learnStmt = (env, key, category, source, now) =>
+  env.DB.prepare(
+    `INSERT INTO shopping_categories (key, category, source, updated_at) VALUES (?, ?, ?, ?)
+     ON CONFLICT(key) DO UPDATE SET category = excluded.category, source = excluded.source, updated_at = excluded.updated_at
+     WHERE shopping_categories.source <> 'you' OR excluded.source = 'you'`
+  ).bind(key.slice(0, 120), category, source, now);
+
+async function loadLearned(env) {
+  const { results } = await env.DB.prepare(`SELECT key, category FROM shopping_categories`).all();
+  const out = {};
+  for (const r of results || []) if (CATEGORY_IDS.includes(r.category)) out[r.key] = r.category;
+  return out;
+}
+
+export async function getCategories(request, env) {
+  if (!authed(request)) return json({ error: "Not authenticated" }, 401);
+  if (!env.DB) return noDb();
+  await ensureTables(env);
+  return json({ categories: CATEGORIES, learned: await loadLearned(env) });
+}
+
+/* Workers AI, for the few items the word list doesn't recognise. Tried in
+ * order; if a model is retired, the next one answers. */
+const CLASSIFIERS = ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct-fast", "@cf/meta/llama-3.1-8b-instruct"];
+
+export async function askAi(env, names) {
+  if (!env.AI || !names.length) return null;
+  const menu = CATEGORIES.filter((c) => c.id !== "other").map((c) => `${c.id} (${c.label})`).join(", ");
+  const messages = [
+    { role: "system", content: "You sort a UK household's shopping list into supermarket aisles. Answer with JSON only." },
+    { role: "user", content:
+      `Aisles: ${menu}, other.\n` +
+      `For each item, give the aisle id a shopper in a UK supermarket would find it in. Use "other" only if none fits.\n` +
+      `Reply as a JSON object mapping each item exactly as written to an aisle id.\n` +
+      `Items: ${JSON.stringify(names)}` },
+  ];
+  for (const model of CLASSIFIERS) {
+    try {
+      const res = await env.AI.run(model, { messages, max_tokens: 40 + names.length * 20, temperature: 0 });
+      const text = typeof res === "string" ? res : String((res && (res.response ?? res.result?.response)) || "");
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) continue;
+      const parsed = JSON.parse(m[0]);
+      const out = {};
+      for (const n of names) {
+        const v = String(parsed[n] ?? "").toLowerCase().trim();
+        out[n] = CATEGORY_IDS.includes(v) ? v : "other";
+      }
+      return out;
+    } catch (err) {
+      console.error("categorise via " + model, err);
+    }
+  }
+  return null;
+}
+
+/* Give every item on the list a category. Runs after each write and on each
+ * read, but only does work when something arrived without one. Filling in a
+ * category doesn't touch updated_at: it isn't an edit, and bumping it would
+ * make a phone's own change look out of date. */
+async function fillCategories(env) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, name FROM shopping_items WHERE deleted_at IS NULL AND category IS NULL LIMIT 60`
+  ).all();
+  const missing = results || [];
+  if (!missing.length) return;
+  const learned = await loadLearned(env);
+  const now = new Date().toISOString();
+  const writes = [];
+  const unknown = [];
+  for (const r of missing) {
+    const cat = categorise(r.name, learned);
+    if (cat) writes.push(env.DB.prepare(`UPDATE shopping_items SET category = ? WHERE id = ?`).bind(cat, r.id));
+    else unknown.push(r);
+  }
+  if (unknown.length) {
+    const names = [...new Set(unknown.map((r) => r.name))].slice(0, 30);
+    const answers = await askAi(env, names);
+    for (const r of unknown) {
+      const cat = (answers && answers[r.name]) || "other";
+      writes.push(env.DB.prepare(`UPDATE shopping_items SET category = ? WHERE id = ?`).bind(cat, r.id));
+      // Remember real answers so the same item never needs asking again.
+      if (answers && answers[r.name] && cat !== "other") writes.push(learnStmt(env, itemKey(r.name), cat, "ai", now));
+    }
+  }
+  if (writes.length) await env.DB.batch(writes);
 }
 
 export async function addShopping(request, env) {
