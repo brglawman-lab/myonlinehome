@@ -78,6 +78,38 @@
   .room-row { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 0.88rem; }
   .room-row .room-status { color: var(--mid-grey); font-size: 0.82rem; text-align: right; }
 
+  /* ---------- signed-in section ---------- */
+  .admin-only[hidden] { display: none; }
+  .admin-label { display: flex; align-items: center; gap: 10px; }
+  .admin-label .pill { font-size: 0.62rem; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 999px; background: var(--forest); color: var(--cream); }
+
+  /* ---------- bin day ---------- */
+  .bins { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; text-align: center; }
+  .bin { display: flex; flex-direction: column; align-items: center; }
+  .bin svg { width: 72px; height: 92px; display: block; }
+  .bin-name { font-weight: 500; font-size: 0.88rem; margin-top: 0.4rem; color: var(--charcoal); }
+  .bin-what { font-size: 0.72rem; color: var(--mid-grey); }
+  .bin-date { font-family: 'Playfair Display', Georgia, serif; font-size: 1.05rem; font-weight: 700; color: var(--forest); margin-top: 0.3rem; line-height: 1.2; }
+  .bin-when { font-size: 0.78rem; color: var(--rust); font-weight: 500; }
+  .bin-when.soon { color: var(--rust); }
+  .bin-when.later { color: var(--mid-grey); font-weight: 400; }
+  .bin-none { font-size: 0.82rem; color: var(--mid-grey); font-style: italic; margin-top: 0.3rem; }
+  .bin-then { margin-top: 0.8rem; font-size: 0.8rem; color: var(--mid-grey); text-align: center; }
+  .bin-setup label { display: block; font-size: 0.82rem; color: var(--mid-grey); margin-bottom: 0.35rem; }
+  .bin-setup .row { display: flex; gap: 6px; }
+  .bin-setup input, .bin-setup select {
+    font: inherit; font-size: 0.9rem; padding: 0.45rem 0.6rem; border: 1px solid var(--light-border);
+    border-radius: 8px; background: #fff; color: var(--charcoal); min-width: 0; flex: 1; width: 100%;
+  }
+  .bin-setup button, .link-btn {
+    font: inherit; font-size: 0.85rem; font-weight: 500; padding: 0.45rem 0.9rem; border-radius: 8px;
+    border: 1px solid var(--forest); background: var(--forest); color: var(--cream); cursor: pointer;
+  }
+  .bin-setup select { margin-top: 0.6rem; }
+  .bin-setup .row + .row { margin-top: 0.6rem; }
+  .bin-msg { font-size: 0.8rem; color: var(--rust); margin-top: 0.5rem; min-height: 1em; }
+  .link-btn { background: none; border: none; color: var(--rust); padding: 0; font-size: 0.82rem; }
+
 
 
   @media (max-width: 600px) {
@@ -108,6 +140,11 @@ transition:background .15s ease,color .15s ease}
     <div class="widget"><div class="widget-label">Loading…</div></div>
   </div>
 
+  <div class="admin-only" id="adminSection" hidden>
+    <p class="section-label admin-label">At home <span class="pill">Signed in</span></p>
+    <div class="dash-grid" id="adminGrid"></div>
+  </div>
+
 </div>
 
 
@@ -116,8 +153,9 @@ transition:background .15s ease,color .15s ease}
  * Food dashboard — pulls live data from the recipe book and the Farmer's
  * Markets guide (same page-scraping approach the Meal Builder and Food
  * Storage pages use: fetch the page's HTML, lift a named const array out of
- * it) plus the public storage-rooms/readings API, and renders a handful of
- * "what's relevant right now" widgets. Nothing here writes anything — it's
+ * it) and renders a handful of "what's relevant right now" widgets. When the
+ * browser is signed in, a second section adds bin day (/admin/api/bins) and
+ * the storage watch (the storage-rooms/readings API). Nothing here writes anything — it's
  * read-only, so no sync/offline-queue machinery is needed.
  * ======================================================================== */
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
@@ -264,9 +302,154 @@ function storageWidget(storage) {
   return widget('Storage watch', null, rows.join(''), '<a href="/admin/storage/">Log a reading</a>');
 }
 
+/* ---- signed-in only: bin day ---- */
+const BIN_INFO = {
+  green: { name: 'Green bin', what: 'Recycling', body: '#3e7a3a', lid: '#2f6230', shade: '#336b30' },
+  black: { name: 'Black bin', what: 'General waste', body: '#2b2b2b', lid: '#141414', shade: '#202020' },
+  brown: { name: 'Brown bin', what: 'Garden waste', body: '#7a4a26', lid: '#5c361a', shade: '#6a3f1f' },
+};
+/* A wheelie bin, drawn rather than loaded so it costs nothing and stays sharp. */
+function binSvg(kind) {
+  const c = BIN_INFO[kind];
+  return '<svg viewBox="0 0 72 92" role="img" aria-label="' + c.name + '">'
+    + '<rect x="6" y="5" width="60" height="4" rx="2" fill="' + c.lid + '"/>'           /* handle bar */
+    + '<path d="M4 12 h64 a3 3 0 0 1 3 3 v4 h-70 v-4 a3 3 0 0 1 3 -3z" fill="' + c.lid + '"/>' /* lid */
+    + '<path d="M8 20 h56 l-5 58 a4 4 0 0 1 -4 3.6 h-38 a4 4 0 0 1 -4 -3.6z" fill="' + c.body + '"/>' /* body */
+    + '<path d="M20 28 v42 M36 28 v42 M52 28 v42" stroke="' + c.shade + '" stroke-width="3" stroke-linecap="round"/>'
+    + '<circle cx="18" cy="84" r="6" fill="#3a3a3a"/><circle cx="18" cy="84" r="2.2" fill="#9a9a9a"/>'
+    + '<circle cx="54" cy="84" r="6" fill="#3a3a3a"/><circle cx="54" cy="84" r="2.2" fill="#9a9a9a"/>'
+    + '</svg>';
+}
+function daysFrom(todayIso, iso) {
+  return Math.round((Date.parse(iso + 'T12:00:00Z') - Date.parse(todayIso + 'T12:00:00Z')) / 86400000);
+}
+function binDateHtml(c, todayIso) {
+  const d = new Date(c.date + 'T12:00:00Z');
+  const label = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const n = daysFrom(todayIso, c.date);
+  const when = n <= 0 ? 'Today' : n === 1 ? 'Tomorrow' : n < 7 ? 'This ' + d.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }) : 'In ' + n + ' days';
+  return '<div class="bin-date">' + label + '</div><div class="bin-when ' + (n <= 1 ? 'soon' : 'later') + '">' + when + '</div>';
+}
+function binCard(kind, c, todayIso, emptyText, note) {
+  const i = BIN_INFO[kind];
+  return '<div class="bin">' + binSvg(kind)
+    + '<div class="bin-name">' + i.name + '</div><div class="bin-what">' + i.what + '</div>'
+    + (c ? binDateHtml(c, todayIso) : '<div class="bin-none">' + emptyText + '</div>')
+    + (note ? '<div class="bin-what">' + note + '</div>' : '')
+    + '</div>';
+}
+
+function binsWidget(data) {
+  if (!data) {
+    return widget('Bin day', null, '<p class="widget-muted">Could not reach the bin day service.</p>', '<a href="https://www.leeds.gov.uk/bins-and-recycling/check-your-bin-day" target="_blank" rel="noopener">Check on leeds.gov.uk</a>');
+  }
+  if (!data.configured) {
+    return widget('Bin day', 'Set your address', binSetupHtml(), '');
+  }
+  if (data.error) {
+    return widget('Bin day', null, '<p class="widget-muted">Leeds City Council did not answer just now (' + escapeHtml(data.error) + ').</p>',
+      '<a href="https://www.leeds.gov.uk/bins-and-recycling/check-your-bin-day" target="_blank" rel="noopener">Check on leeds.gov.uk</a>');
+  }
+  const main = data.nextMain;
+  const brown = data.nextBrown;
+  const mainKind = main ? main.bin : 'black';
+  let then = '';
+  if (main) {
+    const after = (data.upcoming || []).find((c) => c.date > main.date && (c.bin === 'black' || c.bin === 'green'));
+    if (after) {
+      const d = new Date(after.date + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+      then = '<p class="bin-then">Then the ' + BIN_INFO[after.bin].name.toLowerCase() + ' on ' + d + '</p>';
+    }
+  }
+  /* Brown collections stop over the winter, so a long gap gets a word of explanation. */
+  const brownNote = brown && daysFrom(data.today, brown.date) > 21 ? 'Back after the winter break' : '';
+  const brownHtml = binCard('brown', brown, data.today, 'No collections in the next six months', brownNote);
+  const title = main
+    ? (daysFrom(data.today, main.date) <= 0 ? BIN_INFO[main.bin].name + ' today' : BIN_INFO[main.bin].name + ' next')
+    : 'Bin day';
+  const body = '<div class="bins">' + binCard(mainKind, main, data.today, 'No collections listed') + brownHtml + '</div>' + then;
+  const foot = '<a href="' + escapeHtml(data.sourceUrl) + '" target="_blank" rel="noopener">Leeds City Council</a>'
+    + ' &nbsp;·&nbsp; <button class="link-btn" type="button" onclick="showBinSetup()">Change address</button>';
+  return '<div class="widget" id="binWidget"><div class="widget-label">Bin day</div>'
+    + '<div class="widget-title">' + title + '</div>'
+    + '<div class="widget-body">' + body + '</div>'
+    + '<div class="widget-foot" style="color:var(--mid-grey)">' + foot + '</div></div>';
+}
+
+function binSetupHtml() {
+  return '<div class="bin-setup">'
+    + '<label for="binPostcode">Postcode — the council lists the addresses there, you pick yours.</label>'
+    + '<div class="row"><input id="binPostcode" autocomplete="postal-code" placeholder="LS16 …" onkeydown="if(event.key===\'Enter\')findBinAddresses()">'
+    + '<button type="button" onclick="findBinAddresses()">Find</button></div>'
+    + '<div id="binChoice"></div>'
+    + '<div class="bin-msg" id="binMsg"></div>'
+    + '</div>';
+}
+function showBinSetup() {
+  const w = document.getElementById('binWidget');
+  if (!w) return;
+  w.querySelector('.widget-body').innerHTML = binSetupHtml();
+  const foot = w.querySelector('.widget-foot'); if (foot) foot.remove();
+  w.querySelector('.widget-title').textContent = 'Change address';
+}
+async function findBinAddresses() {
+  const msg = document.getElementById('binMsg');
+  const pc = document.getElementById('binPostcode').value.trim();
+  msg.textContent = 'Asking the council…';
+  try {
+    const res = await fetch('/admin/api/bins/addresses?postcode=' + encodeURIComponent(pc), { cache: 'no-store' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    msg.textContent = '';
+    document.getElementById('binChoice').innerHTML =
+      '<div class="row"><select id="binAddress">' + data.map((a) => '<option value="' + escapeHtml(a.uprn) + '">' + escapeHtml(a.address) + '</option>').join('') + '</select></div>'
+      + '<div class="row"><button type="button" onclick="saveBinAddress()">Use this address</button></div>';
+  } catch (e) { msg.textContent = e.message; }
+}
+async function saveBinAddress() {
+  const sel = document.getElementById('binAddress');
+  const msg = document.getElementById('binMsg');
+  msg.textContent = 'Saving…';
+  try {
+    const res = await fetch('/admin/api/bins/address', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ uprn: sel.value, address: sel.options[sel.selectedIndex].text }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    await renderAdmin();
+  } catch (e) { msg.textContent = e.message; }
+}
+
+async function loadBins() {
+  try {
+    const res = await fetch('/admin/api/bins', { cache: 'no-store' });
+    if (res.status === 401) return null;
+    const data = await res.json().catch(() => null);
+    if (data && data.configured && !res.ok && !data.error) data.error = 'HTTP ' + res.status;
+    return data;
+  } catch (e) { return null; }
+}
+async function isSignedIn() {
+  try {
+    const res = await fetch('/api/session', { cache: 'no-store' });
+    return res.ok && (await res.json()).signedIn === true;
+  } catch (e) { return false; }
+}
+
+/* Bin day and the storage watch are only for the owner, so they are only
+ * fetched — and the section only shown — when this browser is signed in. */
+async function renderAdmin() {
+  const [bins, storage] = await Promise.all([loadBins(), loadStorage()]);
+  document.getElementById('adminGrid').innerHTML = [binsWidget(bins), storageWidget(storage)].join('');
+  document.getElementById('adminSection').hidden = false;
+}
+
 /* ---- init ---- */
 (async function init() {
-  const [markets, recipeData, storage] = await Promise.all([loadMarkets(), loadRecipeData(), loadStorage()]);
+  isSignedIn().then((yes) => { if (yes) renderAdmin(); });
+
+  const [markets, recipeData] = await Promise.all([loadMarkets(), loadRecipeData()]);
 
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -277,7 +460,6 @@ function storageWidget(storage) {
     seasonWidget(recipeData ? recipeData.seasonal : [], month, monthName, 'seasonal', 'In season'),
     seasonWidget(recipeData ? recipeData.foraging : [], month, monthName, 'foraging', 'Foraging'),
     festivalsWidget(markets),
-    storageWidget(storage),
   ].filter(Boolean);
 
   document.getElementById('dashGrid').innerHTML = widgets.join('');

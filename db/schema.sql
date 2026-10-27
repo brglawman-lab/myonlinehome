@@ -145,7 +145,8 @@ CREATE TABLE IF NOT EXISTS shopping_items (
   deleted_at  TEXT
 );
 
--- Small site-wide settings. Holds the shopping list's voice key.
+-- Small site-wide settings. Holds the shopping list's voice key and the bin-day
+-- address (bins.uprn, bins.address — src/bins.js).
 CREATE TABLE IF NOT EXISTS site_settings (
   key        TEXT PRIMARY KEY,
   value      TEXT NOT NULL,

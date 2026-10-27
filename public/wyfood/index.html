@@ -686,7 +686,8 @@ transition:background .15s ease,color .15s ease}
 
 <script>
 // =============================================
-// MARKET DATA — source verified April 2026
+// MARKET DATA — swept October 2026. Each entry keeps its dates in one
+// array per year (dates2026, dates2027, …); the page merges them into m.dates.
 // =============================================
 const MARKETS = [
   {
@@ -698,15 +699,18 @@ const MARKETS = [
     coords: { lat: 53.8474, lng: -1.6353 },
     recurrence: '1st Saturday',
     times: '9am – 12:30pm',
-    location: "St Margaret's Primary School, Town Street, Horsforth, LS18 5BL",
-    mapQuery: "St Margaret's Primary School Town Street Horsforth Leeds",
+    location: 'St Margaret\'s Primary School, Town Street, Horsforth, LS18 5BL',
+    mapQuery: 'St Margaret\'s Primary School Town Street Horsforth Leeds',
     source: 'Leeds City Council Markets',
     sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
-    notes: 'Free to attend. Small but well-established community market.',
+    notes: 'Free to attend. Small but well-established community market. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02',
-      '2026-06-06','2026-07-04','2026-08-01','2026-09-05','2026-10-03',
-      '2026-11-07','2026-12-05'
+      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02','2026-06-06',
+      '2026-07-04','2026-08-01','2026-09-05','2026-10-03','2026-11-07','2026-12-05'
+    ],
+    dates2027: [
+      '2027-01-02','2027-02-06','2027-03-06','2027-04-03','2027-05-01','2027-06-05',
+      '2027-07-03','2027-08-07','2027-09-04','2027-10-02','2027-11-06','2027-12-04'
     ]
   },
   {
@@ -722,11 +726,14 @@ const MARKETS = [
     mapQuery: 'Rose Garden North Lane Headingley Leeds',
     source: 'Leeds City Council Markets',
     sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
-    notes: 'Over 20 food stalls in season. Brings in plants in spring/summer.',
+    notes: 'Over 20 food stalls in season. Brings in plants in spring/summer. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-10','2026-02-14','2026-03-14','2026-04-11','2026-05-09',
-      '2026-06-13','2026-07-11','2026-08-08','2026-09-12','2026-10-10',
-      '2026-11-14','2026-12-12'
+      '2026-01-10','2026-02-14','2026-03-14','2026-04-11','2026-05-09','2026-06-13',
+      '2026-07-11','2026-08-08','2026-09-12','2026-10-10','2026-11-14','2026-12-12'
+    ],
+    dates2027: [
+      '2027-01-09','2027-02-13','2027-03-13','2027-04-10','2027-05-08','2027-06-12',
+      '2027-07-10','2027-08-14','2027-09-11','2027-10-09','2027-11-13','2027-12-11'
     ]
   },
   {
@@ -735,18 +742,21 @@ const MARKETS = [
     color: '#8b6f47',
     eventType: 'farmers-market',
     cost: 'Free',
-    coords: { lat: 53.8260, lng: -1.5117 },
+    coords: { lat: 53.826, lng: -1.5117 },
     recurrence: '3rd Saturday only',
     times: '9am – 12:30pm',
-    location: 'Oakwood Clock, Leeds, LS8',
+    location: 'Oakwood Clock, Roundhay Road, Leeds, LS8 1SD',
     mapQuery: 'Oakwood Clock Leeds LS8',
-    source: 'Oakwood Farmers Market Instagram',
-    sourceUrl: 'https://www.instagram.com/oakwoodfmarket/',
-    notes: '3rd Saturday ONLY — not 1st Saturday. Check Instagram before going.',
+    source: 'REAP Leeds (organiser)',
+    sourceUrl: 'https://reap-leeds.org.uk/farmers-market',
+    notes: '3rd Saturday ONLY. Organiser confirms Sat 21 November 2026 as the next market; guest stalls change monthly. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16',
-      '2026-06-20','2026-07-18','2026-08-15','2026-09-19','2026-10-17',
-      '2026-11-21','2026-12-19'
+      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16','2026-06-20',
+      '2026-07-18','2026-08-15','2026-09-19','2026-10-17','2026-11-21','2026-12-19'
+    ],
+    dates2027: [
+      '2027-01-16','2027-02-20','2027-03-20','2027-04-17','2027-05-15','2027-06-19',
+      '2027-07-17','2027-08-21','2027-09-18','2027-10-16','2027-11-20','2027-12-18'
     ]
   },
   {
@@ -758,15 +768,18 @@ const MARKETS = [
     coords: { lat: 53.8175, lng: -1.6748 },
     recurrence: '4th Saturday (exc. August)',
     times: '9:30am – 1pm',
-    location: "St John's Hall & Grounds, New Street, Farsley, LS28 5DJ",
-    mapQuery: "St John's Hall New Street Farsley Leeds",
+    location: 'St John\'s Hall & Grounds, New Street, Farsley, LS28 5DJ',
+    mapQuery: 'St John\'s Hall New Street Farsley Leeds',
     source: 'Leeds City Council Markets',
     sourceUrl: 'https://markets.leeds.gov.uk/trade-our-markets/farmers-markets',
-    notes: 'No market in August.',
+    notes: 'No market in August. December 2026 falls on Boxing Day (26th) by the 4th-Saturday rule, and December 2027 on Christmas Day — check with the organiser before either. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23',
-      '2026-06-27','2026-07-25',
-      '2026-09-26','2026-10-24','2026-11-28','2026-12-26'
+      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23','2026-06-27',
+      '2026-07-25','2026-09-26','2026-10-24','2026-11-28','2026-12-26'
+    ],
+    dates2027: [
+      '2027-01-23','2027-02-27','2027-03-27','2027-04-24','2027-05-22','2027-06-26',
+      '2027-07-24','2027-09-25','2027-10-23','2027-11-27'
     ]
   },
   {
@@ -775,18 +788,17 @@ const MARKETS = [
     color: '#d4a853',
     eventType: 'farmers-market',
     cost: 'Free',
-    coords: { lat: 53.8270, lng: -1.5390 },
+    coords: { lat: 53.827, lng: -1.539 },
     recurrence: '1st Sunday',
     times: '10am – 3pm',
     location: 'Town Centre, Chapel Allerton, Leeds',
     mapQuery: 'Chapel Allerton town centre Leeds',
-    source: 'Reet Yorkshire Food / Visit Leeds',
-    sourceUrl: 'https://reetyorkshirefood.co.uk/pages/shows',
-    notes: 'Confirmed 1st Sunday monthly. Check organiser for winter dates.',
+    source: 'Leeds Living',
+    sourceUrl: 'https://leedsliving.co.uk/people-and-places/chapel-allerton-community-market-on-the-first-sunday-of-each-month/',
+    notes: 'Community market on the 1st Sunday, in the main square and the primary school playground. Could not be re-confirmed in the October 2026 sweep — check @chapel_a_community_market before going.',
     dates2026: [
-      '2026-01-04','2026-02-01','2026-03-01','2026-04-05','2026-05-03',
-      '2026-06-07','2026-07-05','2026-08-02','2026-09-06','2026-10-04',
-      '2026-11-01','2026-12-06'
+      '2026-01-04','2026-02-01','2026-03-01','2026-04-05','2026-05-03','2026-06-07',
+      '2026-07-05','2026-08-02','2026-09-06','2026-10-04','2026-11-01','2026-12-06'
     ]
   },
   {
@@ -795,21 +807,23 @@ const MARKETS = [
     color: '#7a9e8e',
     eventType: 'farmers-market',
     cost: 'Free',
-    coords: { lat: 53.9050, lng: -1.6919 },
-    recurrence: 'Last Sunday + 2nd Sunday',
+    coords: { lat: 53.905, lng: -1.6919 },
+    recurrence: 'Last Sunday (December brought forward)',
     times: '9am – 1pm',
     location: 'Otley Market Square, LS21 3AQ',
     mapQuery: 'Otley Market Square LS21 3AQ',
     source: 'Real Markets / Otley Town Council',
     sourceUrl: 'https://realmarkets.co.uk/market/otley/',
-    notes: 'Now runs twice monthly — last Sunday + 2nd Sunday. Confirmed 2026 dates from Real Markets.',
+    notes: 'Real Markets now lists the last-Sunday market only — the 2nd-Sunday market has gone from its calendar. December is a Christmas market on Sun 20 Dec 2026. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-25','2026-02-22','2026-03-29','2026-04-26','2026-05-31',
-      '2026-06-28','2026-07-26','2026-08-30','2026-09-27','2026-10-25',
-      '2026-11-29',
-      '2026-02-08','2026-03-08','2026-04-12','2026-05-10','2026-06-14',
-      '2026-07-12','2026-08-09','2026-09-13','2026-10-11','2026-11-08',
-      '2026-12-13'
+      '2026-01-25','2026-02-08','2026-02-22','2026-03-08','2026-03-29','2026-04-12',
+      '2026-04-26','2026-05-10','2026-05-31','2026-06-14','2026-06-28','2026-07-12',
+      '2026-07-26','2026-08-09','2026-08-30','2026-09-13','2026-09-27','2026-10-11',
+      '2026-10-25','2026-11-29','2026-12-20'
+    ],
+    dates2027: [
+      '2027-01-31','2027-02-28','2027-03-28','2027-04-25','2027-05-30','2027-06-27',
+      '2027-07-25','2027-08-29','2027-09-26','2027-10-31','2027-11-28','2027-12-19'
     ]
   },
   {
@@ -819,17 +833,20 @@ const MARKETS = [
     eventType: 'farmers-market',
     cost: 'Free',
     coords: { lat: 53.9252, lng: -1.8266 },
-    recurrence: '1st Sunday (exc. January)',
+    recurrence: '1st Sunday (Feb–Dec)',
     times: '10am – 3pm',
-    location: 'The Grove, Ilkley, LS29',
+    location: 'The Grove, Ilkley, LS29 9EE',
     mapQuery: 'The Grove Ilkley West Yorkshire',
     source: 'Real Markets',
     sourceUrl: 'https://realmarkets.co.uk/market/ilkley/',
-    notes: 'No January market. Extra festive market in December. Confirmed 2026 dates on Real Markets website.',
+    notes: 'No January market. Extra Christmas market on Sun 20 Dec 2026. Confirmed on Real Markets. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-03-01','2026-04-05','2026-05-03','2026-06-07',
-      '2026-07-05','2026-08-02','2026-09-06','2026-10-04',
-      '2026-11-01','2026-12-06','2026-12-20'
+      '2026-03-01','2026-04-05','2026-05-03','2026-06-07','2026-07-05','2026-08-02',
+      '2026-09-06','2026-10-04','2026-11-01','2026-12-06','2026-12-20'
+    ],
+    dates2027: [
+      '2027-02-07','2027-03-07','2027-04-04','2027-05-02','2027-06-06','2027-07-04',
+      '2027-08-01','2027-09-05','2027-10-03','2027-11-07','2027-12-05'
     ]
   },
   {
@@ -839,17 +856,20 @@ const MARKETS = [
     eventType: 'farmers-market',
     cost: 'Free',
     coords: { lat: 53.9931, lng: -1.5402 },
-    recurrence: '2nd Thursday',
+    recurrence: '2nd Thursday (Feb–Dec)',
     times: '10am – 4pm',
     location: 'Cambridge Street, Harrogate, HG1 1RW',
     mapQuery: 'Cambridge Street Harrogate HG1 1RW',
     source: 'Real Markets',
     sourceUrl: 'https://realmarkets.co.uk/market/harrogate/',
-    notes: 'Weekday market — 2nd Thursday monthly. Confirmed dates from Real Markets.',
+    notes: 'Weekday market. Real Markets lists Thu 10 Dec 2026 plus a Christmas market on Thu 17 Dec, and 2027 dates from 11 Feb. July–December 2027 follow the stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-04-09','2026-05-14','2026-06-11',
-      '2026-07-09','2026-08-13','2026-09-10','2026-10-08',
-      '2026-11-12','2026-12-17'
+      '2026-04-09','2026-05-14','2026-06-11','2026-07-09','2026-08-13','2026-09-10',
+      '2026-10-08','2026-11-12','2026-12-10','2026-12-17'
+    ],
+    dates2027: [
+      '2027-02-11','2027-03-11','2027-04-08','2027-05-13','2027-06-10','2027-07-08',
+      '2027-08-12','2027-09-09','2027-10-14','2027-11-11','2027-12-09'
     ]
   },
   {
@@ -859,16 +879,20 @@ const MARKETS = [
     eventType: 'farmers-market',
     cost: 'Free',
     coords: { lat: 53.842, lng: -1.787 },
-    recurrence: '2nd Sunday (excl. Sept)',
+    recurrence: '2nd Sunday (Feb–Dec, not September)',
     times: '10am – 3pm',
-    location: 'The Promenade, Roberts Park, Saltaire, BD18',
+    location: 'Roberts Park Promenade, Higher Coach Road, Saltaire, BD17 7LU',
     mapQuery: 'Roberts Park Saltaire Shipley',
     source: 'Real Markets',
     sourceUrl: 'https://realmarkets.co.uk/market/saltaire/',
-    notes: 'Bradford district. Confirmed 2026 dates from Real Markets — Apr through Dec, no September market.',
+    notes: 'Bradford district. Confirmed on Real Markets: 8 Nov and 13 Dec 2026. No September market. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-04-12','2026-05-10','2026-06-14','2026-07-12','2026-08-09',
-      '2026-10-11','2026-11-08','2026-12-13'
+      '2026-04-12','2026-05-10','2026-06-14','2026-07-12','2026-08-09','2026-10-11',
+      '2026-11-08','2026-12-13'
+    ],
+    dates2027: [
+      '2027-02-14','2027-03-14','2027-04-11','2027-05-09','2027-06-13','2027-07-11',
+      '2027-08-08','2027-10-10','2027-11-14','2027-12-12'
     ]
   },
   {
@@ -884,32 +908,47 @@ const MARKETS = [
     mapQuery: 'Halifax Borough Market Calderdale',
     source: 'Calderdale Council',
     sourceUrl: 'https://new.calderdale.gov.uk/communities/calderdale-markets/food-produce-and-craft-markets',
-    notes: 'Calderdale. Held in the precinct outside the Victorian Borough Market. Times approximate — confirm before travelling.',
+    notes: 'Calderdale. Food, produce and craft market in the precinct outside the Victorian Borough Market. Times approximate — confirm before travelling. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16',
-      '2026-06-20','2026-07-18','2026-08-15','2026-09-19','2026-10-17',
-      '2026-11-21','2026-12-19'
+      '2026-01-17','2026-02-21','2026-03-21','2026-04-18','2026-05-16','2026-06-20',
+      '2026-07-18','2026-08-15','2026-09-19','2026-10-17','2026-11-21','2026-12-19'
+    ],
+    dates2027: [
+      '2027-01-16','2027-02-20','2027-03-20','2027-04-17','2027-05-15','2027-06-19',
+      '2027-07-17','2027-08-21','2027-09-18','2027-10-16','2027-11-20','2027-12-18'
     ]
   },
   {
     id: 'hebden',
-    name: 'Hebden Bridge Farmers Market',
+    name: 'Hebden Bridge Sunday Produce Market',
     color: '#b8504c',
     eventType: 'farmers-market',
     cost: 'Free',
-    coords: { lat: 53.7416, lng: -2.0140 },
-    recurrence: '1st & 3rd Sunday',
-    times: '9am – 4:30pm',
-    location: "Lees Yard, off St George's Square, Hebden Bridge, HX7 5AA",
-    mapQuery: "Hebden Bridge Market Lees Yard St George's Square",
-    source: 'Visit Calderdale',
-    sourceUrl: 'https://www.visitcalderdale.com/see-and-do/shopping/hebden-bridge-open-market/',
-    notes: 'Calderdale. Sits within the wider Hebden Bridge Open Market (Thu–Sun). Local produce focus on the 1st & 3rd Sundays.',
+    coords: { lat: 53.7416, lng: -2.014 },
+    recurrence: 'Every Sunday',
+    times: '9am – 4pm',
+    location: 'Old Lees Yard, St George’s Square, Hebden Bridge, HX7 8AQ',
+    mapQuery: 'Hebden Bridge Market Lees Yard St George\'s Square',
+    source: 'Calderdale Council',
+    sourceUrl: 'https://new.calderdale.gov.uk/communities/calderdale-markets/open-markets/hebden-bridge',
+    notes: 'Calderdale. The open market runs Thu–Sun; Sunday is the local produce and food day (Thursday is fresh produce and general goods). 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
       '2026-01-04','2026-01-18','2026-02-01','2026-02-15','2026-03-01','2026-03-15',
       '2026-04-05','2026-04-19','2026-05-03','2026-05-17','2026-06-07','2026-06-21',
       '2026-07-05','2026-07-19','2026-08-02','2026-08-16','2026-09-06','2026-09-20',
-      '2026-10-04','2026-10-18','2026-11-01','2026-11-15','2026-12-06','2026-12-20'
+      '2026-10-04','2026-10-18','2026-11-01','2026-11-08','2026-11-15','2026-11-22',
+      '2026-11-29','2026-12-06','2026-12-13','2026-12-20','2026-12-27'
+    ],
+    dates2027: [
+      '2027-01-03','2027-01-10','2027-01-17','2027-01-24','2027-01-31','2027-02-07',
+      '2027-02-14','2027-02-21','2027-02-28','2027-03-07','2027-03-14','2027-03-21',
+      '2027-03-28','2027-04-04','2027-04-11','2027-04-18','2027-04-25','2027-05-02',
+      '2027-05-09','2027-05-16','2027-05-23','2027-05-30','2027-06-06','2027-06-13',
+      '2027-06-20','2027-06-27','2027-07-04','2027-07-11','2027-07-18','2027-07-25',
+      '2027-08-01','2027-08-08','2027-08-15','2027-08-22','2027-08-29','2027-09-05',
+      '2027-09-12','2027-09-19','2027-09-26','2027-10-03','2027-10-10','2027-10-17',
+      '2027-10-24','2027-10-31','2027-11-07','2027-11-14','2027-11-21','2027-11-28',
+      '2027-12-05','2027-12-12','2027-12-19','2027-12-26'
     ]
   },
   {
@@ -921,15 +960,18 @@ const MARKETS = [
     coords: { lat: 53.853, lng: -1.768 },
     recurrence: '4th Saturday',
     times: '9am – 1pm',
-    location: 'Ian Clough car park, Baildon village centre, BD17',
+    location: 'Lower Ian Clough car park, Browgate, Baildon, BD17 5LA',
     mapQuery: 'Ian Clough car park Baildon',
     source: 'Baildon Farmers Market',
     sourceUrl: 'https://baildonfarmersmarket.org/',
-    notes: 'Bradford district. ~30 stalls of fresh Yorkshire food. Verify any month-skipping with organiser.',
+    notes: 'Bradford district. ~30 stalls of fresh Yorkshire food. December 2026 is brought forward to Sat 19 Dec (Visit Bradford). 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
     dates2026: [
-      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23',
-      '2026-06-27','2026-07-25','2026-08-22','2026-09-26','2026-10-24',
-      '2026-11-28','2026-12-26'
+      '2026-01-24','2026-02-28','2026-03-28','2026-04-25','2026-05-23','2026-06-27',
+      '2026-07-25','2026-08-22','2026-09-26','2026-10-24','2026-11-28','2026-12-19'
+    ],
+    dates2027: [
+      '2027-01-23','2027-02-27','2027-03-27','2027-04-24','2027-05-22','2027-06-26',
+      '2027-07-24','2027-08-28','2027-09-25','2027-10-23','2027-11-27','2027-12-18'
     ]
   },
   {
@@ -945,11 +987,213 @@ const MARKETS = [
     mapQuery: 'Bingley Town Square BD16 2LZ',
     source: 'Bingley Town Council',
     sourceUrl: 'https://www.bingleytowncouncil.gov.uk/markets',
-    notes: 'Bradford district. The regular artisan market does not trade on the 1st Saturday — Farmers Market replaces it.',
+    notes: 'Bradford district. Could not be re-confirmed in the October 2026 sweep: Bingley Town Square now has an artisan market every Saturday and an outdoor market on Fridays. Check with Bingley Town Council before making a trip for it.',
     dates2026: [
-      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02',
-      '2026-06-06','2026-07-04','2026-08-01','2026-09-05','2026-10-03',
-      '2026-11-07','2026-12-05'
+      '2026-01-03','2026-02-07','2026-03-07','2026-04-04','2026-05-02','2026-06-06',
+      '2026-07-04','2026-08-01','2026-09-05','2026-10-03','2026-11-07','2026-12-05'
+    ]
+  },
+  {
+    id: 'cleckheaton',
+    name: 'Cleckheaton Farmers Market',
+    color: '#4c7a8a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7246, lng: -1.7139 },
+    recurrence: '1st Saturday (not January)',
+    times: '9am – 1pm',
+    location: 'St John\'s car park, next to the Town Hall, Bradford Road, Cleckheaton, BD19 3RH',
+    mapQuery: 'Cleckheaton Town Hall Bradford Road BD19 3RH',
+    source: 'Kirklees Council community directory',
+    sourceUrl: 'https://communitydirectory.kirklees.gov.uk/communitydirectory/organisationdetails.aspx?orgid=7777',
+    notes: 'Kirklees. Local produce market run alongside the market hall. Late changes go on the Cleckheaton Farmers Market Facebook group. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-07','2026-12-05' ],
+    dates2027: [
+      '2027-02-06','2027-03-06','2027-04-03','2027-05-01','2027-06-05','2027-07-03',
+      '2027-08-07','2027-09-04','2027-10-02','2027-11-06','2027-12-04'
+    ]
+  },
+  {
+    id: 'pudsey',
+    name: 'Pudsey Produce & Craft Market',
+    color: '#a0623a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7953, lng: -1.6631 },
+    recurrence: '1st Sunday (not Jan or Aug)',
+    times: '9am – 1pm',
+    location: 'Market Place, Pudsey, LS28 7BE',
+    mapQuery: 'Pudsey Market Place LS28 7BE',
+    source: 'Pudsey Produce & Craft Market',
+    sourceUrl: 'https://pudseyproduceandcraftmarket.carrd.co/',
+    notes: 'Leeds. 30+ local stalls, produce and crafts; money raised pays for the Pudsey Christmas lights. 2026 dates from the organiser. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [
+      '2026-02-01','2026-03-01','2026-04-05','2026-05-03','2026-06-07','2026-07-05',
+      '2026-09-06','2026-10-04','2026-11-01','2026-12-06'
+    ],
+    dates2027: [
+      '2027-02-07','2027-03-07','2027-04-04','2027-05-02','2027-06-06','2027-07-04',
+      '2027-09-05','2027-10-03','2027-11-07','2027-12-05'
+    ]
+  },
+  {
+    id: 'lotherton',
+    name: 'Lotherton Hall Market',
+    color: '#6a5a9a',
+    eventType: 'farmers-market',
+    cost: 'Free (estate parking charges apply)',
+    coords: { lat: 53.8247, lng: -1.3101 },
+    recurrence: '1st Saturday',
+    times: '11am – 4pm',
+    location: 'Lotherton Hall, off Collier Lane, Aberford, Leeds, LS25 3EB',
+    mapQuery: 'Lotherton Hall Aberford LS25 3EB',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/lotherton-hall/',
+    notes: 'Leeds. Real Markets food and producer market in the hall grounds. Sat 5 Dec 2026 is a Christmas market, 10am–7pm. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-07','2026-12-05' ],
+    dates2027: [
+      '2027-01-02','2027-02-06','2027-03-06','2027-04-03','2027-05-01','2027-06-05',
+      '2027-07-03','2027-08-07','2027-09-04','2027-10-02','2027-11-06','2027-12-04'
+    ]
+  },
+  {
+    id: 'wellington-place',
+    name: 'Wellington Place Market, Leeds',
+    color: '#3d7a6e',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7966, lng: -1.5575 },
+    recurrence: '2nd Wednesday (Feb–Dec)',
+    times: '11am – 2pm',
+    location: 'Wellington Place, Leeds city centre, LS1',
+    mapQuery: 'Wellington Place Leeds',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/leeds/',
+    notes: 'Leeds. Weekday lunchtime producers’ market. Confirmed: 11 Nov and 9 Dec 2026. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-11','2026-12-09' ],
+    dates2027: [
+      '2027-02-10','2027-03-10','2027-04-14','2027-05-12','2027-06-09','2027-07-14',
+      '2027-08-11','2027-09-08','2027-10-13','2027-11-10','2027-12-08'
+    ]
+  },
+  {
+    id: 'aire-park',
+    name: 'Aire Park Market, Leeds',
+    color: '#5a8a3d',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 53.7905, lng: -1.541 },
+    recurrence: '1st Wednesday',
+    times: '11am – 2pm',
+    location: 'Aire Park, Crown Point Road, Leeds, LS10 1HD',
+    mapQuery: 'Aire Park Crown Point Road Leeds LS10 1HD',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/aire-park-leeds/',
+    notes: 'Leeds. Weekday lunchtime producers’ market. Confirmed: 4 Nov and 2 Dec 2026. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-04','2026-12-02' ],
+    dates2027: [
+      '2027-01-06','2027-02-03','2027-03-03','2027-04-07','2027-05-05','2027-06-02',
+      '2027-07-07','2027-08-04','2027-09-01','2027-10-06','2027-11-03','2027-12-01'
+    ]
+  },
+  {
+    id: 'ripley-castle-market',
+    name: 'Ripley Castle Market',
+    color: '#8a6a3d',
+    eventType: 'farmers-market',
+    cost: 'Free (pay & display parking)',
+    coords: { lat: 54.0393, lng: -1.564 },
+    recurrence: 'Last Sunday (Feb–Nov)',
+    times: '10am – 3pm',
+    location: 'Castle Courtyard, Ripley Castle, near Harrogate, HG3 3AY',
+    mapQuery: 'Ripley Castle Harrogate HG3 3AY',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/ripley-castle/',
+    notes: 'Harrogate district. Gravel courtyard. Sun 29 Nov 2026 is a Christmas market. 2027 dates Feb–May confirmed by Real Markets; later months follow the pattern.',
+    dates2026: [ '2026-11-29' ],
+    dates2027: [
+      '2027-02-28','2027-03-28','2027-04-25','2027-05-30','2027-06-27','2027-07-25',
+      '2027-08-29','2027-09-26','2027-10-31','2027-11-28'
+    ]
+  },
+  {
+    id: 'grassington',
+    name: 'Grassington Market',
+    color: '#4a6a8a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 54.0713, lng: -1.999 },
+    recurrence: '3rd Sunday (Mar–Nov, not Sept)',
+    times: '10am – 3pm',
+    location: 'The Square, Grassington, BD23 5AQ',
+    mapQuery: 'The Square Grassington BD23 5AQ',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/grassington/',
+    notes: 'Yorkshire Dales, about 50 minutes’ drive. Last one of 2026 is Sun 15 Nov; back in March. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-15' ],
+    dates2027: [
+      '2027-03-21','2027-04-18','2027-05-16','2027-06-20','2027-07-18','2027-08-15',
+      '2027-10-17','2027-11-21'
+    ]
+  },
+  {
+    id: 'bedale',
+    name: 'Bedale Monthly Market',
+    color: '#7a4a6a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 54.288, lng: -1.5913 },
+    recurrence: '2nd Sunday (Mar–Dec)',
+    times: '10am – 3pm',
+    location: 'Market Place, Bedale, DL8 1AA',
+    mapQuery: 'Market Place Bedale DL8 1AA',
+    source: 'Real Markets',
+    sourceUrl: 'https://realmarkets.co.uk/market/bedale/',
+    notes: 'About an hour’s drive up the A1. Sun 29 Nov 2026 is an extra Christmas-lights market, 10am–6pm. 2027 dates to July confirmed by Real Markets.',
+    dates2026: [ '2026-11-08','2026-11-29','2026-12-13' ],
+    dates2027: [
+      '2027-03-14','2027-04-11','2027-05-09','2027-06-13','2027-07-11','2027-08-08',
+      '2027-09-12','2027-10-10','2027-11-14','2027-12-12'
+    ]
+  },
+  {
+    id: 'thirsk',
+    name: 'Thirsk Farmers Market',
+    color: '#8a3d4a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 54.2329, lng: -1.3427 },
+    recurrence: '1st Sunday',
+    times: 'Morning — times not published',
+    location: 'Market Place, Thirsk, YO7 1LH',
+    mapQuery: 'Market Place Thirsk YO7 1LH',
+    source: 'Visit Thirsk',
+    sourceUrl: 'https://visitthirsk.org.uk/pages/markets.php',
+    notes: 'About 50 minutes’ drive. Visit Thirsk lists it on the 1st Sunday but gives no times — ring Thirsk Tourist Information (01845 522755) before going. 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-01','2026-12-06' ],
+    dates2027: [
+      '2027-01-03','2027-02-07','2027-03-07','2027-04-04','2027-05-02','2027-06-06',
+      '2027-07-04','2027-08-01','2027-09-05','2027-10-03','2027-11-07','2027-12-05'
+    ]
+  },
+  {
+    id: 'easingwold',
+    name: 'Easingwold Farmers Market',
+    color: '#5a7a4a',
+    eventType: 'farmers-market',
+    cost: 'Free',
+    coords: { lat: 54.1206, lng: -1.1921 },
+    recurrence: '3rd Wednesday',
+    times: 'Times not published',
+    location: 'Market Place, Easingwold, YO61 3AB',
+    mapQuery: 'Market Place Easingwold',
+    source: 'Easingwold Town Council',
+    sourceUrl: 'https://www.easingwold.gov.uk/services/easingwold-town-council-services/easingwold-markets/farmers-market',
+    notes: 'About 50 minutes’ drive. The town council gives the day but not the times — check with the clerk (01347 822422). 2027 dates follow the organiser’s stated pattern — confirm nearer the time.',
+    dates2026: [ '2026-11-18','2026-12-16' ],
+    dates2027: [
+      '2027-01-20','2027-02-17','2027-03-17','2027-04-21','2027-05-19','2027-06-16',
+      '2027-07-21','2027-08-18','2027-09-15','2027-10-20','2027-11-17','2027-12-15'
     ]
   },
   {
@@ -965,8 +1209,9 @@ const MARKETS = [
     mapQuery: 'Wakefield City Centre WF1',
     source: 'Wakefield Council',
     sourceUrl: 'https://experiencewakefield.co.uk/event/rhubarb-festival/',
-    notes: 'Annual three-day rhubarb festival with 50+ chalets, chef demos, live music. Free to attend; food/drink for sale.',
-    dates2026: [ '2026-02-20','2026-02-21','2026-02-22' ]
+    notes: 'Annual three-day rhubarb festival with market chalets, chef demos and live music. 2027 dates confirmed by Wakefield Council: Fri 19 – Sun 21 February 2027. Event hub at WX Wakefield Exchange.',
+    dates2026: [ '2026-02-20','2026-02-21','2026-02-22' ],
+    dates2027: [ '2027-02-19','2027-02-20','2027-02-21' ]
   },
   {
     id: 'bradford-beer-saltaire',
@@ -974,7 +1219,7 @@ const MARKETS = [
     color: '#8a5f3d',
     eventType: 'beer-festival',
     cost: 'Paid entry — see organiser',
-    coords: { lat: 53.839, lng: -1.790 },
+    coords: { lat: 53.839, lng: -1.79 },
     recurrence: 'Annual (February)',
     times: 'Various session times',
     location: 'Victoria Hall, Saltaire, BD18',
@@ -1095,8 +1340,68 @@ const MARKETS = [
     sourceUrl: 'https://www.leedsbeer.com/',
     notes: '13th edition (2026). Four-day craft beer festival with street food, live music. Tickets via organiser.',
     dates2026: [ '2026-09-03','2026-09-04','2026-09-05','2026-09-06' ]
+  },
+  {
+    id: 'york-food',
+    name: 'York Food & Drink Festival',
+    color: '#6e3d8a',
+    eventType: 'food-festival',
+    cost: 'Free entry to the festival village',
+    coords: { lat: 53.959, lng: -1.0815 },
+    recurrence: 'Annual (September)',
+    times: 'See organiser',
+    location: 'Parliament Street and venues across York city centre',
+    mapQuery: 'Parliament Street York',
+    source: 'Yorkshire Pudd',
+    sourceUrl: 'https://www.yorkshirepudd.co.uk/?p=13942',
+    notes: 'Ten days over two weekends in the city centre. 2027 dates not announced yet.',
+    dates2026: [
+      '2026-09-18','2026-09-19','2026-09-20','2026-09-21','2026-09-22','2026-09-23',
+      '2026-09-24','2026-09-25','2026-09-26','2026-09-27'
+    ]
+  },
+  {
+    id: 'stirley-food',
+    name: 'Stirley Food Festival',
+    color: '#3d8a5a',
+    eventType: 'food-festival',
+    cost: 'Free',
+    coords: { lat: 53.617, lng: -1.798 },
+    recurrence: 'Annual (September)',
+    times: 'See organiser',
+    location: 'Stirley Community Farm, Berry Brow, Huddersfield, HD4',
+    mapQuery: 'Stirley Community Farm Huddersfield',
+    source: 'Yorkshire Pudd',
+    sourceUrl: 'https://www.yorkshirepudd.co.uk/?p=13942',
+    notes: 'Kirklees. Free one-day festival on a Yorkshire Wildlife Trust community farm. 2027 date not announced yet.',
+    dates2026: [ '2026-09-05' ]
+  },
+  {
+    id: 'bingley-bites',
+    name: 'Bingley Bites Food & Drink Festival',
+    color: '#8a7a3d',
+    eventType: 'food-festival',
+    cost: 'Ticketed — see organiser',
+    coords: { lat: 53.8485, lng: -1.8372 },
+    recurrence: 'Annual (September)',
+    times: '11:30am – 5pm',
+    location: 'Bingley Town Square, Main Street, Bingley, BD16 2LZ',
+    mapQuery: 'Bingley Town Square BD16 2LZ',
+    source: 'Visit Bradford',
+    sourceUrl: 'https://www.visitbradford.com/whats-on/bingley-bites-food-and-drink-festival-p2653701',
+    notes: 'Bradford district. One-day festival in the town square. 2027 date not announced yet.',
+    dates2026: [ '2026-09-26' ]
   }
 ];
+
+// Every datesYYYY array on an entry, merged and sorted into m.dates, so the
+// views below work across the turn of the year without naming a year.
+MARKETS.forEach(m => {
+  m.dates = Object.keys(m)
+    .filter(k => /^dates\d{4}$/.test(k))
+    .reduce((all, k) => all.concat(m[k]), [])
+    .sort();
+});
 
 // =============================================
 // SHARED HELPERS
@@ -1129,7 +1434,7 @@ const DEFAULT_LOCATION = {
   inWestYorks: true
 };
 const LS_KEY = 'wyfood:userLocation:v2';
-const LS_RADIUS_KEY = 'wyfood:radius:v2';
+const LS_RADIUS_KEY = 'wyfood:radius:v3'; // v3: default widened to 35 miles (about an hour's drive)
 
 let userLocation = loadUserLocation();
 let userRadius = loadUserRadius();
@@ -1151,7 +1456,7 @@ function loadUserRadius() {
     const v = parseInt(localStorage.getItem(LS_RADIUS_KEY), 10);
     if (v >= 1 && v <= 100) return v;
   } catch (e) {}
-  return 25;
+  return 35;
 }
 function saveUserRadius() {
   try { localStorage.setItem(LS_RADIUS_KEY, String(userRadius)); } catch (e) {}
@@ -1315,7 +1620,7 @@ function buildWeekendBanner() {
   const satEvents = [];
   const sunEvents = [];
   marketsInRange().forEach(m => {
-    m.dates2026.forEach(d => {
+    m.dates.forEach(d => {
       if (d === satKey) satEvents.push(m);
       else if (d === sunKey) sunEvents.push(m);
     });
@@ -1363,7 +1668,7 @@ function buildUpcoming() {
 
   let events = [];
   marketsInRange().forEach(m => {
-    m.dates2026.forEach(d => {
+    m.dates.forEach(d => {
       const dt = new Date(d);
       if (dt >= today && dt <= cutoff) {
         events.push({ date: dt, market: m, dateStr: d });
@@ -1433,7 +1738,7 @@ function buildCalendar() {
   const inRange = marketsInRange();
   const dateMap = {};
   inRange.forEach(m => {
-    m.dates2026.forEach(d => {
+    m.dates.forEach(d => {
       const dt = new Date(d);
       if (dt.getFullYear() === calYear && dt.getMonth() === calMonth) {
         const key = dt.getDate();
@@ -1480,7 +1785,7 @@ function selectCalDay(day) {
 
   const inRange = marketsInRange();
   const dateKey = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-  const dayMarkets = inRange.filter(m => m.dates2026.includes(dateKey));
+  const dayMarkets = inRange.filter(m => m.dates.includes(dateKey));
 
   const legend = document.getElementById('cal-legend');
   const dateLabel = new Date(calYear, calMonth, day).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -1521,10 +1826,10 @@ function buildMarkets() {
   const today = new Date(); today.setHours(0,0,0,0);
   const inRange = marketsInRange()
     .filter(m => festivalTypes.includes(m.eventType))
-    .filter(m => m.dates2026.some(d => new Date(d) >= today))
+    .filter(m => m.dates.some(d => new Date(d) >= today))
     .sort((a,b) => {
       // Sort by next upcoming date, then distance
-      const aNext = m => m.dates2026.map(d => new Date(d)).filter(d => d >= today).sort((x,y) => x-y)[0];
+      const aNext = m => m.dates.map(d => new Date(d)).filter(d => d >= today).sort((x,y) => x-y)[0];
       const an = aNext(a), bn = aNext(b);
       if (an && bn && an.getTime() !== bn.getTime()) return an - bn;
       return a.distanceMi - b.distanceMi;
@@ -1540,13 +1845,13 @@ function buildMarkets() {
   inRange.forEach(m => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.mapQuery)}`;
     const today = new Date(); today.setHours(0,0,0,0);
-    const next = m.dates2026
+    const next = m.dates
       .map(d => new Date(d))
       .filter(d => d >= today)
       .sort((a,b) => a-b)[0];
     const nextStr = next
       ? next.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})
-      : 'No more 2026 dates';
+      : 'No dates listed yet';
 
     html += `
       <div class="market-card" id="mc-${m.id}">

@@ -36,6 +36,7 @@ import { isSignedIn, sameOrigin, signIn, signOut, sessionStatus } from "./auth.j
 import { listShopping, saveShopping, addShopping, getVoiceKey, replaceVoiceKey, voiceShopping, transcribeShopping } from "./shopping.js";
 import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, restoreGalleryPhoto } from "./gallery.js";
 import { getBarStock, saveBarStock } from "./barstock.js";
+import { getBins, findAddresses, saveAddress } from "./bins.js";
 
 /* The old /private/ pages moved to /admin/ (and the site map to /sitemap/). */
 const MOVED = {
@@ -142,6 +143,20 @@ export default {
       if (path === "/admin/api/shopping/key") {
         if (method === "GET") return getVoiceKey(request, env);
         if (method === "POST") return replaceVoiceKey(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+
+      // ---- bin day (dashboard, signed in only) ----
+      if (path === "/admin/api/bins") {
+        if (method === "GET") return getBins(env, ctx);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/admin/api/bins/addresses") {
+        if (method === "GET") return findAddresses(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+      if (path === "/admin/api/bins/address") {
+        if (method === "POST") return saveAddress(request, env);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

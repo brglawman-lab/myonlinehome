@@ -41,7 +41,7 @@ prefix has to be added there or it will just get the 404 page.
 | `/recipes/storage/` | Food Storage — how to store each ingredient once opened. (The room temperature/humidity tracker moved to `/admin/storage/`) | authored here |
 | `/recipes/cocktail-menu/` | Cocktail Menu — the guest-facing menu to send visitors. Reads `/api/bar-stock` and crosses out any drink the bar can't make, saying what's missing. Drinks and what each needs are in `public/assets/bar-data.js` | authored here |
 | `/recipes/bar-stock/` | Bar Stock — what's in, synced through `/api/bar-stock` (D1 `bar_stock`). Anyone can view it; ticking needs the sign-in. "Add missing to shopping list" sends unticked items to `/admin/shopping/`. The item list is in `public/assets/bar-data.js` | authored here |
-| `/wyfood/` | WY Farmer's Markets — West Yorkshire farmers markets and food festivals | from `Desktop\Claude\Farmers Market` |
+| `/wyfood/` | WY Farmer's Markets — farmers markets and food festivals within about an hour of north Leeds (default radius 35 miles). Each entry in `MARKETS` keeps one `datesYYYY` array per year; the page merges them, so adding a year needs no code change. Last swept October 2026 | from `Desktop\Claude\Farmers Market` |
 | `/gallery/` | Wildlife Photography — portfolio gallery. Photos committed in `PHOTOS`, plus any uploaded or removed at `/admin/photos/` | authored here |
 | `/assets/` | Photographs (Ben's own) and site favicon | — |
 
@@ -88,6 +88,9 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     POST /admin/api/gallery              signed in — multipart photo upload
     DEL  /admin/api/gallery/:id          signed in — remove from the gallery
     POST /admin/api/gallery/:id/restore  signed in
+    GET  /admin/api/bins                 signed in — next bin collections (Leeds City Council)
+    GET  /admin/api/bins/addresses       signed in — ?postcode= → the council's addresses there
+    POST /admin/api/bins/address         signed in — {uprn, address}: which property to show
 
 Every `/admin/api/` write is also still served at `/private/api/` behind
 Cloudflare Access, so nothing breaks for an old cached page; the pages
@@ -138,10 +141,13 @@ to the recipe book, Photos to the photography hub, and a smaller Dashboard
 link to `/dashboard/`. `/dashboard/` is a read-only dashboard: it scrapes
 `/recipes/` and `/wyfood/` the same way the Meal Builder and Food Storage
 pages do (fetch the page, lift a named array out of its `<script>`), reads
-the public storage-rooms/readings API, and shows what's relevant right now —
-markets this weekend, upcoming festivals, the latest recipe added, what's in
-season, what's worth foraging, storage room conditions, and a "what to cook
-tonight" shuffle — plus buttons into the recipe book, Meal Builder, What does Jodie want to eat?, Food
+and shows what's relevant right now —
+markets this weekend, upcoming festivals, what's in season and what's worth
+foraging. When the browser is signed in, an "At home" section appears below
+with **Bin day** and the **Storage watch** (room conditions); signed out,
+neither is fetched or shown. Bin day comes from Leeds City Council's own
+bin-day API via `src/bins.js` — the address is picked once on the widget and
+kept in D1 (`site_settings`), never in this public repository — plus buttons into the recipe book, Meal Builder, What does Jodie want to eat?, Food
 Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography
 and work-in-progress links that used to live on the home page. The recipe
 book supports `#recipe-<id>` and `#seasonal`/`#foraging`/`#drinks` in its URL
