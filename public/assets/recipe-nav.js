@@ -1,5 +1,6 @@
 /* Recipe book navigation — the row of big buttons under the header on
- * /recipes/ and its sub-pages (Meal Builder, Jodie, Food Storage).
+ * /recipes/ and its sub-pages (Meal Builder, Jodie, Food Storage, Cocktail Menu,
+ * Bar Stock).
  *
  * Every page loads this one file, so the buttons are the same everywhere:
  * add or rename a destination here, not in the pages.
@@ -21,6 +22,10 @@
       icon: svg('<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/>') },
     { id: 'drinks',     label: 'Drinks',       href: '/recipes/#drinks',     tab: true,
       icon: svg('<path d="M5 4h14l-7 8z"/><path d="M12 12v7"/><path d="M8 20h8"/>') },
+    { id: 'menu',       label: 'Cocktail Menu', href: '/recipes/cocktail-menu/',
+      icon: svg('<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/>') },
+    { id: 'barstock',   label: 'Bar Stock',    href: '/recipes/bar-stock/',
+      icon: svg('<path d="M10 2h4v4l1.5 2.5V21a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V8.5L10 6z"/><path d="M8.5 13h7"/>') },
     { id: 'seasonal',   label: 'Seasonal',     href: '/recipes/#seasonal',   tab: true,
       icon: svg('<path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14Z"/><path d="M5 19 13 11"/>') },
     { id: 'foraging',   label: 'Foraging',     href: '/recipes/#foraging',   tab: true,

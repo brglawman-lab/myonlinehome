@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar Stock — Chef Claude</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F4EF; --surface: #FFFFFF; --surface2: #F0EDE7;
+    --border: #E2DDD5; --border-strong: #C8C2B8;
+    --text: #1A1714; --text-muted: #7A7470; --text-faint: #8F8983;
+    --accent: #2C5F2E; --accent-light: #EAF0EA; --accent-text: #1A3D1B;
+    --radius: 4px; --radius-lg: 8px;
+    --header-h: 64px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  .site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 1.5rem; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent); font-style: italic; }
+
+  .main { max-width: 760px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+  .intro { margin-bottom: 1.25rem; }
+  .intro h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 0.4rem; }
+  .intro p { color: var(--text-muted); max-width: 62ch; }
+  .intro a { color: var(--accent-text); }
+
+  .status { position: sticky; top: var(--header-h); z-index: 20; background: var(--bg); padding: 0.75rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.75rem; display: flex; flex-direction: column; gap: 10px; }
+  .count { font-size: 14px; font-variant-numeric: tabular-nums; }
+  .count strong { font-weight: 700; }
+  .bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { padding: 8px 14px; min-height: 38px; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; }
+  .btn:hover { opacity: 0.88; }
+  .btn.secondary { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+  .btn.secondary:hover { opacity: 1; border-color: var(--accent); }
+  .btn.secondary[aria-pressed="true"] { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .btn:focus-visible, .row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .owner-only { display: none; }
+  html.signed-in .owner-only { display: inline-flex; }
+  .msg { font-size: 13px; color: var(--text-muted); }
+  .msg a { color: var(--accent-text); }
+  .confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13.5px; color: var(--text-muted); }
+  [hidden] { display: none !important; }
+
+  #list { display: flex; flex-direction: column; gap: 2rem; }
+  section { display: flex; flex-direction: column; }
+  .sec-head { display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-family: 'Playfair Display', serif; font-weight: 400; font-size: 23px; line-height: 1.25; }
+  h2 .n { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sec-note { font-size: 13.5px; color: var(--text-muted); }
+  ul { list-style: none; }
+  li { border-bottom: 1px solid var(--border); }
+  .row { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 14px; align-items: start; padding: 11px 2px; cursor: pointer; }
+  .row input { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; margin-top: 1px; border: 1.5px solid var(--border-strong); border-radius: var(--radius); display: grid; place-items: center; cursor: pointer; background: var(--surface); }
+  .row input::after { content: ""; width: 6px; height: 11px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px); opacity: 0; }
+  .row input:checked { background: var(--accent); border-color: var(--accent); }
+  .row input:checked::after { opacity: 1; }
+  .txt { display: flex; flex-direction: column; min-width: 0; }
+  .name { font-size: 15.5px; }
+  .make { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); background: var(--accent-light); border-radius: 3px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+  .uses { font-size: 13px; color: var(--text-muted); }
+  .row input:checked + .txt .name { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--border-strong); }
+  .hide-done li.done, .hide-done section.all-done { display: none; }
+  .empty { text-align: center; padding: 2.5rem 1rem; font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: var(--text-muted); }
+
+  @media (max-width: 640px) {
+    .site-header, .main { padding-left: 1rem; padding-right: 1rem; }
+    .intro h1 { font-size: 27px; }
+    .status { position: static; }
+  }
+  @media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+</head>
+<body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
+font:500 13px/1.2 'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+text-decoration:none;border:1px solid rgba(45,74,62,0.22);
+box-shadow:0 2px 12px rgba(0,0,0,0.16);backdrop-filter:blur(6px);
+transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:#2d4a3e;color:#f5f0e8;border-color:#2d4a3e}
+@media (min-width:721px) and (max-width:1340px){.site-header{padding-left:7.5rem}}
+</style>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">Recipe <span>Book</span></div>
+  </div>
+</header>
+
+<nav class="recipe-nav" id="recipeNav" data-current="barstock"></nav>
+<script src="/assets/recipe-nav.js"></script>
+
+<main class="main">
+  <div class="intro">
+    <h1>Bar Stock</h1>
+    <p>Everything needed for every drink on the <a href="/recipes/cocktail-menu/">Cocktail Menu</a>. Tick items you have in; each line shows which cocktails use it. Ticks are saved in this browser only.</p>
+  </div>
+
+  <div class="status">
+    <p class="count" id="count"><strong>0</strong> of 0 in stock</p>
+    <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+    <div class="controls">
+      <button class="btn secondary" id="filter" type="button" aria-pressed="false">Show only what's missing</button>
+      <button class="btn owner-only" id="shop" type="button">Add missing to shopping list</button>
+      <button class="btn secondary" id="reset" type="button">Clear all ticks</button>
+      <span class="confirm" id="confirm" hidden>
+        <span>Clear every tick?</span>
+        <button class="btn secondary" id="resetYes" type="button">Yes, clear</button>
+        <button class="btn secondary" id="resetNo" type="button">Cancel</button>
+      </span>
+      <span class="msg" id="msg" role="status"></span>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <p class="empty" id="empty" hidden>Fully stocked. Time to make a drink.</p>
+</main>
+
+<script>
+/* Bar stock checklist for the Cocktail Menu (/recipes/cocktail-menu/).
+ * Each item: [name, which drinks use it, true if it's made at home rather
+ * than bought]. Homemade items are left out of "Add missing to shopping
+ * list". Ticks live in localStorage, so they are per browser. */
+const SECTIONS = [
+  { title: "Spirits", note: "Six bottles. These keep indefinitely once opened.", items: [
+    ["London dry gin", "Negroni, Martini, Gimlet, Tom Collins, Last Word, French 75, Martinez, Bijou, Bee's Knees, White Lady, Alexander"],
+    ["Vodka", "Martini, Cosmopolitan, Bloody Mary, Espresso Martini, White Russian, Black Russian, Chocolate Martini"],
+    ["Blanco tequila", "Margarita, Paloma, Rosita"],
+    ["Bourbon", "Old Fashioned, Manhattan, Whisky Sour, Boulevardier, Paper Plane, Gold Rush, Monte Carlo, Frisco Sour"],
+    ["Scotch whisky (Glen Moray 12 works)", "Old Fashioned, Rob Roy, Bobby Burns, Penicillin"],
+    ["Islay single malt", "Penicillin (float on top)"]
+  ]},
+  { title: "Liqueurs & Aperitifs", note: "Shelf-stable. The Chartreuse and Nonino last for years at these quantities.", items: [
+    ["Cointreau", "Margarita, Cosmopolitan, White Lady"],
+    ["Campari", "Negroni, Boulevardier, Americano, Negroni Sbagliato, Rosita"],
+    ["Aperol", "Aperol Spritz, Paper Plane"],
+    ["Amaro Nonino", "Paper Plane"],
+    ["Green Chartreuse", "Last Word, Bijou"],
+    ["Maraschino liqueur", "Last Word, Martinez"],
+    ["Coffee liqueur", "Espresso Martini, White Russian, Black Russian"],
+    ["Bénédictine", "Bobby Burns, Monte Carlo, Frisco Sour"],
+    ["Crème de cacao (Bols Cacao Brown)", "Alexander, Chocolate Martini"]
+  ]},
+  { title: "Vermouth & Sparkling", note: "Fridge once opened. Vermouth keeps about a month; buy fizz when you need it.", items: [
+    ["Sweet vermouth", "Negroni, Manhattan, Boulevardier, Rob Roy, Bobby Burns, Americano, Sbagliato, Rosita, Martinez, Bijou"],
+    ["Dry vermouth", "Martini, Rosita"],
+    ["Prosecco", "Aperol Spritz, Negroni Sbagliato"],
+    ["Champagne or crémant", "French 75"]
+  ]},
+  { title: "Bitters & Syrups", note: "Make the sugar and honey-ginger syrups at home; both keep two to three weeks in the fridge.", items: [
+    ["Angostura bitters", "Old Fashioned, Manhattan, Whisky Sour, Rob Roy, Monte Carlo, Rosita, Martinez, Bijou"],
+    ["Sugar syrup", "Old Fashioned, Whisky Sour, Gimlet, Tom Collins, French 75", true],
+    ["Honey-ginger syrup", "Penicillin", true]
+  ]},
+  { title: "Mixers", note: "Small cans or bottles go flat less quickly than big ones.", items: [
+    ["Soda water", "Tom Collins, Aperol Spritz, Americano"],
+    ["Grapefruit soda", "Paloma"],
+    ["Cranberry juice", "Cosmopolitan"],
+    ["Tomato juice", "Bloody Mary"]
+  ]},
+  { title: "Fresh", note: "Buy close to when you need them. Squeeze citrus on the day.", items: [
+    ["Limes", "Margarita, Gimlet, Cosmopolitan, Paloma, Last Word"],
+    ["Lemons", "Whisky Sour, Tom Collins, French 75, Bloody Mary, Penicillin, Paper Plane, Gold Rush, Bee's Knees, White Lady, Frisco Sour"],
+    ["Oranges", "Peel for Negroni, Old Fashioned, Boulevardier, Americano; slices for Spritz"],
+    ["Fresh ginger", "Honey-ginger syrup"],
+    ["Eggs", "Whisky Sour (egg white, optional)"],
+    ["Double cream", "White Russian, Alexander, Chocolate Martini"],
+    ["Coffee for espresso", "Espresso Martini"],
+    ["Celery", "Bloody Mary garnish"]
+  ]},
+  { title: "Pantry & Garnishes", note: "Cupboard staples, plus a couple of jars for the fridge.", items: [
+    ["Caster sugar", "Sugar syrup"],
+    ["Honey", "Honey-ginger syrup, Gold Rush, Bee's Knees, Scotch Old Fashioned"],
+    ["Flaky sea salt", "Margarita rim, Paloma"],
+    ["Worcestershire sauce", "Bloody Mary"],
+    ["Tabasco", "Bloody Mary"],
+    ["Celery salt", "Bloody Mary"],
+    ["Black pepper", "Bloody Mary"],
+    ["Green olives", "Martini"],
+    ["Cocktail cherries", "Manhattan, Rob Roy, Whisky Sour"],
+    ["Whole nutmeg", "Alexander"]
+  ]},
+  { title: "Freezer", note: "More than you think. Buy a bag if you're making several rounds.", items: [
+    ["Ice cubes", "Almost everything"]
+  ]}
+];
+
+const KEY = "bar-stock-ticks-v1";
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { ticks = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} }
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const list = document.getElementById("list");
+const all = [];
+
+SECTIONS.forEach(sec => {
+  const s = document.createElement("section");
+  s.innerHTML = '<div class="sec-head"><h2>' + escapeHtml(sec.title) + '<span class="n"></span></h2><p class="sec-note">' + escapeHtml(sec.note) + '</p></div>';
+  const ul = document.createElement("ul");
+  sec.items.forEach(([name, uses, homemade]) => {
+    const id = "i-" + slug(name);
+    all.push({ id, name, homemade: !!homemade });
+    const li = document.createElement("li");
+    li.innerHTML = '<label class="row" for="' + id + '"><input type="checkbox" id="' + id + '"' + (ticks[id] ? ' checked' : '') + '>'
+      + '<span class="txt"><span class="name">' + escapeHtml(name) + (homemade ? '<span class="make">Make</span>' : '') + '</span>'
+      + '<span class="uses">' + escapeHtml(uses) + '</span></span></label>';
+    li.querySelector("input").addEventListener("change", (e) => {
+      if (e.target.checked) ticks[id] = true; else delete ticks[id];
+      save(); update();
+    });
+    ul.appendChild(li);
+  });
+  s.appendChild(ul);
+  list.appendChild(s);
+});
+
+const main = document.querySelector(".main");
+function update() {
+  let done = 0, total = 0;
+  list.querySelectorAll("section").forEach(s => {
+    const boxes = s.querySelectorAll("input");
+    let d = 0;
+    boxes.forEach(b => { b.closest("li").classList.toggle("done", b.checked); if (b.checked) d++; });
+    done += d; total += boxes.length;
+    s.querySelector(".n").textContent = d + " / " + boxes.length;
+    s.classList.toggle("all-done", d === boxes.length);
+  });
+  document.getElementById("count").innerHTML = "<strong>" + done + "</strong> of " + total + " in stock";
+  document.getElementById("bar").style.width = (total ? done / total * 100 : 0) + "%";
+  document.getElementById("empty").hidden = !(main.classList.contains("hide-done") && done === total);
+}
+
+const filter = document.getElementById("filter");
+filter.addEventListener("click", () => {
+  const on = filter.getAttribute("aria-pressed") !== "true";
+  filter.setAttribute("aria-pressed", String(on));
+  main.classList.toggle("hide-done", on);
+  update();
+});
+
+const reset = document.getElementById("reset"), confirmBox = document.getElementById("confirm");
+reset.addEventListener("click", () => { confirmBox.hidden = false; reset.hidden = true; });
+document.getElementById("resetNo").addEventListener("click", () => { confirmBox.hidden = true; reset.hidden = false; });
+document.getElementById("resetYes").addEventListener("click", () => {
+  ticks = {}; save();
+  list.querySelectorAll("input").forEach(b => b.checked = false);
+  confirmBox.hidden = true; reset.hidden = false;
+  update();
+});
+
+/* Owner only: send everything unticked (except homemade syrups) to the
+ * shopping list at /admin/shopping/. The list merges duplicates itself. */
+fetch('/api/session', { cache: 'no-store', credentials: 'same-origin' })
+  .then(r => r.ok ? r.json() : null)
+  .then(s => document.documentElement.classList.toggle('signed-in', Boolean(s && s.signedIn)))
+  .catch(() => {});
+
+const shopBtn = document.getElementById("shop"), msg = document.getElementById("msg");
+shopBtn.addEventListener("click", async () => {
+  const missing = all.filter(it => !it.homemade && !document.getElementById(it.id).checked);
+  if (!missing.length) { msg.textContent = "Nothing missing."; return; }
+  shopBtn.disabled = true; msg.textContent = "Adding…";
+  try {
+    const res = await fetch('/admin/api/shopping/add', {
+      method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ source: 'recipe', items: missing.map(it => ({ name: it.name.replace(/\s*\(.*\)\s*$/, ''), recipe: 'Bar stock' })) }),
+    });
+    if (res.status === 401) { msg.innerHTML = 'You\'ve been signed out. <a href="/signin/?next=' + encodeURIComponent(location.pathname) + '">Sign in</a>'; return; }
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'HTTP ' + res.status);
+    const bits = [];
+    if (d.added.length) bits.push('Added ' + d.added.length);
+    if (d.merged.length) bits.push(d.merged.length + ' already on the list');
+    msg.innerHTML = escapeHtml(bits.join(' · ')) + ' · <a href="/admin/shopping/">Open the list</a>';
+  } catch (e) {
+    msg.textContent = 'Couldn\'t add: ' + (navigator.onLine ? e.message : 'no connection');
+  } finally {
+    shopBtn.disabled = false;
+  }
+});
+
+update();
+</script>
+</body>
+</html>
