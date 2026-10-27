@@ -24,9 +24,9 @@ prefix has to be added there or it will just get the 404 page.
 
 | Path | What it is | Source |
 |---|---|---|
-| `/` | Landing page — "Food" (→ `/recipes/`), "Photos" (→ `/gallery/`) and a smaller "Dashboard"; Contact, Privacy, Site map and Sign in in the footer | authored here |
+| `/` | Landing page — "Food" (→ `/recipes/`), "Photos" (→ `/gallery/`) and a smaller "Dashboard"; Contact, Privacy and Sign in in the footer | authored here |
 | `/contact/` | Contact form. Messages are stored in D1 (`contact_messages`) and read at `/admin/messages/` — no email address is published | authored here |
-| `/sitemap/` | Site map — every page and endpoint grouped by who can reach it, with a link checker. Public. **Add new pages to its list** | authored here |
+| `/admin/sitemap/` | Site map — every page and endpoint grouped by who can reach it, with a link checker. Signed in only (it was public at `/sitemap/` until October 2026). **Add new pages to its list** | authored here |
 | `/signin/` | Sign-in for the owner. A normal username/password form so Chrome's password manager saves it, plus the Credential Management API so Chrome signs straight in next time. Goes to `/admin/` | authored here |
 | `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Shopping list** (`/admin/shopping/`), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
@@ -92,9 +92,17 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     GET  /admin/api/bins/addresses       signed in — ?postcode= → the council's addresses there
     POST /admin/api/bins/address         signed in — {uprn, address}: which property to show
 
-Every `/admin/api/` write is also still served at `/private/api/` behind
-Cloudflare Access, so nothing breaks for an old cached page; the pages
-themselves all use `/admin/api/` now.
+`/private/api/` (the old Cloudflare Access write API) is retired and answers
+410. It trusted any request carrying a `Cf-Access-Jwt-Assertion` header
+without verifying it, which anyone could send on a hostname Access doesn't
+cover. The only authorisation now is the site's own sign-in.
+
+**Security headers.** Static files get them from `public/_headers`; anything
+the Worker answers gets the same set from `SECURITY_HEADERS` in
+`src/index.js`. Keep the two in step. `wrangler.toml` turns off the
+`workers.dev` address and preview URLs so the Worker is only reachable on the
+real domain. Leaflet (the wildlife map) is served from
+`public/assets/vendor/`, not a CDN.
 
 **Signing in.** One account, whose password is the `ADMIN_PASSWORD` secret
 (optionally with an `ADMIN_USERNAME`) set in the Cloudflare dashboard — see

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Site map — My Online Home</title>
 <meta name="description" content="Every page on myonlinehome.co.uk.">
@@ -66,7 +67,7 @@ transition:background .15s ease,color .15s ease}
 /* Keep this list up to date when pages are added, moved or removed. */
 const GROUPS = [
   { title: 'Public — linked from the site', note: 'Anyone can reach these by clicking around from the home page.', items: [
-    ['/', 'Home', 'Food, Photos, Dashboard; Contact, Privacy, Site map and Sign in in the footer'],
+    ['/', 'Home', 'Food, Photos, Dashboard; Contact, Privacy and Sign in in the footer'],
     ['/recipes/', 'Recipe Book (Food)', 'Recipes, plus the Drinks, Seasonal and Foraging tabs'],
     ['/recipes/#drinks', 'Drinks', 'Tab inside the recipe book'],
     ['/recipes/#seasonal', 'Seasonal Produce', 'Tab inside the recipe book'],
@@ -78,12 +79,11 @@ const GROUPS = [
     ['/recipes/cocktail-menu/', 'Cocktail Menu', 'Guest menu: drinks the bar can make tonight, the rest crossed out'],
     ['/recipes/bar-stock/', 'Bar Stock', 'What\'s in: synced checklist, ticked when signed in'],
     ['/dashboard/', 'Dashboard', 'Markets, in season, foraging, festivals; bin day and storage watch when signed in'],
-    ['/wyfood/', "WY Farmer's Markets", 'Markets and food festivals in West Yorkshire'],
+    ['/wyfood/', "WY Farmer's Markets", 'Markets and food festivals within about an hour of north Leeds'],
     ['/gallery/', 'Wildlife Photography', 'The photo gallery (home page "Photos")'],
     ['/wildlife/', 'Yorkshire Wildlife Tracker', 'Species checklist, county map, sightings — linked from the gallery'],
     ['/contact/', 'Contact', 'Contact form'],
     ['/privacy/', 'Privacy notice', 'What the site collects, and why'],
-    ['/sitemap/', 'Site map', 'This page'],
     ['/signin/', 'Sign in', 'For the site owner'],
   ]},
   { title: 'Public — not linked from anywhere', note: 'Anyone with the address can open these, but nothing on the site points to them.', items: [
@@ -100,6 +100,7 @@ const GROUPS = [
     ['/admin/storage/', 'Room storage tracker', 'Temperature and humidity readings, charts, CSV export'],
     ['/admin/messages/', 'Messages', 'Contact form messages'],
     ['/admin/cookbook/', 'The Cookbook', 'Work in progress — the recipe book as a page-turning book'],
+    ['/admin/sitemap/', 'Site map', 'This page — signed in only'],
   ]},
   { title: 'Data feeds (API)', note: 'Used by the pages above. The /admin/api/ ones need you to be signed in.', items: [
     ['/api/recipes', 'Recipes in the database', 'GET · public', true],

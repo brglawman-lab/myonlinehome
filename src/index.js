@@ -38,19 +38,42 @@ import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, rest
 import { getBarStock, saveBarStock } from "./barstock.js";
 import { getBins, findAddresses, saveAddress } from "./bins.js";
 
-/* The old /private/ pages moved to /admin/ (and the site map to /sitemap/). */
+/* The old /private/ pages moved to /admin/. The site map is /admin/sitemap/ (signed in only). */
 const MOVED = {
   "/private": "/admin/",
   "/private/messages": "/admin/messages/",
   "/private/cookbook": "/admin/cookbook/",
-  "/private/sitemap": "/sitemap/",
+  "/private/sitemap": "/admin/sitemap/",
 };
 
 const signInRedirect = (url) =>
   Response.redirect(new URL("/signin/?next=" + encodeURIComponent(url.pathname + url.search), url).toString(), 302);
 
+/* Sent on everything the Worker answers. public/_headers sends the same set on
+ * static files — keep the two in step. */
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "x-frame-options": "SAMEORIGIN",
+  "content-security-policy": "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  "permissions-policy": "camera=(), payment=(), usb=(), interest-cohort=(), geolocation=(self), microphone=(self)",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+};
+
+function withSecurityHeaders(res) {
+  const out = new Response(res.body, res); // copies, so redirect/asset responses become editable
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) if (!out.headers.has(k)) out.headers.set(k, v);
+  return out;
+}
+
 export default {
   async fetch(request, env, ctx) {
+    return withSecurityHeaders(await route(request, env, ctx));
+  },
+};
+
+async function route(request, env, ctx) {
+  {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = request.method.toUpperCase();
@@ -67,7 +90,13 @@ export default {
       return out;
     }
 
-    if (!path.startsWith("/api/") && !path.startsWith("/private/api/") && !path.startsWith("/admin/api/")) {
+    // The old Cloudflare Access write API. Retired: nothing uses it, and it
+    // trusted an unverified header. /admin/api/ replaces it.
+    if (path === "/private/api" || path.startsWith("/private/api/")) {
+      return json({ error: "This address has been retired. Writes go through /admin/api/ after signing in." }, 410);
+    }
+
+    if (!path.startsWith("/api/") && !path.startsWith("/admin/api/")) {
       return env.ASSETS.fetch(request);
     }
 
@@ -260,7 +289,8 @@ export default {
       return json({ error: "No such endpoint", path }, 404);
     } catch (err) {
       console.error("API error", path, err);
-      return json({ error: String(err && err.message ? err.message : err) }, 500);
+      // The detail goes to the Worker's log, not to whoever made the request.
+      return json({ error: "Something went wrong on the server." }, 500);
     }
-  },
-};
+  }
+}

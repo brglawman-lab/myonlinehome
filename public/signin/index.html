@@ -79,8 +79,13 @@ const btn = document.getElementById('goBtn');
 
 function nextUrl() {
   const n = new URLSearchParams(location.search).get('next') || '';
-  // Only ever a path on this site.
-  return /^\/(?!\/)/.test(n) ? n : '/admin/';
+  // Only ever a path on this site. "/\\evil.example" passed the old test but
+  // browsers read a backslash as a slash, so check where the URL really goes.
+  try {
+    const u = new URL(n, location.origin);
+    if (/^\/(?![\/\\])/.test(n) && u.origin === location.origin) return u.pathname + u.search + u.hash;
+  } catch (e) {}
+  return '/admin/';
 }
 function say(text, err) { statusEl.textContent = text; statusEl.className = 'status' + (err ? ' err' : ''); }
 

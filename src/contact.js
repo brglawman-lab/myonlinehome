@@ -1,9 +1,8 @@
 /* Contact form.
  *
  *   POST /api/contact                 public — the form on /contact/
- *   GET  /private/api/contact         behind Cloudflare Access — read messages
- *   DEL  /private/api/contact/:id     behind Cloudflare Access
- *   (also at /admin/api/contact, behind the site's own sign-in)
+ *   GET  /admin/api/contact           signed in — read messages
+ *   DEL  /admin/api/contact/:id       signed in
  *
  * Messages go into the contact_messages table and are read on
  * /admin/messages/, so no email address is ever published. The table is

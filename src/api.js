@@ -6,12 +6,10 @@
  *   DEL  /private/api/sightings/:id   behind Cloudflare Access
  *   POST /private/api/custom-species  behind Cloudflare Access
  *
- * Every /private/api/ write is also served at /admin/api/, where the router
- * checks the site's own sign-in instead (src/auth.js). The pages use that one.
- *
- * Reads and writes are on different path prefixes on purpose: Cloudflare Access
- * policies match on path, not on HTTP method, so splitting them is what allows
- * "anyone may read, only Ben may write" with a single Access application.
+ * Writes are served at /admin/api/, where the router checks the site's own
+ * sign-in (src/auth.js). The /private/api/ paths in this file are the
+ * router's internal names for them; /private/api/ itself is no longer
+ * reachable from outside (it answers 410).
  */
 
 export const json = (data, status = 200) =>
@@ -20,6 +18,7 @@ export const json = (data, status = 200) =>
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
     },
   });
 
@@ -30,10 +29,13 @@ const noDb = () =>
  * (src/auth.js). A WeakSet rather than a header, so it can't be faked. */
 export const signedInRequests = new WeakSet();
 
-/* Access injects this header on every request it lets through on /private/api/.
- * Belt and braces: the Access policy should already have stopped anyone without it. */
-export const authed = (request) =>
-  signedInRequests.has(request) || Boolean(request.headers.get("Cf-Access-Jwt-Assertion"));
+/* The only way to be authorised is the site's own sign-in, checked by the
+ * router. (This used to also accept any request carrying a
+ * Cf-Access-Jwt-Assertion header, on the assumption that Cloudflare Access
+ * had put it there. But the header was never verified, and the Worker is also
+ * reachable on hostnames Access doesn't cover, where anyone can send that
+ * header — so it was a way round the sign-in. /private/api/ is now retired.) */
+export const authed = (request) => signedInRequests.has(request);
 
 /* ---------- reads ---------- */
 

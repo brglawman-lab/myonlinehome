@@ -1427,10 +1427,12 @@ function haversineMiles(a, b) {
 // USER LOCATION + SCOPE
 // =============================================
 const WEST_YORKS_DISTRICTS = ['Leeds', 'Bradford', 'Wakefield', 'Kirklees', 'Calderdale'];
+// A district, not a full postcode: this file is public, so it must not point
+// at anyone's front door.
 const DEFAULT_LOCATION = {
-  label: 'LS16 8DE',
-  postcode: 'LS16 8DE',
-  coords: { lat: 53.866, lng: -1.582 },
+  label: 'North Leeds (LS16)',
+  postcode: '',
+  coords: { lat: 53.87, lng: -1.60 },
   inWestYorks: true
 };
 const LS_KEY = 'wyfood:userLocation:v2';

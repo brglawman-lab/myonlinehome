@@ -73,9 +73,9 @@ nothing under `/admin/` can be opened.
 ## 5. (Older) Cloudflare Access on /private/
 
 Before the sign-in above existed, the private area was behind Cloudflare
-Access. The `/private/api/` write endpoints still accept an Access session, and
-the old `/private/` pages now redirect to `/admin/`. The Access application can
-stay or be deleted — nothing on the site depends on it any more. The original
+Access. The `/private/api/` write endpoints are now retired (they answer 410),
+and the old `/private/` pages redirect to `/admin/`. Nothing on the site
+depends on the Access application any more, so it can be deleted. The original
 setup, for reference:
 
 Cloudflare dashboard → **Zero Trust** → **Access** → **Applications** →
