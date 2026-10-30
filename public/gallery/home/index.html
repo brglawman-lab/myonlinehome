@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Gallery — Wildlife Photography</title>
+<meta name="description" content="A plan of the framed wildlife prints on the gallery wall, with the species, place and camera settings for each.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0b;
+    --bg-raised: #16150f;
+    --text: #f1ede3;
+    --text-dim: #a8a196;
+    --text-faint: #6f6a60;
+    --accent: #cc9c4c;
+    --accent-soft: rgba(204,156,76,0.14);
+    --line: rgba(241,237,227,0.1);
+    --wall: #1a1913;
+    --frame: #2e2b23;
+    --frame-edge: #4a463b;
+    --window: #0f0e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  ::selection { background: var(--accent-soft); }
+
+  #mohome-back {
+    position: fixed; top: 14px; left: 14px; z-index: 999;
+    display: inline-block; padding: 7px 14px; border-radius: 999px;
+    background: rgba(12,12,11,0.72); color: var(--text);
+    font: 500 13px/1.2 'DM Sans', sans-serif; text-decoration: none;
+    border: 1px solid rgba(241,237,227,0.18); backdrop-filter: blur(8px);
+  }
+  #mohome-back:hover { border-color: var(--accent); }
+
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 4.5rem 1rem 2rem; }
+
+  header { text-align: center; margin-bottom: 1.75rem; }
+  .eyebrow { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.15; margin: 0.35rem 0 0.5rem; }
+  .intro { color: var(--text-dim); font-size: 0.95rem; }
+
+  /* ---------- wall tabs (narrow screens only) ---------- */
+  .tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 0.9rem; }
+  .tab {
+    font: 500 0.82rem 'DM Sans', sans-serif; color: var(--text-dim);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.45rem 0.9rem; cursor: pointer;
+  }
+  .tab[aria-selected="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+  /* ---------- walls ---------- */
+  .walls { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  .wall { display: none; }
+  .wall.active { display: block; }
+  .wall-label { text-align: center; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); margin-top: 0.4rem; }
+  .wall svg { display: block; width: 100%; height: auto; max-height: 70vh; margin: 0 auto; }
+
+  @media (min-width: 760px) {
+    .tabs { display: none; }
+    .walls { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .wall { display: block; }
+  }
+
+  .wall-bg { fill: var(--wall); }
+  .fixture { fill: none; stroke: var(--text-faint); stroke-width: 3; opacity: 0.55; }
+  .fixture-label { fill: var(--text-faint); font: 500 30px 'DM Sans', sans-serif; letter-spacing: 3px; opacity: 0.8; }
+  .frame { cursor: pointer; outline: none; }
+  .frame .outer { fill: var(--frame); stroke: var(--frame-edge); stroke-width: 3; transition: fill .15s, stroke .15s; }
+  .frame .win { fill: var(--window); transition: fill .15s; }
+  .frame .num { fill: var(--text-dim); font: 600 50px 'DM Sans', sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .frame:hover .outer, .frame:focus-visible .outer { stroke: var(--accent); stroke-width: 6; }
+  .frame.sel .outer { fill: var(--accent); stroke: var(--accent); }
+  .frame.sel .win { fill: #3b2d15; }
+  .frame.sel .num { fill: #fff; }
+
+  /* ---------- detail card ---------- */
+  .detail {
+    margin-top: 1.5rem; background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden; scroll-margin-top: 4rem;
+  }
+  .detail-inner { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .detail-inner { grid-template-columns: 1.25fr 1fr; } }
+  .detail-photo { background: #000; display: flex; align-items: center; justify-content: center; min-height: 12rem; }
+  .detail-photo img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+  .detail-photo .nophoto { color: var(--text-faint); font-size: 0.9rem; padding: 3rem 1rem; text-align: center; }
+  .detail-text { padding: 1.25rem 1.25rem 1.4rem; display: flex; flex-direction: column; }
+  .badge { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+  .badge b { display: inline-grid; place-items: center; min-width: 1.9rem; height: 1.9rem; border-radius: 999px; background: var(--accent); color: var(--bg); font-size: 0.9rem; letter-spacing: 0; }
+  .detail h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 400; font-size: 1.75rem; line-height: 1.2; margin-top: 0.6rem; }
+  .sci { font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: var(--text-dim); font-size: 1.05rem; }
+  .facts { margin-top: 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1rem; font-size: 0.92rem; }
+  .facts dt { color: var(--text-faint); }
+  .facts dd { color: var(--text); }
+  .facts dd.missing { color: var(--text-faint); font-style: italic; }
+  .steps { display: flex; gap: 0.5rem; margin-top: auto; padding-top: 1.25rem; }
+  .step {
+    flex: 1; font: 500 0.85rem 'DM Sans', sans-serif; color: var(--text);
+    background: transparent; border: 1px solid var(--line); border-radius: 8px;
+    padding: 0.6rem; cursor: pointer;
+  }
+  .step:hover { border-color: var(--accent); }
+
+  /* ---------- list ---------- */
+  .list-head { margin: 2.5rem 0 0.75rem; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); }
+  .list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  @media (min-width: 640px) { .list { grid-template-columns: 1fr 1fr; } }
+  .list button {
+    width: 100%; display: flex; align-items: baseline; gap: 0.75rem; text-align: left;
+    background: var(--bg); color: var(--text); border: 0; padding: 0.7rem 0.9rem;
+    font: 400 0.92rem 'DM Sans', sans-serif; cursor: pointer;
+  }
+  .list button:hover, .list button.sel { background: var(--bg-raised); }
+  .list .n { color: var(--accent); font-weight: 500; min-width: 1.4rem; }
+  .list .w { margin-left: auto; color: var(--text-faint); font-size: 0.78rem; white-space: nowrap; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 3rem; padding: 2rem 1rem 2.5rem; text-align: center; font-size: 0.82rem; color: var(--text-faint); }
+  footer a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(204,156,76,0.35); }
+</style>
+</head>
+<body>
+
+<a href="/gallery/" id="mohome-back" aria-label="Back to the wildlife gallery">&#8592; Gallery</a>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Wildlife Photography</div>
+    <h1>Home Gallery</h1>
+    <p class="intro">Tap a frame on the plan to see what is in it.</p>
+  </header>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="walls" id="walls"></div>
+
+  <section class="detail" id="detail" aria-live="polite"></section>
+
+  <h2 class="list-head">All photographs</h2>
+  <ul class="list" id="list"></ul>
+</div>
+
+<footer>
+  <a href="/gallery/">Back to the wildlife gallery</a>
+</footer>
+
+<script>
+// =============================================
+// WALLS — coordinates are in a 803 x 1065 box per wall, traced from
+// photos of the three walls. Fixtures are drawn faintly for orientation.
+// =============================================
+const WALLS = [
+  { id: 'left', name: 'Left wall', short: 'Left',
+    fixtures: [
+      { type: 'door', box: [0, 290, 437, 1065], label: 'DOOR' },
+      { type: 'hatch', box: [607, 135, 756, 310], label: '' },
+    ] },
+  { id: 'centre', name: 'Middle wall', short: 'Middle', fixtures: [] },
+  { id: 'right', name: 'Right wall', short: 'Right', fixtures: [] },
+];
+
+// =============================================
+// FRAMES — numbered left wall to right wall, top to bottom, left to right.
+// The number matches the start of each photo's file name.
+// =============================================
+const FRAMES = [
+  { n: 1, wall: 'left', outer: [32, 72, 234, 248], win: [64, 106, 204, 214],
+    img: '01-grey-wagtail.jpg', common: 'Grey wagtail', sci: 'Motacilla cinerea',
+    location: 'Scotland Beck, Horsforth', date: '29 April 2023',
+    camera: 'Canon EOS R7', lens: 'Canon RF 100–400mm f/5.6–8 IS USM', settings: '400mm · f/8 · 1/40 s · ISO 320' },
+  { n: 2, wall: 'left', outer: [272, 112, 432, 255], win: [288, 132, 416, 236],
+    img: '', common: 'Crowned woodnymph', sci: 'Thalurania colombica', location: 'Manuel Antonio National Park, Costa Rica', date: '', camera: '', lens: '', settings: '' },
+  { n: 3, wall: 'left', outer: [467, 175, 583, 335], win: [498, 212, 552, 304],
+    img: '', common: 'Scarlet macaws', sci: 'Ara macao', location: 'Carara National Park, Costa Rica', date: '', camera: '', lens: '', settings: '' },
+  { n: 4, wall: 'left', outer: [525, 372, 694, 528], win: [546, 396, 678, 506],
+    img: '04-brown-pelican.jpg', common: 'Brown pelican', sci: 'Pelecanus occidentalis',
+    location: 'Tulum, Quintana Roo, Mexico', date: '20 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/500 s · ISO 125' },
+  { n: 5, wall: 'left', outer: [498, 548, 718, 728], win: [538, 578, 684, 696],
+    img: '05-puffin.jpg', common: 'Atlantic puffin', sci: 'Fratercula arctica',
+    location: 'Bempton Cliffs, East Yorkshire', date: '27 June 2020',
+    camera: 'Sony A68', lens: 'Sony 75–300mm f/4.5–5.6', settings: '300mm · f/5.6 · 1/500 s · ISO 250' },
+  { n: 6, wall: 'left', outer: [518, 744, 720, 940], win: [556, 774, 684, 900],
+    img: '06-osprey.jpg', common: 'Osprey', sci: 'Pandion haliaetus',
+    location: 'Holbox Island, Quintana Roo, Mexico', date: '18 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/7.1 · 1/640 s · ISO 100' },
+
+  { n: 7, wall: 'centre', outer: [160, 33, 628, 432], win: [228, 112, 560, 374],
+    img: '07-blackcap.jpg', common: 'Blackcap', sci: 'Sylvia atricapilla',
+    location: 'Adel Dam Nature Reserve, Leeds', date: '27 April 2025',
+    camera: 'Canon EOS R7', lens: 'Canon RF 100–400mm f/5.6–8 IS USM', settings: '400mm · f/8 · 1/1000 s · ISO 1000' },
+  { n: 8, wall: 'centre', outer: [250, 470, 547, 720], win: [302, 518, 494, 670],
+    img: '08-great-kiskadee.jpg', common: 'Great kiskadee', sci: 'Pitangus sulphuratus',
+    location: 'Holbox Island, Quintana Roo, Mexico', date: '18 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/125 s · ISO 3200' },
+  { n: 9, wall: 'centre', outer: [207, 770, 412, 978], win: [256, 836, 368, 910],
+    img: '09-reed-bunting.jpg', common: 'Reed bunting', sci: 'Emberiza schoeniclus',
+    location: 'RSPB St Aidan’s, Leeds', date: '12 March 2023',
+    camera: 'Canon EOS R7', lens: 'Canon RF 100–400mm f/5.6–8 IS USM', settings: '400mm · f/8 · 1/1000 s · ISO 2500' },
+  { n: 10, wall: 'centre', outer: [432, 780, 643, 988], win: [478, 843, 592, 919],
+    img: '10-woodpecker.jpg', common: 'Golden-fronted woodpecker', sci: 'Melanerpes aurifrons',
+    location: 'Sian Ka’an Biosphere Reserve, Quintana Roo, Mexico', date: '21 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/500 s · ISO 200' },
+
+  { n: 11, wall: 'right', outer: [58, 40, 388, 345], win: [110, 102, 354, 308],
+    img: '11-blue-tit.jpg', common: 'Blue tit', sci: 'Cyanistes caeruleus',
+    location: 'Weeton, North Yorkshire', date: '8 April 2023',
+    camera: 'Canon EOS R7', lens: 'Canon RF 100–400mm f/5.6–8 IS USM', settings: '335mm · f/8 · 1/1250 s · ISO 800' },
+  { n: 12, wall: 'right', outer: [470, 82, 755, 360], win: [503, 136, 712, 324],
+    img: '12-reddish-egret.jpg', common: 'Reddish egret', sci: 'Egretta rufescens',
+    location: 'Holbox Island, Quintana Roo, Mexico', date: '18 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/500 s · ISO 160' },
+  { n: 13, wall: 'right', outer: [73, 358, 390, 622], win: [163, 443, 312, 542],
+    img: '13-anole.jpg', common: 'Brown anole', sci: 'Anolis sagrei',
+    location: 'Holbox Island, Quintana Roo, Mexico', date: '18 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/500 s · ISO 1000' },
+  { n: 14, wall: 'right', outer: [456, 405, 683, 602], win: [496, 448, 645, 557],
+    img: '14-american-crocodile.jpg', common: 'American crocodile', sci: 'Crocodylus acutus',
+    location: 'Sian Ka’an Biosphere Reserve, Quintana Roo, Mexico', date: '19 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '300mm · f/5.6 · 1/500 s · ISO 100' },
+  { n: 15, wall: 'right', outer: [66, 683, 368, 937], win: [136, 740, 312, 862],
+    img: '', common: 'Common tent-making bats', sci: 'Uroderma bilobatum', location: 'Manuel Antonio National Park, Costa Rica', date: '', camera: '', lens: '', settings: '' },
+  { n: 16, wall: 'right', outer: [420, 676, 698, 925], win: [495, 748, 625, 840],
+    img: '16-mangrove-warbler.jpg', common: 'Mangrove warbler', sci: 'Setophaga petechia (mangrove group)',
+    location: 'Holbox Island, Quintana Roo, Mexico', date: '18 April 2022',
+    camera: 'Sony A68', lens: 'Sony 70–300mm f/4.5–5.6 G SSM', settings: '250mm · f/5.6 · 1/400 s · ISO 400' },
+];
+
+const VIEW_W = 803, VIEW_H = 1065;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+let current = null;     // selected frame number
+let activeWall = 'left';
+
+function el(name, attrs, parent) {
+  const e = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function rect(box, cls, parent) {
+  const [x1, y1, x2, y2] = box;
+  return el('rect', { x: x1, y: y1, width: x2 - x1, height: y2 - y1, rx: 4, class: cls }, parent);
+}
+function titleOf(f) { return f.common || 'Details to follow'; }
+function wallOf(id) { return WALLS.find(w => w.id === id); }
+
+// ---------- build the walls ----------
+function buildWalls() {
+  const tabs = document.getElementById('tabs');
+  const walls = document.getElementById('walls');
+  WALLS.forEach(w => {
+    const t = document.createElement('button');
+    t.className = 'tab'; t.type = 'button'; t.setAttribute('role', 'tab');
+    t.dataset.wall = w.id; t.textContent = w.short;
+    t.addEventListener('click', () => showWall(w.id));
+    tabs.appendChild(t);
+
+    const box = document.createElement('div');
+    box.className = 'wall'; box.id = 'wall-' + w.id;
+    const svg = el('svg', { viewBox: `0 0 ${VIEW_W} ${VIEW_H}`, role: 'group', 'aria-label': w.name });
+    el('rect', { x: 0, y: 0, width: VIEW_W, height: VIEW_H, rx: 10, class: 'wall-bg' }, svg);
+
+    w.fixtures.forEach(fx => {
+      const r = rect(fx.box, 'fixture', svg);
+      if (fx.type === 'hatch') r.setAttribute('stroke-dasharray', '10 8');
+      if (fx.type === 'door') {
+        const [x1, y1, x2, y2] = fx.box;
+        rect([x1 + 40, y1 + 60, x2 - 40, y1 + 360], 'fixture', svg);
+        rect([x1 + 40, y1 + 410, x2 - 40, y2 - 20], 'fixture', svg);
+      }
+      if (fx.label) {
+        const [x1, y1, x2, y2] = fx.box;
+        const tx = el('text', { x: (x1 + x2) / 2, y: (y1 + y2) / 2 + 10, 'text-anchor': 'middle', class: 'fixture-label' }, svg);
+        tx.textContent = fx.label;
+      }
+    });
+
+    FRAMES.filter(f => f.wall === w.id).forEach(f => {
+      const g = el('g', { class: 'frame', tabindex: 0, role: 'button', 'data-n': f.n,
+        'aria-label': `${f.n}: ${titleOf(f)}` }, svg);
+      rect(f.outer, 'outer', g);
+      rect(f.win, 'win', g);
+      const [x1, y1, x2, y2] = f.win;
+      const num = el('text', { x: (x1 + x2) / 2, y: (y1 + y2) / 2, class: 'num' }, g);
+      num.textContent = f.n;
+      g.addEventListener('click', () => select(f.n, true));
+      g.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(f.n, true); }
+      });
+    });
+
+    box.appendChild(svg);
+    const label = document.createElement('div');
+    label.className = 'wall-label'; label.textContent = w.name;
+    box.appendChild(label);
+    walls.appendChild(box);
+  });
+}
+
+function showWall(id) {
+  activeWall = id;
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.wall === id ? 'true' : 'false'));
+  document.querySelectorAll('.wall').forEach(w => w.classList.toggle('active', w.id === 'wall-' + id));
+}
+
+// ---------- list ----------
+function buildList() {
+  const list = document.getElementById('list');
+  FRAMES.forEach(f => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.n = f.n;
+    b.innerHTML = `<span class="n">${f.n}</span><span></span><span class="w"></span>`;
+    b.children[1].textContent = titleOf(f);
+    b.children[2].textContent = wallOf(f.wall).name;
+    b.addEventListener('click', () => select(f.n, true));
+    li.appendChild(b); list.appendChild(li);
+  });
+}
+
+// ---------- detail ----------
+function fact(dl, label, value) {
+  const dt = document.createElement('dt'); dt.textContent = label;
+  const dd = document.createElement('dd');
+  if (value) dd.textContent = value; else { dd.textContent = 'Not yet added'; dd.className = 'missing'; }
+  dl.append(dt, dd);
+}
+
+function renderDetail(f) {
+  const d = document.getElementById('detail');
+  d.innerHTML = '';
+  const inner = document.createElement('div'); inner.className = 'detail-inner';
+
+  const ph = document.createElement('div'); ph.className = 'detail-photo';
+  if (f.img) {
+    const img = document.createElement('img');
+    img.src = 'photos/' + f.img; img.alt = f.common; img.decoding = 'async';
+    ph.appendChild(img);
+  } else {
+    const p = document.createElement('div'); p.className = 'nophoto';
+    p.textContent = f.common ? 'No digital copy of this photo yet.' : 'Photo and details to follow.'; ph.appendChild(p);
+  }
+
+  const tx = document.createElement('div'); tx.className = 'detail-text';
+  const badge = document.createElement('div'); badge.className = 'badge';
+  badge.innerHTML = `<b>${f.n}</b><span></span>`;
+  badge.lastChild.textContent = wallOf(f.wall).name;
+  const h = document.createElement('h2'); h.textContent = titleOf(f);
+  tx.append(badge, h);
+  if (f.sci) { const s = document.createElement('div'); s.className = 'sci'; s.textContent = f.sci; tx.appendChild(s); }
+
+  const dl = document.createElement('dl'); dl.className = 'facts';
+  fact(dl, 'Location', f.location);
+  fact(dl, 'Taken', f.date);
+  fact(dl, 'Camera', f.camera);
+  fact(dl, 'Lens', f.lens);
+  fact(dl, 'Settings', f.settings);
+  tx.appendChild(dl);
+
+  const steps = document.createElement('div'); steps.className = 'steps';
+  const prev = document.createElement('button'); prev.className = 'step'; prev.type = 'button'; prev.textContent = '← Previous';
+  const next = document.createElement('button'); next.className = 'step'; next.type = 'button'; next.textContent = 'Next →';
+  prev.addEventListener('click', () => select(f.n === 1 ? FRAMES.length : f.n - 1, false));
+  next.addEventListener('click', () => select(f.n === FRAMES.length ? 1 : f.n + 1, false));
+  steps.append(prev, next);
+  tx.appendChild(steps);
+
+  inner.append(ph, tx);
+  d.appendChild(inner);
+}
+
+function select(n, scroll) {
+  const f = FRAMES.find(x => x.n === n);
+  if (!f) return;
+  current = n;
+  document.querySelectorAll('.frame').forEach(g => g.classList.toggle('sel', +g.dataset.n === n));
+  document.querySelectorAll('.list button').forEach(b => b.classList.toggle('sel', +b.dataset.n === n));
+  showWall(f.wall);
+  renderDetail(f);
+  if (location.hash !== '#' + n) history.replaceState(null, '', '#' + n);
+  if (scroll) {
+    const d = document.getElementById('detail');
+    const r = d.getBoundingClientRect();
+    if (r.top > window.innerHeight * 0.6 || r.bottom < 0) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+buildWalls();
+buildList();
+const start = parseInt(location.hash.slice(1), 10);
+select(FRAMES.some(f => f.n === start) ? start : 1, false);
+window.addEventListener('hashchange', () => {
+  const n = parseInt(location.hash.slice(1), 10);
+  if (n && n !== current) select(n, true);
+});
+</script>
+</body>
+</html>
