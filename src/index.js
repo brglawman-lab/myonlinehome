@@ -39,6 +39,7 @@ const MOVED = {
   "/private/messages": "/admin/messages/",
   "/private/cookbook": "/admin/cookbook/",
   "/private/sitemap": "/admin/sitemap/",
+  "/recipes/benicity": "/admin/benicity/", // moved behind the sign-in, October 2026
 };
 
 const signInRedirect = (url) =>

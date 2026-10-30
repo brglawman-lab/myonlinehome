@@ -1,6 +1,7 @@
 /* Recipe book navigation — the row of big buttons under the header on
- * /recipes/ and its sub-pages (Benicity Cloake, Meal Builder, Jodie, Food
- * Storage, Cocktail Menu, Bar Stock).
+ * /recipes/ and its sub-pages (Meal Builder, Jodie, Food Storage, Cocktail
+ * Menu, Bar Stock). Benicity Cloake moved to /admin/benicity/ (signed in only)
+ * and is deliberately not listed here.
  *
  * Every page loads this one file, so the buttons are the same everywhere:
  * add or rename a destination here, not in the pages.
@@ -20,8 +21,6 @@
       icon: svg('<path d="M12 6.5C10.2 5 7.6 4.5 4 4.5v13c3.6 0 6.2.5 8 2 1.8-1.5 4.4-2 8-2v-13c-3.6 0-6.2.5-8 2Z"/><path d="M12 6.5v13"/>') },
     { id: 'inspiration', label: 'Inspiration', href: '/recipes/inspiration/',
       icon: svg('<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/>') },
-    { id: 'benicity',   label: 'Benicity Cloake', href: '/recipes/benicity/',
-      icon: svg('<path d="M9 3h6"/><path d="M10 3v6.5L5.2 18a2 2 0 0 0 1.8 3h10a2 2 0 0 0 1.8-3L14 9.5V3"/><path d="M7.6 15h8.8"/>') },
     { id: 'drinks',     label: 'Drinks',       href: '/recipes/#drinks',     tab: true,
       icon: svg('<path d="M5 4h14l-7 8z"/><path d="M12 12v7"/><path d="M8 20h8"/>') },
     { id: 'menu',       label: 'Cocktail Menu', href: '/recipes/cocktail-menu/',

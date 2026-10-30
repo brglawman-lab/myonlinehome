@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Benicity Cloake — Recipe Book</title>
 <meta name="description" content="Recipes researched, argued over and tested before they earn a place in the recipe book — how other cooks do it, and the version worth making.">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
@@ -152,7 +153,7 @@
 </style>
 </head>
 <body>
-<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<a href="/admin/" id="mohome-back" aria-label="Back to Admin">&#8592; Admin</a>
 <style>
 #mohome-back{position:fixed;top:12px;left:12px;z-index:99999;display:inline-block;
 padding:7px 14px;border-radius:999px;background:rgba(250,248,244,0.96);color:#2d4a3e;
@@ -201,6 +202,9 @@ transition:background .15s ease,color .15s ease}
  * book like any other database-overlay recipe. `bookId` is the recipe id it
  * is written under, and `section` must be one of the book's SECTIONS_ORDER
  * ids or the recipe won't appear in any section.
+ *
+ * The page lives at /admin/benicity/, behind the sign-in (it was public at
+ * /recipes/benicity/ until October 2026, which now redirects here).
  *
  * To add a dish: append to DISHES. Nothing else on the page needs changing.
  * ======================================================================== */
@@ -608,6 +612,207 @@ const DISHES = [
   },
 },
 
+/* --------------------------------------------------------------------- */
+{
+  id: 'red-braised-pork-noodles',
+  bookId: 'red-braised-pork-belly-noodles',
+  section: 'pork',
+  category: 'pork',
+  bookTitle: 'Red-braised pork belly noodles',
+  bookDescription: 'Pork belly braised in Shaoxing, soy and caramelised sugar until it barely holds together, glazed in its own sauce and piled onto noodles with pak choi — developed in Benicity Cloake.',
+  short: 'Red-braised pork belly noodles',
+  sub: 'Plain Shanghai or spiced Hunan — and how to get it onto noodles',
+  title: 'How to make the perfect red-braised pork belly noodles',
+  standfirst: 'Hong shao rou, "red-cooked meat", is one of the great Chinese home dishes, and the one Chairman Mao is said to have wanted wherever he went. Pork belly, sugar, soy, rice wine and time. The arguments are about the sugar, the spices and what happens to the pork before it goes anywhere near the sauce.',
+  contenders: [
+    { who: 'Judy, The Woks of Life', url: 'https://thewoksoflife.com/shanghai-style-braised-pork-belly/', gist: 'The plain Shanghai original, with six ingredients and no spices: rock sugar melted in oil, Shaoxing, light and dark soy, water. One-minute blanch, 45–60 minutes on the hob, reduced to a glaze.' },
+    { who: 'The Woks of Life, Mao-style', url: 'https://thewoksoflife.com/red-braised-pork-belly-mao/', gist: 'Rock sugar caramelised in oil, then ginger, spring onion, star anise, cinnamon, bay and optional dried chillies. About an hour, with half a teaspoon of sugar stirred in at the end.' },
+    { who: 'Fuchsia Dunlop', url: 'https://www.sbs.com.au/food/recipes/chairman-maos-red-braised-pork', gist: 'Chairman Mao\'s red-braised pork: the whole slab boiled for 15 minutes before cutting, a dark caramel, star anise, cassia and six dried chillies — and only a teaspoon of soy.' },
+    { who: 'Elaine, China Sichuan Food', url: 'https://www.chinasichuanfood.com/hong-shao-rou-red-braised-pork-belly/', gist: 'Skin seared, cubes blanched and then fried to render fat. Yellow rock sugar caramelised for colour, so no dark soy. Hot water only, and a dash of black vinegar at the end.' },
+    { who: 'Chinese Cooking Demystified', url: 'https://chinesecookingdemystified.substack.com/p/homestyle-red-braised-pork-belly', gist: 'Hunan homestyle: braised in the hot blanching water, a dark caramel, dark soy for colour, cassia and Sichuan pepper. 90 minutes; the sauce stays thin and sticky.' },
+    { who: 'Two Plaid Aprons', url: 'https://twoplaidaprons.com/hong-shao-rou-red-braised-pork/', gist: 'Blanched for 10–15 minutes, then browned. The sugar is stirred in rather than caramelised. Star anise, shiitake and boiled eggs, with a cornflour slurry to finish the sauce.' },
+    { who: 'Ching-He Huang', url: 'https://www.souschef.co.uk/blogs/the-bureau-of-taste/ching-s-braised-hong-sao-pork', gist: 'Belly simmered for 30 minutes, then braised for 45 in chicken stock, dark soy and brown sugar with star anise, Sichuan pepper and dried chillies. Served with rice and pak choi.' },
+    { who: 'olive magazine', url: 'https://www.olivemagazine.com/recipes/meat-and-poultry/chinese-braised-belly-pork-with-greens/', gist: 'The British oven method: the whole slab in soy, vinegar, honey, rice wine and five-spice for 2½ hours under foil, then the oven turned right up to crisp the skin.' },
+  ],
+  sections: [
+    { h: 'The pork',
+      body: "<p>Everyone uses skin-on belly. Judy at The Woks of Life asks for as lean a piece as you can find and keeps the skin on because its collagen gives the sauce its sticky shine. Cuts vary a lot: Judy and Elaine cut 2cm pieces, Two Plaid Aprons about 4cm, and Fuchsia Dunlop 5cm blocks to serve as part of a feast.</p><p>For noodles, the pieces need to be small enough to pick up from a bowl and eat in one or two bites. A kilo of belly is plenty for three people.</p>",
+      verdict: 'Skin-on belly in 3cm cubes, about 1kg for three.' },
+    { h: 'Before the braise',
+      body: "<p>Every recipe boils the pork first to remove the scum and any porky smell, but the timings run from one minute (Judy) to 30 (Ching-He Huang). Fuchsia Dunlop boils the whole slab for 15 minutes and cuts it afterwards. Chinese Cooking Demystified gives the reason: the boil firms the outside so the cubes keep their shape, with skin, fat and lean still attached. Cutting raw belly neatly is much harder.</p><p>Elaine at China Sichuan Food and Two Plaid Aprons then fry the cubes to render out some of the fat before braising, which makes the finished dish less greasy. Elaine and Chinese Cooking Demystified both insist on hot water for the braise, not cold, because they say cold water makes the meat tough.</p>",
+      verdict: 'Boil the slab whole for 10 minutes, then cut. Fry the cubes to render fat if there is time. Braise in just-boiled water.' },
+    { h: 'The sugar',
+      body: "<p>This is the main argument. Dunlop, both Woks of Life versions, Elaine and Chinese Cooking Demystified melt the sugar in oil and take it to a dark caramel before the pork goes in. Chinese Cooking Demystified calls this a critical step. Elaine relies on it entirely for colour and uses no dark soy, and she warns that you have to stop at amber because burnt sugar tastes bitter. Two Plaid Aprons and Ching-He Huang skip the caramel and stir the sugar into the braise, which is safer but tastes flatter.</p><p>Rock sugar is traditional. Elaine says yellow rock sugar has more flavour and a gentler sweetness than white sugar, and Asian grocers sell it. Light brown sugar is the nearest substitute.</p>",
+      verdict: 'Caramelise it to dark amber. That is where the colour and depth come from.' },
+    { h: 'Soy, wine and spice',
+      body: "<p>The Shanghai version is the plainest. Judy uses no spices at all, only Shaoxing and both kinds of soy, and says the dark soy is very important to the colour and flavour. The Hunan or Mao-style versions go the other way. Dunlop uses almost no soy (one teaspoon, plus salt) and adds star anise, cassia and dried chillies. The Woks of Life Mao recipe adds bay leaves, and Chinese Cooking Demystified adds Sichuan pepper. Ching-He Huang braises in chicken stock instead of water. olive magazine uses vinegar, honey and five-spice, which is a long way from the original.</p><p>The Woks of Life point out that whole dried chillies get hotter the longer they cook, so you can take them out halfway. That makes it easy to keep the dish mild and serve chilli on the side. Elaine adds a dash of black vinegar at the end to cut through the fat.</p>",
+      verdict: 'Shaoxing, light and dark soy, ginger and spring onion, plus star anise and cinnamon for warmth. Whole chillies are optional and can be removed.' },
+    { h: 'The braise',
+      body: "<p>On the hob, cooking times run from 45 minutes (Judy, Dunlop) to Chinese Cooking Demystified's 90. Judy stirs every five or ten minutes because the sugary liquid can catch on the bottom. Two Plaid Aprons say it should only simmer gently, because boiling hard toughens the meat. olive magazine uses the oven: 2½ hours at 160°C with no stirring at all.</p><p>The shorter times depend on smaller pieces and a wok, where the liquid boils off quickly. In a heavy casserole at a bare simmer, 3cm cubes need about an hour and a half.</p>",
+      verdict: 'A bare simmer for 1½ hours with the lid on. In the oven at 150°C it needs almost no attention.' },
+    { h: 'The glaze',
+      body: "<p>Every version finishes the same way. Take the lid off, turn up the heat and keep stirring until the liquid becomes a glossy coating. Elaine keeps going until the fat in the pan looks clear. Two Plaid Aprons skim the fat first and warn that too much fat or too much reduction makes the sauce split. Chinese Cooking Demystified keeps the sauce thin and only slightly sticky, not like syrup. The Woks of Life add half a teaspoon of sugar at the end to balance the salt.</p>",
+      verdict: 'Skim the fat, then reduce hard while stirring until the sauce coats the pork. For noodles, keep some of the liquid back first.' },
+    { h: 'Onto noodles',
+      body: "<p>None of the contenders put it on noodles. They serve it with rice and greens, which is the classic way. Braised pork is also a classic topping for soup noodles in Shanghai noodle shops, though. The fully glazed pork is too rich and too dry to dress noodles on its own, so you need to save some of the braising liquid before you reduce it. You can toss that liquid through wheat noodles with a little sesame oil, or stir it into chicken stock to make a broth.</p><p>Two Plaid Aprons cook peeled boiled eggs in the braise for the last few minutes, and Chinese Cooking Demystified uses leftover sauce to marinate eggs. Either way the egg does well in a noodle bowl.</p><p>If there are only 30 minutes, the braise won't happen. Slice the belly thinly, fry it until crisp, then glaze it in the pan with soy, Shaoxing and honey. It's a different dish, but it's good.</p>",
+      verdict: 'Wheat noodles tossed in the held-back sauce, with pak choi. A light broth with the braising liquid stirred in for the full version.' },
+  ],
+  verdictIntro: 'The verdict, built to your effort level. Pick a starting point, then change any choice — the ingredients and method rewrite themselves.',
+  closing: 'Caramel or no caramel — and does hong shao rou belong on noodles at all, or only on rice?',
+  baseServes: 3,
+  servesChoices: [2, 3, 4, 6],
+  servesLabel: (n) => n + ' people',
+  presets: [
+    { id: 'weeknight', label: 'Weeknight', sub: 'about 2¼ hrs', values: { prep: 'quick', sugar: 'stir', cook: 'hob', eggs: 'no' }, note: 'Blanch the cubes, braise and glaze. Still two hours, but nearly all of it is simmering.' },
+    { id: 'proper', label: 'Proper', sub: 'about 2½ hrs', values: { prep: 'slab', sugar: 'caramel', cook: 'hob', eggs: 'no' }, note: 'The slab boiled whole for neat cubes, a dark caramel, an hour and a half on the hob.' },
+    { id: 'full', label: 'Full Benicity', sub: 'about 3 hrs', values: { prep: 'render', sugar: 'caramel', cook: 'oven', eggs: 'yes' }, note: 'Boiled, cut, rendered, caramelised and oven-braised, with eggs cooked in the sauce.' },
+  ],
+  defaultPreset: 'proper',
+  options: [
+    { id: 'prep', name: 'Before the braise', choices: [
+      { id: 'quick',  label: 'Blanch the cubes', note: 'The Woks of Life: cut first, two minutes in boiling water. Quickest, but the cubes are harder to cut neatly.' },
+      { id: 'slab',   label: 'Boil the slab, then cut', note: 'Fuchsia Dunlop and Chinese Cooking Demystified: the boil firms the pork so the cubes hold together.' },
+      { id: 'render', label: 'Boil, cut, then fry', note: 'Elaine and Two Plaid Aprons: fry the cubes to render fat before braising. Less greasy, more colour.' },
+    ]},
+    { id: 'sugar', name: 'The sugar', choices: [
+      { id: 'caramel', label: 'Dark caramel first', note: 'Melted in the fat to dark amber before the pork goes in. Most of the colour and depth comes from this.' },
+      { id: 'stir',    label: 'Stirred into the braise', note: 'Two Plaid Aprons and Ching-He Huang: no caramel, nothing to burn. Flatter in flavour and lighter in colour.' },
+    ]},
+    { id: 'spice', name: 'Spices', choices: [
+      { id: 'warm',     label: 'Star anise and cinnamon', note: 'The Woks of Life Mao-style, without the chillies. Warm, not hot.' },
+      { id: 'shanghai', label: 'None (Shanghai)', note: 'Judy\'s six-ingredient original: just soy, wine and sugar.' },
+      { id: 'hunan',    label: 'Plus chillies and Sichuan pepper', note: 'Dunlop and Chinese Cooking Demystified. Take the chillies out halfway to keep it mild.' },
+    ]},
+    { id: 'cook', name: 'Braise it', choices: [
+      { id: 'hob',  label: 'On the hob', note: 'A bare simmer for 1½ hours, stirred now and then so it doesn\'t catch.' },
+      { id: 'oven', label: 'In the oven', note: 'After olive magazine: 150°C with the lid on. No stirring.' },
+      { id: 'slow', label: 'Slow cooker', note: 'High for 3½–4 hours, then reduced in a pan. Untested.' },
+    ]},
+    { id: 'noodles', name: 'The noodles', choices: [
+      { id: 'tossed', label: 'Tossed in the sauce', note: 'Wheat noodles dressed with held-back braising liquid and sesame oil.' },
+      { id: 'soup',   label: 'In a broth', note: 'Chicken stock with braising liquid stirred in, as a Shanghai-style soup noodle. The ratio is untested.' },
+    ]},
+    { id: 'eggs', name: 'Eggs in the braise?', choices: [
+      { id: 'no',  label: 'No', note: '' },
+      { id: 'yes', label: 'Yes', note: 'Two Plaid Aprons: peeled boiled eggs cooked in the sauce for the last 20 minutes.' },
+    ]},
+  ],
+  build(o, q) {
+    const ing = [], steps = [], notes = [];
+    let mins = 15, effort = 1.5;
+    const kg = (x) => { const v = x * q.k; return v >= 1000 ? (Math.round(v / 100) / 10) + 'kg' : q.g(x); };
+    const spiced = o.spice !== 'shanghai';
+
+    ing.push({ group: 'Pork' });
+    ing.push({ amount: kg(1000), item: 'boneless skin-on pork belly, as lean as you can find' });
+    if (o.prep === 'quick') mins += 10;
+    else if (o.prep === 'slab') { mins += 20; effort += 0.5; }
+    else { mins += 30; effort += 1; }
+
+    ing.push({ group: 'The braise' });
+    if (o.prep !== 'render') ing.push({ amount: q.tbsp(2), item: 'neutral oil' });
+    ing.push({ amount: q.g(35), item: 'rock sugar, crushed (or light brown sugar)' });
+    ing.push({ amount: q.n(5) + ' slices', item: 'fresh ginger' });
+    ing.push({ amount: q.n(4), item: 'spring onions, whites cut into 5cm lengths, greens shredded for the top' });
+    ing.push({ amount: q.n(4), item: 'garlic cloves, smashed' });
+    if (spiced) {
+      ing.push({ amount: q.n(2), item: 'star anise' });
+      ing.push({ amount: q.half(1) + (q.k > 1.4 ? ' sticks' : ' stick'), item: 'cinnamon (or a piece of cassia bark)' });
+    }
+    if (o.spice === 'hunan') {
+      ing.push({ amount: q.n(4), item: 'whole dried red chillies' });
+      ing.push({ amount: q.tsp(0.5), item: 'Sichuan peppercorns' });
+    }
+    ing.push({ amount: q.ml(100), item: 'Shaoxing rice wine' });
+    ing.push({ amount: q.tbsp(3), item: 'light soy sauce' });
+    ing.push({ amount: q.tbsp(1), item: 'dark soy sauce' });
+    ing.push({ amount: 'about ' + q.ml(o.cook === 'slow' ? 450 : 650), item: 'just-boiled water, enough to barely cover' });
+    ing.push({ amount: q.tsp(1), item: 'Chinkiang black vinegar, to finish' });
+    if (o.eggs === 'yes') { ing.push({ amount: q.n(3), item: 'eggs' }); effort += 0.5; }
+
+    ing.push({ group: o.noodles === 'soup' ? 'Noodles and broth' : 'Noodles' });
+    ing.push({ amount: q.g(300), item: 'dried wheat noodles (or ' + q.g(450) + ' fresh)' });
+    if (o.noodles === 'soup') {
+      ing.push({ amount: q.ml(900), item: 'chicken stock' });
+      ing.push({ amount: 'pinch', item: 'ground white pepper' });
+      mins += 5; effort += 0.5;
+    }
+    ing.push({ amount: q.tsp(1), item: 'toasted sesame oil' });
+    ing.push({ amount: q.n(3), item: 'small pak choi, halved' });
+    ing.push({ amount: '', item: 'coriander leaves, to serve' });
+    ing.push({ amount: '', item: 'chilli crisp, on the side' });
+
+    // ---- method ----
+    if (o.prep === 'quick') {
+      steps.push('Cut the pork into 3cm cubes, keeping skin, fat and lean together. Put them in a pan of cold water, bring to the boil and boil for 2 minutes, skimming off the grey scum. Drain and rinse under the hot tap.');
+    } else {
+      steps.push('Put the whole slab of pork in a pan of cold water, bring to the boil and boil for 10 minutes, skimming off the grey scum. Lift it out, rinse it, and leave until cool enough to handle.');
+      steps.push('Cut the pork into 3cm cubes with your sharpest knife, keeping the skin, fat and lean of each piece together.');
+    }
+    if (o.prep === 'render') {
+      steps.push('Put the cubes skin-side down in the dry casserole over a medium heat. Fry for 6–8 minutes, turning, until golden and a good few tablespoons of fat have run out. Lift out the pork and pour the fat into a bowl, leaving about 1 tablespoon in the pot. Keep the rest for frying.');
+    }
+
+    if (o.sugar === 'caramel') {
+      steps.push((o.prep === 'render' ? 'Add the sugar to the fat left in the pot over a low heat.' : 'Put the oil and the sugar in the casserole over a low heat.') + ' Stir gently as the sugar melts, then keep going until it is a dark amber, like strong tea. This takes 3–5 minutes. Watch it closely: past amber it turns bitter. Add the pork straight away and stir quickly to coat (it will spit).');
+      effort += 0.5;
+    } else if (o.prep === 'render') {
+      steps.push('Return the pork to the pot over a medium-high heat.');
+    } else {
+      steps.push('Heat the oil in the casserole over a medium-high heat and fry the pork for 3–4 minutes, turning, until lightly coloured.');
+    }
+
+    const aromatics = 'the ginger, garlic and spring onion whites' + (o.spice === 'hunan' ? ', star anise, cinnamon, chillies and Sichuan pepper' : spiced ? ', star anise and cinnamon' : '');
+    steps.push('Add ' + aromatics + ' and stir for a minute. Pour the Shaoxing around the edge of the pot and let it bubble for 30 seconds.');
+    steps.push('Add the light and dark soy' + (o.sugar === 'stir' ? ', the sugar' : '') + ' and enough just-boiled water to barely cover the pork. Use hot water, not cold, so the meat doesn\'t seize.');
+
+    const done = 'It is done when a chopstick slides through a piece with almost no resistance.';
+    if (o.cook === 'hob') {
+      steps.push('Bring to a simmer, put the lid on and turn the heat right down so it barely bubbles. A hard boil toughens the meat. Cook for 1½ hours, stirring every 15 minutes so the sugar doesn\'t catch, and add a splash of hot water if it gets low. ' + done);
+      mins += 90; effort += 0.5;
+    } else if (o.cook === 'oven') {
+      steps.push('Bring to a simmer on the hob, put the lid on and move the casserole to the oven at 150°C. Cook for 1¾–2 hours, stirring once halfway. ' + done);
+      mins += 120;
+    } else {
+      steps.push('Bring to a simmer, then tip everything into the slow cooker. Cook on high for 3½–4 hours. ' + done + ' Pour everything back into the casserole for the glazing step, or use the slow cooker\'s sear setting if it has one.');
+      mins += 240;
+    }
+    if (o.spice === 'hunan') steps.push('For a milder dish, take the chillies out halfway through the braise. They get hotter the longer they cook.');
+    if (o.eggs === 'yes') {
+      steps.push('While it braises, boil the eggs for 7 minutes, cool them in cold water and peel. Add them to the pot for the last 20 minutes, turning them in the liquid so they colour evenly.');
+    }
+
+    steps.push('Take out the ginger, spring onion, garlic' + (spiced ? ' and whole spices' : '') + '. Tilt the pot and spoon off as much of the clear fat on top as you can.');
+    steps.push('Ladle out about ' + q.ml(o.noodles === 'soup' ? 250 : 150) + ' of the braising liquid and keep it for the noodles.');
+    steps.push('Turn the heat up and boil the rest uncovered for 10–15 minutes, stirring often, until it has reduced to a glossy, sticky coating on the pork. Turn the heat down as it gets close, because it goes from glaze to burnt quickly. Stir in the black vinegar and taste; add a pinch more sugar if it is too salty.');
+    mins += 15;
+
+    steps.push('While the sauce reduces, bring a large pan of water to the boil. Blanch the pak choi for 1–2 minutes and lift it out, then cook the noodles as the packet says and drain.');
+    mins += 10;
+    const top = 'the pork and its glaze, the pak choi' + (o.eggs === 'yes' ? ' and the eggs, halved' : '');
+    if (o.noodles === 'soup') {
+      steps.push('Heat the chicken stock with the held-back braising liquid, the sesame oil and the white pepper. Taste it: it should be savoury and gently sweet, not salty. Put the noodles in deep bowls, ladle the broth over and top with ' + top + '.');
+    } else {
+      steps.push('Toss the hot noodles with the held-back braising liquid and the sesame oil. Divide between bowls and top with ' + top + '.');
+    }
+    steps.push('Scatter over the spring onion greens and coriander, and serve with chilli crisp on the side.');
+
+    notes.push('It is even better the next day. Chill it in its sauce, lift off the set fat, then reheat gently. Elaine at China Sichuan Food steams leftovers rather than microwaving them.');
+    if (o.sugar === 'caramel') notes.push('Stop the caramel at dark amber. If it smells acrid or goes black, start again, or the whole pot will taste bitter.');
+    notes.push('Two Plaid Aprons warn that too much fat or too much reduction splits the sauce. Skim well, and if it does split, stir in a splash of hot water hard.');
+    if (o.cook === 'slow') notes.push('The slow-cooker method is untested. Check how much liquid is left at the end and how long the glaze takes.');
+    if (o.noodles === 'soup') notes.push('The broth ratio is untested. Start with less braising liquid and add more to taste.');
+
+    return { ing, steps, notes, mins, effort };
+  },
+  summary(o) {
+    const p = { quick: 'cubes blanched', slab: 'slab boiled then cut', render: 'boiled, cut and rendered' }[o.prep];
+    const s = { warm: 'star anise and cinnamon', shanghai: 'no spices (Shanghai)', hunan: 'star anise, cinnamon, chillies and Sichuan pepper' }[o.spice];
+    const c = { hob: 'braised on the hob', oven: 'braised in the oven', slow: 'slow-cooked' }[o.cook];
+    return p + ', ' + (o.sugar === 'caramel' ? 'dark caramel' : 'sugar stirred in') + ', ' + s + ', ' + c + ', ' + (o.noodles === 'soup' ? 'in a broth' : 'tossed noodles') + (o.eggs === 'yes' ? ', with eggs' : '');
+  },
+},
+
 ];
 /* ======================================================================== */
 
@@ -749,7 +954,7 @@ function renderCook(msg, isErr) {
   if (signedIn) {
     action = '<button class="btn" id="promote">' + (inBook ? 'Update the recipe-book copy' : 'Add this version to the recipe book') + '</button>';
   } else {
-    action = '<a class="btn btn-quiet" href="/signin/?next=' + encodeURIComponent('/recipes/benicity/#' + d.id) + '">Sign in to add it to the recipe book</a>';
+    action = '<a class="btn btn-quiet" href="/signin/?next=' + encodeURIComponent('/admin/benicity/#' + d.id) + '">Sign in to add it to the recipe book</a>';
   }
   const link = inBook ? ' <a href="/recipes/#recipe-' + encodeURIComponent(d.bookId) + '">See it in the recipe book</a>' : '';
   document.getElementById('cook').innerHTML =
