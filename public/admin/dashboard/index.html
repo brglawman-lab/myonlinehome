@@ -153,9 +153,11 @@ transition:background .15s ease,color .15s ease}
  * Food dashboard — pulls live data from the recipe book and the Farmer's
  * Markets guide (same page-scraping approach the Meal Builder and Food
  * Storage pages use: fetch the page's HTML, lift a named const array out of
- * it) and renders a handful of "what's relevant right now" widgets. When the
- * browser is signed in, a second section adds bin day (/admin/api/bins) and
- * the storage watch (the storage-rooms/readings API). Nothing here writes anything — it's
+ * it) and renders a handful of "what's relevant right now" widgets. A second
+ * section adds bin day (/admin/api/bins) and the storage watch (the
+ * storage-rooms/readings API). The page lives at /admin/dashboard/, behind the
+ * sign-in (it was public at /dashboard/ until November 2026, which now
+ * redirects here); the session check below is kept as a second guard. Nothing here writes anything — it's
  * read-only, so no sync/offline-queue machinery is needed.
  * ======================================================================== */
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }

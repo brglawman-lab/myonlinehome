@@ -50,6 +50,7 @@
   .choice:hover, .choice:focus-visible { transform: translateY(-2px); outline: none; }
   .choice.food:hover, .choice.food:focus-visible { color: var(--rust); }
   .choice.photos:hover, .choice.photos:focus-visible { color: var(--sage); }
+  .choice[hidden] { display: none; }
   .choice.dash { font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 400; font-style: italic; color: var(--sage); margin-top: 0.75rem; }
   .choice.dash:hover, .choice.dash:focus-visible { color: var(--forest); }
 
@@ -72,12 +73,30 @@
 <div class="choices">
   <a class="choice food" href="/recipes/">Food</a>
   <a class="choice photos" href="/gallery/">Photos</a>
-  <a class="choice dash" href="/dashboard/">Dashboard</a>
+  <a class="choice dash" href="/admin/dashboard/" id="dashLink" hidden>Dashboard</a>
 </div>
 
 <footer>
   <a href="/contact/">Contact</a> · <a href="/privacy/">Privacy</a> · <a href="/signin/">Sign in</a>
 </footer>
+
+<script>
+/* The Dashboard is signed-in only (/admin/dashboard/), so its link is only
+ * shown to a signed-in browser. Same last-known hint as the recipe nav. */
+(function () {
+  const link = document.getElementById('dashLink');
+  const HINT = 'mohome.signedIn.v1';
+  try { if (localStorage.getItem(HINT) === '1') link.hidden = false; } catch (e) {}
+  fetch('/api/session', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(s => {
+      const yes = Boolean(s && s.signedIn);
+      link.hidden = !yes;
+      try { if (yes) localStorage.setItem(HINT, '1'); else localStorage.removeItem(HINT); } catch (e) {}
+    })
+    .catch(() => {});
+})();
+</script>
 
 </body>
 </html>

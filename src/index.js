@@ -40,6 +40,8 @@ const MOVED = {
   "/private/cookbook": "/admin/cookbook/",
   "/private/sitemap": "/admin/sitemap/",
   "/recipes/benicity": "/admin/benicity/", // moved behind the sign-in, October 2026
+  "/dashboard": "/admin/dashboard/",       // moved behind the sign-in, November 2026
+  "/recipes/jodie": "/admin/jodie/",       // moved behind the sign-in, November 2026
 };
 
 const signInRedirect = (url) =>

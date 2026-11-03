@@ -30,14 +30,14 @@ prefix has to be added there or it will just get the 404 page.
 | `/signin/` | Sign-in for the owner. A normal username/password form so Chrome's password manager saves it, plus the Credential Management API so Chrome signs straight in next time. Goes to `/admin/` | authored here |
 | `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Shopping list** (`/admin/shopping/`), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
-| `/dashboard/` | Food dashboard — what's on, what's fresh, what's cooking, plus links into the pages below (`/food/` redirects here) | authored here |
+| `/admin/dashboard/` | Dashboard — what's on, what's fresh, bin day and the storage watch. Behind the sign-in; it was public at `/dashboard/` until November 2026, which now redirects here (`/food/` does too) | authored here |
 | `/admin/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the sign-in and not linked from any public page (reach it from `/admin/`) | authored here |
 | `/admin/benicity/` | Benicity Cloake — the testing kitchen: each dish researched (how other cooks do it), then a recipe builder with effort presets; "Add to the recipe book" writes the chosen version to the database. Behind the sign-in; it was public at `/recipes/benicity/` until October 2026, which now redirects here. Add a dish by appending to `DISHES` | authored here |
 | `/photos/` | Photography hub — links to the wildlife photography gallery | authored here |
 | `/recipes/` | Recipe Book — 65+ recipes, with photos in `public/recipes/photos/`. The row of big buttons under the header on it and its sub-pages comes from `public/assets/recipe-nav.js` — change destinations there, not in the pages | from `Desktop\Claude\Chef Claude` (canonical copy) |
 | `/recipes/inspiration/` | Inspiration — a handful of recipes recently published by The Guardian, BBC Good Food and olive, read from their RSS feeds by `/api/inspiration` (`src/inspiration.js`) and cached for 3 hours | authored here |
 | `/recipes/combinator/` | Meal Builder — pairs recipes into a meal | authored here |
-| `/recipes/jodie/` | What does Jodie want to eat? — a mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
+| `/admin/jodie/` | What does Jodie want to eat? — behind the sign-in (public at `/recipes/jodie/` until November 2026, which now redirects here). A mood board of up to 5 picks (chicken, spicy, really hungry, healthy, …) that ranks mains, starters and sides by how many they match | authored here |
 | `/recipes/storage/` | Food Storage — how to store each ingredient once opened. (The room temperature/humidity tracker moved to `/admin/storage/`) | authored here |
 | `/recipes/cocktail-menu/` | Cocktail Menu — the guest-facing menu to send visitors. Reads `/api/bar-stock` and crosses out any drink the bar can't make, saying what's missing. Drinks and what each needs are in `public/assets/bar-data.js` | authored here |
 | `/recipes/bar-stock/` | Bar Stock — what's in, synced through `/api/bar-stock` (D1 `bar_stock`). Anyone can view it; ticking needs the sign-in. "Add missing to shopping list" sends unticked items to `/admin/shopping/`. The item list is in `public/assets/bar-data.js` | authored here |
@@ -144,15 +144,17 @@ readings, trend charts per room, and a CSV export for analysis outside the
 site. It follows the same offline-first pattern as the recipes.
 
 The home page (`/`) is deliberately just a few words: Recipes goes straight
-to the recipe book, Photos to the photography hub, and a smaller Dashboard
-link to `/dashboard/`. `/dashboard/` is a read-only dashboard: it scrapes
+to the recipe book, Photos to the photography hub, and — only when signed
+in — a smaller Dashboard link to `/admin/dashboard/`. The recipe nav likewise
+shows its Jodie and Dashboard buttons only to a signed-in browser (items
+marked `signedIn: true` in `recipe-nav.js`). `/admin/dashboard/` is a
+read-only dashboard: it scrapes
 `/recipes/` and `/wyfood/` the same way the Meal Builder and Food Storage
 pages do (fetch the page, lift a named array out of its `<script>`), reads
 and shows what's relevant right now —
 markets this weekend, upcoming festivals, what's in season and what's worth
-foraging. When the browser is signed in, an "At home" section appears below
-with **Bin day** and the **Storage watch** (room conditions); signed out,
-neither is fetched or shown. Bin day comes from Leeds City Council's own
+foraging. An "At home" section below has **Bin day** and the **Storage
+watch** (room conditions). Bin day comes from Leeds City Council's own
 bin-day API via `src/bins.js` — the address is picked once on the widget and
 kept in D1 (`site_settings`), never in this public repository — plus buttons into the recipe book, Meal Builder, What does Jodie want to eat?, Food
 Storage and WY Farmer's Markets. `/photos/` carries the wildlife photography

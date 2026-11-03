@@ -1,7 +1,14 @@
 /* Recipe book navigation — the row of big buttons under the header on
- * /recipes/ and its sub-pages (Meal Builder, Jodie, Food Storage, Cocktail
- * Menu, Bar Stock). Benicity Cloake moved to /admin/benicity/ (signed in only)
+ * /recipes/ and its sub-pages (Meal Builder, Food Storage, Cocktail Menu,
+ * Bar Stock). Benicity Cloake moved to /admin/benicity/ (signed in only)
  * and is deliberately not listed here.
+ *
+ * Items marked `signedIn: true` live under /admin/ (the Jodie page and the
+ * Dashboard, moved there in November 2026) and are only drawn for a browser
+ * that is signed in: on any /admin/ page that is certain; elsewhere the last
+ * known answer (localStorage) is used for first paint and /api/session then
+ * confirms or corrects it. Showing one by mistake is harmless — the link just
+ * asks for the sign-in.
  *
  * Every page loads this one file, so the buttons are the same everywhere:
  * add or rename a destination here, not in the pages.
@@ -33,17 +40,17 @@
       icon: svg('<path d="M4 12a8 5 0 0 1 16 0Z"/><path d="M10 12v6a2 2 0 0 0 4 0v-6"/>') },
     { id: 'combinator', label: 'Meal Builder', href: '/recipes/combinator/',
       icon: svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>') },
-    { id: 'jodie',      label: 'What does Jodie want?', href: '/recipes/jodie/',
+    { id: 'jodie',      label: 'What does Jodie want?', href: '/admin/jodie/', signedIn: true,
       icon: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.2-2.5 3.9"/><path d="M12 17h.01"/>') },
     { id: 'storage',    label: 'Food Storage', href: '/recipes/storage/',
       icon: svg('<path d="M4 4h16v4H4z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 12h6"/>') },
-    { id: 'dashboard',  label: 'Dashboard',    href: '/dashboard/',
+    { id: 'dashboard',  label: 'Dashboard',    href: '/admin/dashboard/', signedIn: true,
       icon: svg('<rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/>') },
   ];
 
   const css = `
   .recipe-nav { background: var(--bg); border-bottom: 1px solid var(--border); padding: 14px 2rem; }
-  .recipe-nav-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(${ITEMS.length}, minmax(0, 1fr)); gap: 10px; }
+  .recipe-nav-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(var(--nav-cols, ${ITEMS.length}), minmax(0, 1fr)); gap: 10px; }
   .recipe-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-height: 84px; padding: 12px 6px; text-align: center; text-decoration: none; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-lg); font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; line-height: 1.2; transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
   .recipe-nav a svg { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
   .recipe-nav a:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(20,16,12,0.08); border-color: var(--accent); }
@@ -68,9 +75,19 @@
   const nav = document.getElementById('recipeNav');
   if (!nav) return;
   nav.setAttribute('aria-label', 'Recipe book');
-  nav.innerHTML = '<div class="recipe-nav-inner">' + ITEMS.map(it =>
-    '<a href="' + it.href + '" data-id="' + it.id + '"' + (it.tab ? ' data-tab="1"' : '') + '>' + it.icon + '<span>' + it.label + '</span></a>'
-  ).join('') + '</div>';
+
+  const HINT = 'mohome.signedIn.v1';
+  const onAdmin = /^\/admin(\/|$)/.test(location.pathname);
+  let hint = false;
+  try { hint = localStorage.getItem(HINT) === '1'; } catch (e) {}
+
+  function draw(signedIn) {
+    const items = ITEMS.filter(it => signedIn || !it.signedIn);
+    nav.innerHTML = '<div class="recipe-nav-inner" style="--nav-cols:' + items.length + '">' + items.map(it =>
+      '<a href="' + it.href + '" data-id="' + it.id + '"' + (it.tab ? ' data-tab="1"' : '') + '>' + it.icon + '<span>' + it.label + '</span></a>'
+    ).join('') + '</div>';
+    setCurrent(nav.dataset.current);
+  }
 
   function setCurrent(id) {
     nav.querySelectorAll('a').forEach(a => {
@@ -79,8 +96,25 @@
       if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
   }
-  setCurrent(nav.dataset.current);
+  let shown = onAdmin || hint;
+  draw(shown);
   window.setRecipeNavCurrent = setCurrent;
+
+  if (!onAdmin) {
+    fetch('/api/session', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(s => {
+        const yes = Boolean(s && s.signedIn);
+        try { if (yes) localStorage.setItem(HINT, '1'); else localStorage.removeItem(HINT); } catch (e) {}
+        if (yes !== shown) {
+          const current = nav.querySelector('a.active');
+          shown = yes;
+          draw(yes);
+          if (current) setCurrent(current.dataset.id);
+        }
+      })
+      .catch(() => {});
+  }
 
   // On /recipes/ the tab buttons switch in place rather than reloading.
   nav.addEventListener('click', (e) => {

@@ -23,9 +23,9 @@ not_found_handling = "404-page"
 # of its files are served. With a list here, paths NOT on it never reach the
 # Worker at all (a missing file just gets the 404 page), so the API prefixes
 # and the old /private/ addresses (redirected to /admin/) must be listed too.
-# /recipes/benicity is listed only so the Worker can redirect the old public
-# address to /admin/benicity/.
-run_worker_first = ["/admin/*", "/api/*", "/private/*", "/recipes/benicity", "/recipes/benicity/*"]
+# /recipes/benicity, /dashboard and /recipes/jodie are listed only so the
+# Worker can redirect those old public addresses into /admin/.
+run_worker_first = ["/admin/*", "/api/*", "/private/*", "/recipes/benicity", "/recipes/benicity/*", "/dashboard", "/dashboard/*", "/recipes/jodie", "/recipes/jodie/*"]
 
 # Everything else is served straight from ./public.
 
