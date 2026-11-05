@@ -26,8 +26,6 @@
   const ITEMS = [
     { id: 'recipes',    label: 'Recipes',      href: '/recipes/',            tab: true,
       icon: svg('<path d="M12 6.5C10.2 5 7.6 4.5 4 4.5v13c3.6 0 6.2.5 8 2 1.8-1.5 4.4-2 8-2v-13c-3.6 0-6.2.5-8 2Z"/><path d="M12 6.5v13"/>') },
-    { id: 'inspiration', label: 'Inspiration', href: '/recipes/inspiration/',
-      icon: svg('<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/>') },
     { id: 'drinks',     label: 'Drinks',       href: '/recipes/#drinks',     tab: true,
       icon: svg('<path d="M5 4h14l-7 8z"/><path d="M12 12v7"/><path d="M8 20h8"/>') },
     { id: 'menu',       label: 'Cocktail Menu', href: '/recipes/cocktail-menu/',
@@ -40,6 +38,8 @@
       icon: svg('<path d="M4 12a8 5 0 0 1 16 0Z"/><path d="M10 12v6a2 2 0 0 0 4 0v-6"/>') },
     { id: 'combinator', label: 'Meal Builder', href: '/recipes/combinator/',
       icon: svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>') },
+    { id: 'inspiration', label: 'Inspiration', href: '/recipes/inspiration/',
+      icon: svg('<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/>') },
     { id: 'jodie',      label: 'What does Jodie want?', href: '/admin/jodie/', signedIn: true,
       icon: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.2-2.5 3.9"/><path d="M12 17h.01"/>') },
     { id: 'storage',    label: 'Food Storage', href: '/recipes/storage/',

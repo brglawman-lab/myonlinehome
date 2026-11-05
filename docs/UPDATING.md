@@ -101,7 +101,7 @@ no trailing comma after the last recipe.
 | `sides` | Sides |
 | `dips` | Dips |
 | `baking` | Baking |
-| `soft-drinks` | Soft Drinks |
+| `soft-drinks` | Soft Drinks — shown on the **Drinks** tab, below the cocktails, not on the Recipes tab |
 
 **This list is not optional and no other value works.** A recipe filed under
 anything else — `pasta`, `rice`, `meat`, `tacos`, `soup`, `other` — saves

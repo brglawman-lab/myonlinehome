@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   /* A guest-facing page: it's the link sent to visitors, so it has none of the
-   * recipe book's header or buttons. Dark green and brass, like the printed
+   * recipe book's header or buttons — only a small Home link, top left. Dark green and brass, like the printed
    * menu. Phone first. */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -67,6 +67,16 @@
 </style>
 </head>
 <body>
+<a href="/" id="mohome-back" aria-label="Back to My Online Home">&#8592; Home</a>
+<style>
+#mohome-back{position:fixed;top:max(12px, env(safe-area-inset-top));left:max(12px, env(safe-area-inset-left));z-index:99999;display:inline-block;
+padding:7px 14px;border-radius:999px;background:rgba(16,36,30,0.92);color:var(--brass);
+font:500 13px/1.2 var(--body);letter-spacing:0.04em;text-decoration:none;border:1px solid var(--line);
+backdrop-filter:blur(6px);transition:background .15s ease,color .15s ease}
+#mohome-back:hover{background:var(--brass);color:var(--bg);border-color:var(--brass)}
+#mohome-back:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+@media print{#mohome-back{display:none}}
+</style>
 <div class="wrap">
 
   <header>

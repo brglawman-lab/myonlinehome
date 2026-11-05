@@ -68,7 +68,7 @@ One line per recipe in the file (wrapped here for reading):
 | `sides` | Sides |
 | `dips` | Dips |
 | `baking` | Baking |
-| `soft-drinks` | Soft Drinks |
+| `soft-drinks` | Soft Drinks — shown on the **Drinks** tab, below the cocktails, not on the Recipes tab |
 
 Any other value — `pasta`, `rice`, `meat`, `tacos`, `soup`, `other` — saves
 without error and then renders nowhere. This has already happened: a roast
@@ -123,6 +123,8 @@ was found by counting rows against the header total.
 8. Verify on the live page: the header count should have gone up by one, and
    the recipe should appear under the right section. If the count says
    "52 RECIPES · 51 SHOWN", the `section` value is wrong.
+   A `soft-drinks` recipe is the exception: it is not counted on the Recipes
+   tab, and appears under Soft Drinks on the Drinks tab instead.
 
 ## Tagging it for the Meal Builder
 

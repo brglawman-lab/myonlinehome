@@ -51,7 +51,17 @@
   .pill.active:hover { background: var(--text); color: var(--bg); }
   .pill .pill-count { font-size: 11px; opacity: 0.6; margin-left: 4px; }
   .main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
-  .count-bar { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .count-bar { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+  .list-tools { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; min-height: 30px; }
+  .collapse-all-btn { flex-shrink: 0; }
+  .section-header.toggle { cursor: pointer; user-select: none; }
+  .section-header.toggle:hover h2 { color: var(--accent); }
+  .section-header.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .section-chevron { margin-left: auto; align-self: center; color: var(--text-faint); transition: transform 0.15s; }
+  .section-block.collapsed .section-chevron { transform: rotate(-90deg); }
+  .section-block.collapsed { margin-bottom: 1rem; }
+  .section-block.collapsed .recipe-list { display: none; }
+  @media print { .collapse-all-btn, .section-chevron { display: none; } .section-block.collapsed .recipe-list { display: block; } }
   .section-block { margin-bottom: 2.5rem; scroll-margin-top: calc(var(--header-h) + var(--nav-h) + 8px); }
   .section-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
   .section-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; color: var(--text); }
@@ -297,7 +307,10 @@ transition:background .15s ease,color .15s ease}
 </nav>
 
 <main class="main">
-  <div class="count-bar" id="countBar"></div>
+  <div class="list-tools">
+    <div class="count-bar" id="countBar"></div>
+    <button type="button" class="text-btn collapse-all-btn" id="collapseAllBtn" onclick="toggleCollapseAll()" aria-pressed="false">Collapse all</button>
+  </div>
   <div id="grid"></div>
   <div id="empty" style="display:none; text-align:center; padding:4rem 2rem; color:var(--text-muted);">No recipes found.</div>
 </main>
@@ -560,9 +573,17 @@ const SECTIONS_ORDER = [
   { id: 'sides',       label: 'Sides' },
   { id: 'dips',        label: 'Dips' },
   { id: 'baking',      label: 'Baking' },
+];
+/* Recipes filed under these sections are shown on the Drinks tab, below the
+ * cocktails, not on the Recipes tab. The section value itself is unchanged
+ * ('soft-drinks' is still valid data), so the database, the Meal Builder and
+ * the admin pages need no change. */
+const DRINK_SECTIONS = [
   { id: 'soft-drinks', label: 'Soft Drinks' },
 ];
-function sectionLabel(s) { const sec = SECTIONS_ORDER.find(x => x.id === s); return sec ? sec.label : (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Other'); }
+const ALL_SECTIONS = SECTIONS_ORDER.concat(DRINK_SECTIONS);
+function isDrinkSection(s) { return DRINK_SECTIONS.some(x => x.id === s); }
+function sectionLabel(s) { const sec = ALL_SECTIONS.find(x => x.id === s); return sec ? sec.label : (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Other'); }
 function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', beef:'tag-beef', pork:'tag-pork', meat:'tag-beef', chicken:'tag-chicken', veg:'tag-veg', sides:'tag-sides', dips:'tag-dips', baking:'tag-baking', 'soft-drinks':'tag-soft-drinks' }; return map[s] || 'tag-sides'; }
 function tagLabel(s) { return sectionLabel(s); }
 
@@ -692,6 +713,42 @@ function storageSectionHtml(r) {
 const expanded = new Set();
 let activeSection = null;
 
+/* Collapsed sections on the Recipes tab, so the page can be reduced to its
+ * headings. Remembered per browser. Ignored while searching or filtering by
+ * calories, so a search never hides its own results. */
+const COLLAPSE_KEY = 'chefclaude.collapsedSections.v1';
+const collapsedSections = (() => {
+  try { return new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]')); } catch (e) { return new Set(); }
+})();
+function saveCollapsed() { try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedSections])); } catch (e) {} }
+function isFiltering() {
+  return document.getElementById('search').value.trim() !== '' || document.getElementById('calFilter').value !== '';
+}
+function toggleSection(id) {
+  if (collapsedSections.has(id)) collapsedSections.delete(id); else collapsedSections.add(id);
+  saveCollapsed();
+  render();
+}
+function sectionHeaderKey(e, id) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection(id); }
+}
+function toggleCollapseAll() {
+  const ids = SECTIONS_ORDER.map(s => s.id);
+  const allCollapsed = ids.every(id => collapsedSections.has(id));
+  ids.forEach(id => allCollapsed ? collapsedSections.delete(id) : collapsedSections.add(id));
+  saveCollapsed();
+  render();
+}
+function updateCollapseAllBtn() {
+  const btn = document.getElementById('collapseAllBtn');
+  if (!btn) return;
+  const show = currentPage === 'recipes' && !isFiltering() && recipes.some(r => !isDrinkSection(r.section));
+  btn.hidden = !show;
+  const allCollapsed = SECTIONS_ORDER.every(s => collapsedSections.has(s.id));
+  btn.textContent = allCollapsed ? 'Expand all' : 'Collapse all';
+  btn.setAttribute('aria-pressed', String(allCollapsed));
+}
+
 // ── Ingredient scaling ──
 let scaleRecipeId = null;
 let scaleBaseServes = null;
@@ -778,6 +835,7 @@ function updateChromeForPage() {
   document.getElementById('sectionNavWrap').style.display = onRecipes ? '' : 'none';
   document.getElementById('calFilterWrap').style.display = onRecipes ? '' : 'none';
   document.getElementById('addBtn').style.display = onRecipes ? '' : 'none';
+  updateCollapseAllBtn();
   document.getElementById('search').placeholder = currentPage === 'drinks' ? 'Search cocktails…' : currentPage === 'seasonal' ? 'Search produce…' : currentPage === 'foraging' ? 'Search foraging…' : 'Search recipes…';
 }
 
@@ -806,6 +864,11 @@ function updatePillFade() {
 document.getElementById('sectionNav').addEventListener('scroll', updatePillFade, { passive: true });
 window.addEventListener('resize', updatePillFade);
 function onPillClick(e, id) {
+  if (collapsedSections.has(id) && !isFiltering()) {
+    collapsedSections.delete(id);
+    saveCollapsed();
+    render();
+  }
   activeSection = id;
   document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.dataset.section === id); });
 }
@@ -831,15 +894,19 @@ function render() {
     return;
   }
   if (currentPage === 'drinks') {
-    grid.innerHTML = renderCocktailSection(q);
+    const soft = softDrinksShown(q);
+    grid.innerHTML = renderCocktailSection(q) + renderSoftDrinksSection(soft);
     empty.style.display = 'none';
     const shown = drinks.filter(d => spiritMatches(d) && drinkQueryMatches(d, q)).length;
-    document.getElementById('countBar').textContent = shown + ' cocktail' + (shown !== 1 ? 's' : '') + ' · ' + drinks.length + ' total';
+    document.getElementById('countBar').textContent = shown + ' cocktail' + (shown !== 1 ? 's' : '')
+      + (soft.length ? ' · ' + soft.length + ' soft drink' + (soft.length !== 1 ? 's' : '') : '');
     return;
   }
   let totalShown = 0;
   let html = '';
   const visibleSectionIds = new Set();
+  const filtering = isFiltering();
+  const foodCount = recipes.filter(r => !isDrinkSection(r.section)).length;
   for (const sec of SECTIONS_ORDER) {
     const secRecipes = recipes.filter(r => {
       const ms = r.section === sec.id;
@@ -852,20 +919,26 @@ function render() {
     totalShown += secRecipes.length;
     const withRecipe = secRecipes.filter(r => !r.noRecipe).length;
     const countText = withRecipe + ' recipe' + (withRecipe !== 1 ? 's' : '') + (withRecipe !== secRecipes.length ? ' · ' + (secRecipes.length - withRecipe) + ' to add' : '');
-    html += '<div class="section-block" id="sec-' + sec.id + '">'
-      + '<div class="section-header"><h2>' + sec.label + '</h2><span class="section-count">' + countText + '</span></div>'
-      + '<div class="recipe-list">' + secRecipes.map(r => renderRow(r)).join('') + '</div>'
+    const isCollapsed = !filtering && collapsedSections.has(sec.id);
+    const sectionChevron = '<svg class="section-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
+    const header = filtering
+      ? '<div class="section-header"><h2>' + sec.label + '</h2><span class="section-count">' + countText + '</span></div>'
+      : '<div class="section-header toggle" role="button" tabindex="0" aria-expanded="' + !isCollapsed + '" aria-controls="list-' + sec.id + '" onclick="toggleSection(\'' + sec.id + '\')" onkeydown="sectionHeaderKey(event, \'' + sec.id + '\')">'
+        + '<h2>' + sec.label + '</h2><span class="section-count">' + countText + '</span>' + sectionChevron + '</div>';
+    html += '<div class="section-block' + (isCollapsed ? ' collapsed' : '') + '" id="sec-' + sec.id + '">'
+      + header
+      + '<div class="recipe-list" id="list-' + sec.id + '">' + secRecipes.map(r => renderRow(r)).join('') + '</div>'
       + '</div>';
   }
   if (!totalShown) {
     grid.innerHTML = '';
-    empty.textContent = recipes.length ? 'No recipes found.'
+    empty.textContent = foodCount ? 'No recipes found.'
       : seedState === 'loading' ? 'Loading recipes…'
       : 'Could not load the recipe book — check your connection and refresh.';
     empty.style.display = 'block';
   }
   else { empty.style.display = 'none'; grid.innerHTML = html; }
-  document.getElementById('countBar').textContent = !recipes.length && seedState === 'loading' ? '' : recipes.length + ' recipes · ' + totalShown + ' shown';
+  document.getElementById('countBar').textContent = !recipes.length && seedState === 'loading' ? '' : foodCount + ' recipes · ' + totalShown + ' shown';
   if (!activeSection || !visibleSectionIds.has(activeSection)) { activeSection = visibleSectionIds.values().next().value || null; }
   renderNav(visibleSectionIds);
 }
@@ -1072,9 +1145,9 @@ function setupScrollspy() {
 function populateCategorySelect() {
   const sel = document.getElementById('f-cat');
   if (!sel) return;
-  sel.innerHTML = SECTIONS_ORDER
-    .map(sec => '<option value="' + sec.id + '">' + escapeHtml(sec.label) + '</option>')
-    .join('');
+  const opts = list => list.map(sec => '<option value="' + sec.id + '">' + escapeHtml(sec.label) + '</option>').join('');
+  sel.innerHTML = '<optgroup label="Recipes">' + opts(SECTIONS_ORDER) + '</optgroup>'
+    + '<optgroup label="Drinks tab">' + opts(DRINK_SECTIONS) + '</optgroup>';
 }
 populateCategorySelect();
 
@@ -1390,6 +1463,24 @@ function renderCocktailSection(q) {
     + '<div class="spirit-filter">' + spiritButtons + '</div>'
     + '<div class="recipe-list">' + rows + '</div>'
     + emptyMsg + '</div>';
+}
+
+/* Soft drinks are ordinary recipes (from recipes.json and the database), so
+ * they use the recipe row and recipe modal. No spirit in them, so they only
+ * show under the All filter. */
+function softDrinksShown(q) {
+  if (currentSpirit !== 'all') return [];
+  return recipes
+    .filter(r => isDrinkSection(r.section))
+    .filter(r => !q || r.title.toLowerCase().includes(q) || (r.description || '').toLowerCase().includes(q))
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+function renderSoftDrinksSection(list) {
+  if (!list.length) return '';
+  return '<div class="section-block" id="sec-soft-drinks">'
+    + '<div class="section-header"><h2>Soft Drinks</h2><span class="section-count">' + list.length + '</span></div>'
+    + '<div class="recipe-list">' + list.map(r => renderRow(r)).join('') + '</div>'
+    + '</div>';
 }
 
 function openCocktailDetail(idx) {
@@ -1841,7 +1932,8 @@ async function openFromHash() {
   }
   const m = hash.match(/^recipe-(.+)$/);
   if (m) {
-    if (recipes.some(r => r.id === m[1])) { switchToPage('recipes'); openDetail(m[1]); }
+    const hit = recipes.find(r => r.id === m[1]);
+    if (hit) { switchToPage(isDrinkSection(hit.section) ? 'drinks' : 'recipes'); openDetail(m[1]); }
     return;
   }
   if (['seasonal', 'foraging', 'drinks'].includes(hash)) switchToPage(hash);
