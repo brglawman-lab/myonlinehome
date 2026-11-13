@@ -192,7 +192,7 @@ async function route(request, env, ctx) {
         return json({ error: `${method} not allowed here` }, 405);
       }
 
-      // ---- Friday cleaning checklist (signed in only) ----
+      // ---- cleaning list (signed in only) ----
       if (path === "/admin/api/cleaning") {
         if (method === "GET") return listCleaning(request, env);
         if (method === "POST") return saveCleaning(request, env);

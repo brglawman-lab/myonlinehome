@@ -28,9 +28,9 @@ prefix has to be added there or it will just get the 404 page.
 | `/contact/` | Contact form. Messages are stored in D1 (`contact_messages`) and read at `/admin/messages/` — no email address is published | authored here |
 | `/admin/sitemap/` | Site map — every page and endpoint grouped by who can reach it, with a link checker. Signed in only (it was public at `/sitemap/` until October 2026). **Add new pages to its list** | authored here |
 | `/signin/` | Sign-in for the owner. A normal username/password form so Chrome's password manager saves it, plus the Credential Management API so Chrome signs straight in next time. Goes to `/admin/` | authored here |
-| `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Shopping list** (`/admin/shopping/`), the **Friday clean** checklist (`/admin/cleaning/`), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
+| `/admin/` | The owner's area, behind the sign-in: **Photos** (`/admin/photos/` — upload to and remove from the gallery), **Recipes** (`/admin/recipes/` — delete here; add and edit open the recipe book's own form), the **Shopping list** (`/admin/shopping/`), the **Cleaning list** (`/admin/cleaning/`), the **Room storage tracker** (`/admin/storage/`), **Messages** (`/admin/messages/`) and **The Cookbook** (`/admin/cookbook/`). The old `/private/` addresses redirect here | authored here |
 | `/privacy/` | Privacy notice. Update it if the site starts collecting anything new or loads a new third-party service | authored here |
-| `/admin/dashboard/` | Dashboard — what's on, what's fresh, bin day, the Friday clean and the storage watch. Behind the sign-in; it was public at `/dashboard/` until November 2026, which now redirects here (`/food/` does too) | authored here |
+| `/admin/dashboard/` | Dashboard — what's on, what's fresh, bin day, the cleaning list and the storage watch. Behind the sign-in; it was public at `/dashboard/` until November 2026, which now redirects here (`/food/` does too) | authored here |
 | `/admin/cookbook/` | The Cookbook — the recipe book typeset as a page-turning book, built live from `/recipes/`. Work in progress: behind the sign-in and not linked from any public page (reach it from `/admin/`) | authored here |
 | `/admin/benicity/` | Benicity Cloake — the testing kitchen: each dish researched (how other cooks do it), then a recipe builder with effort presets; "Add to the recipe book" writes the chosen version to the database. Behind the sign-in; it was public at `/recipes/benicity/` until October 2026, which now redirects here. Add a dish by appending to `DISHES` | authored here |
 | `/photos/` | Photography hub — links to the wildlife photography gallery | authored here |
@@ -62,7 +62,7 @@ Static site served by Cloudflare Pages, connected to this repo. Every push to
     GET  /api/session                    public — {signedIn, configured}
     GET  /api/bar-stock                  public — {have: [item ids], updatedAt}
     POST /admin/api/bar-stock            signed in — {set: {itemId: true|false}}
-    GET  /admin/api/cleaning             signed in — {tasks}: the Friday cleaning checklist
+    GET  /admin/api/cleaning             signed in — {tasks}: the cleaning list
     POST /admin/api/cleaning             signed in — save jobs (newest change wins)
     POST /api/signin                     public (10 wrong attempts/hour per connection)
     POST /api/signout                    public
@@ -171,17 +171,18 @@ cookbook. Photo files are committed under `public/recipes/photos/` (about
 array in the existing `image` column, so no migration was needed; a database
 row with no photos of its own keeps the photos listed in the file.
 
-**Friday clean.** `/admin/cleaning/` (`src/cleaning.js`, D1 `cleaning_tasks`)
-is the weekly cleaning checklist. Each job has an owner — Ben, Jodie or
-nobody yet — which carries over from week to week, and a `doneOn` date: the
-Friday (UK time) it was ticked for. A job only counts as done while that is
-this week's Friday, so the ticks clear themselves with nothing scheduled. The
-Everyone / Ben / Jodie switch at the top is remembered per browser, so each
-phone can open on its own person's jobs. Sync works like the shopping list:
-local copy, queued changes, newest change wins. The Worker fills an empty
-table with the starting list; deletes are soft, so it never refills. The
-dashboard's "At home" section and the `/admin/` card show this week's
-progress, using the same Friday rule.
+**Cleaning list.** `/admin/cleaning/` (`src/cleaning.js`, D1 `cleaning_tasks`)
+has two sections, Inside and Outside. Each job has an owner — Ben, Jodie,
+both, or nobody yet — and a `doneOn` date (the UK date it was ticked). Ticks
+stay until someone presses "Untick everything"; nothing resets on a schedule,
+and owners are kept through a reset. The Everyone / Ben / Jodie switch at the
+top is remembered per browser, so each phone can open on its own person's
+jobs; a person's view includes jobs marked Both. Sync works like the shopping
+list: local copy, queued changes, newest change wins. The starting jobs are
+`DEFAULT_TASKS` in `src/cleaning.js`, written with INSERT OR IGNORE on first
+use — adding a line there adds that job to the live list on the next deploy,
+and a job removed on the page stays removed (deletes are soft). The
+dashboard's "At home" section and the `/admin/` card show progress.
 
 **Shopping list.** `/admin/shopping/` (`src/shopping.js`) is a list shared
 between phones. It keeps a copy in localStorage and queues changes made with

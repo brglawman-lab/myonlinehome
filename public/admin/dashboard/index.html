@@ -110,7 +110,7 @@
   .bin-msg { font-size: 0.8rem; color: var(--rust); margin-top: 0.5rem; min-height: 1em; }
   .link-btn { background: none; border: none; color: var(--rust); padding: 0; font-size: 0.82rem; }
 
-  /* ---------- Friday clean ---------- */
+  /* ---------- cleaning list ---------- */
   .clean-bar { height: 8px; border-radius: 999px; background: rgba(45,74,62,0.1); overflow: hidden; display: flex; margin: 0.2rem 0 0.7rem; }
   .clean-bar span { display: block; height: 100%; }
   .clean-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-size: 0.88rem; }
@@ -447,27 +447,19 @@ async function loadCleaning() {
     return Array.isArray(data.tasks) ? data.tasks : null;
   } catch (e) { return null; }
 }
-/* This week's cleaning day: the Friday on or before today, UK time — the same
- * rule as /admin/cleaning/, where a job is done only if doneOn is this date. */
-function cleaningFriday() {
-  const p = {};
-  for (const x of new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())) p[x.type] = x.value;
-  const d = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
-  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 2) % 7));
-  return d.toISOString().slice(0, 10);
-}
+/* The cleaning list (/admin/cleaning/): a job is done while it has a doneOn
+ * date — ticks stay until "Untick everything" on that page. */
 function cleaningWidget(tasks) {
-  const foot = '<a href="/admin/cleaning/">Open the checklist</a>';
-  if (!tasks) return widget('Friday clean', null, '<p class="widget-muted">Could not load the checklist.</p>', foot);
-  if (!tasks.length) return widget('Friday clean', 'No jobs yet', '<p class="widget-muted">Add some jobs to the checklist.</p>', foot);
-  const friday = cleaningFriday();
-  const groups = [['ben', 'Ben', 'var(--forest)'], ['jodie', 'Jodie', 'var(--rust)'], [null, 'Nobody yet', 'var(--sage)']];
+  const foot = '<a href="/admin/cleaning/">Open the cleaning list</a>';
+  if (!tasks) return widget('Cleaning list', null, '<p class="widget-muted">Could not load the cleaning list.</p>', foot);
+  if (!tasks.length) return widget('Cleaning list', 'No jobs yet', '<p class="widget-muted">Add some jobs to the list.</p>', foot);
+  const groups = [['ben', 'Ben', 'var(--forest)'], ['jodie', 'Jodie', 'var(--rust)'], ['both', 'Both', 'var(--earth)'], [null, 'Nobody yet', 'var(--sage)']];
   const total = tasks.length;
   let doneAll = 0, bar = '', rows = '';
   for (const [key, name, colour] of groups) {
     const mine = tasks.filter(t => (t.owner || null) === key);
     if (!mine.length) continue;
-    const done = mine.filter(t => t.doneOn === friday).length;
+    const done = mine.filter(t => t.doneOn).length;
     doneAll += done;
     bar += '<span style="width:' + (done / total * 100) + '%;background:' + colour + '"></span>';
     const left = mine.length - done;
@@ -475,7 +467,7 @@ function cleaningWidget(tasks) {
       + done + ' of ' + mine.length + (left ? ' · ' + left + ' to go' : ' · all done') + '</span></div>';
   }
   const title = doneAll === total ? 'All done' : doneAll + ' of ' + total + ' done';
-  return widget('Friday clean', title, '<div class="clean-bar">' + bar + '</div>' + rows, foot);
+  return widget('Cleaning list', title, '<div class="clean-bar">' + bar + '</div>' + rows, foot);
 }
 async function isSignedIn() {
   try {
@@ -484,7 +476,7 @@ async function isSignedIn() {
   } catch (e) { return false; }
 }
 
-/* Bin day, the cleaning checklist and the storage watch are only for the owner, so they are only
+/* Bin day, the cleaning list and the storage watch are only for the owner, so they are only
  * fetched — and the section only shown — when this browser is signed in. */
 async function renderAdmin() {
   const [bins, storage, cleaning] = await Promise.all([loadBins(), loadStorage(), loadCleaning()]);

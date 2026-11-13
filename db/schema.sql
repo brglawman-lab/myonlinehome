@@ -170,11 +170,11 @@ CREATE TABLE IF NOT EXISTS site_settings (
   updated_at TEXT NOT NULL
 );
 
--- The Friday cleaning checklist at /admin/cleaning/ (src/cleaning.js). Also
--- created by the Worker on first use, which fills an empty table with the
--- starting list. owner: 'ben', 'jodie' or NULL. done_on: the Friday (YYYY-MM-DD)
--- the job was ticked for — it only counts as done while that is this week's
--- Friday, so the ticks clear themselves. Soft deletes.
+-- The cleaning list at /admin/cleaning/ (src/cleaning.js). Also created by
+-- the Worker on first use, which adds the starting jobs (INSERT OR IGNORE) and
+-- adds `section` to a table made before sections existed. section: 'inside'
+-- or 'outside'. owner: 'ben', 'jodie', 'both' or NULL. done_on: the UK date the
+-- job was ticked; ticks stay until unticked on the page. Soft deletes.
 CREATE TABLE IF NOT EXISTS cleaning_tasks (
   id          TEXT PRIMARY KEY,
   label       TEXT NOT NULL,
@@ -182,7 +182,8 @@ CREATE TABLE IF NOT EXISTS cleaning_tasks (
   done_on     TEXT,
   sort        INTEGER NOT NULL DEFAULT 0,
   updated_at  TEXT NOT NULL,
-  deleted_at  TEXT
+  deleted_at  TEXT,
+  section     TEXT NOT NULL DEFAULT 'inside'
 );
 
 -- Bar stock for /recipes/bar-stock/ and the guest cocktail menu

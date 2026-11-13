@@ -46,8 +46,8 @@
       <span class="stat" id="shopStat"></span>
     </a>
     <a class="card" href="/admin/cleaning/">
-      <h2>Friday clean</h2>
-      <p>The weekly cleaning checklist. Tick jobs off and switch who's doing what between Ben and Jodie.</p>
+      <h2>Cleaning list</h2>
+      <p>Inside and outside jobs. Tick them off and say who's doing what — Ben, Jodie or both.</p>
       <span class="stat" id="cleanStat"></span>
     </a>
     <a class="card" href="/admin/storage/">
@@ -112,14 +112,9 @@ getJson('/admin/api/shopping').then(d => {
 });
 getJson('/admin/api/cleaning').then(d => {
   if (!d || !Array.isArray(d.tasks)) return;
-  // This week's Friday in UK time — the same rule as /admin/cleaning/.
-  const p = {};
-  for (const x of new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())) p[x.type] = x.value;
-  const f = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
-  f.setUTCDate(f.getUTCDate() - ((f.getUTCDay() + 2) % 7));
-  const done = d.tasks.filter(t => t.doneOn === f.toISOString().slice(0, 10)).length;
+  const done = d.tasks.filter(t => t.doneOn).length;
   document.getElementById('cleanStat').textContent = !d.tasks.length ? 'No jobs on the list.'
-    : done === d.tasks.length ? 'All done this week.' : done + ' of ' + d.tasks.length + ' done this week';
+    : done === d.tasks.length ? 'All done.' : done + ' of ' + d.tasks.length + ' done';
 });
 getJson('/api/storage-rooms').then(d => {
   if (Array.isArray(d)) document.getElementById('roomStat').textContent = d.length ? plural(d.length, 'room') : 'No rooms yet.';
