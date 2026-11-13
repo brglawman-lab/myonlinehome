@@ -110,6 +110,13 @@
   .bin-msg { font-size: 0.8rem; color: var(--rust); margin-top: 0.5rem; min-height: 1em; }
   .link-btn { background: none; border: none; color: var(--rust); padding: 0; font-size: 0.82rem; }
 
+  /* ---------- Friday clean ---------- */
+  .clean-bar { height: 8px; border-radius: 999px; background: rgba(45,74,62,0.1); overflow: hidden; display: flex; margin: 0.2rem 0 0.7rem; }
+  .clean-bar span { display: block; height: 100%; }
+  .clean-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-size: 0.88rem; }
+  .clean-row .who { font-weight: 500; }
+  .clean-row .left { color: var(--mid-grey); font-size: 0.82rem; text-align: right; }
+
 
 
   @media (max-width: 600px) {
@@ -432,6 +439,44 @@ async function loadBins() {
     return data;
   } catch (e) { return null; }
 }
+async function loadCleaning() {
+  try {
+    const res = await fetch('/admin/api/cleaning', { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data.tasks) ? data.tasks : null;
+  } catch (e) { return null; }
+}
+/* This week's cleaning day: the Friday on or before today, UK time — the same
+ * rule as /admin/cleaning/, where a job is done only if doneOn is this date. */
+function cleaningFriday() {
+  const p = {};
+  for (const x of new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())) p[x.type] = x.value;
+  const d = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 2) % 7));
+  return d.toISOString().slice(0, 10);
+}
+function cleaningWidget(tasks) {
+  const foot = '<a href="/admin/cleaning/">Open the checklist</a>';
+  if (!tasks) return widget('Friday clean', null, '<p class="widget-muted">Could not load the checklist.</p>', foot);
+  if (!tasks.length) return widget('Friday clean', 'No jobs yet', '<p class="widget-muted">Add some jobs to the checklist.</p>', foot);
+  const friday = cleaningFriday();
+  const groups = [['ben', 'Ben', 'var(--forest)'], ['jodie', 'Jodie', 'var(--rust)'], [null, 'Nobody yet', 'var(--sage)']];
+  const total = tasks.length;
+  let doneAll = 0, bar = '', rows = '';
+  for (const [key, name, colour] of groups) {
+    const mine = tasks.filter(t => (t.owner || null) === key);
+    if (!mine.length) continue;
+    const done = mine.filter(t => t.doneOn === friday).length;
+    doneAll += done;
+    bar += '<span style="width:' + (done / total * 100) + '%;background:' + colour + '"></span>';
+    const left = mine.length - done;
+    rows += '<div class="clean-row"><span class="who" style="color:' + colour + '">' + name + '</span><span class="left">'
+      + done + ' of ' + mine.length + (left ? ' · ' + left + ' to go' : ' · all done') + '</span></div>';
+  }
+  const title = doneAll === total ? 'All done' : doneAll + ' of ' + total + ' done';
+  return widget('Friday clean', title, '<div class="clean-bar">' + bar + '</div>' + rows, foot);
+}
 async function isSignedIn() {
   try {
     const res = await fetch('/api/session', { cache: 'no-store' });
@@ -439,11 +484,11 @@ async function isSignedIn() {
   } catch (e) { return false; }
 }
 
-/* Bin day and the storage watch are only for the owner, so they are only
+/* Bin day, the cleaning checklist and the storage watch are only for the owner, so they are only
  * fetched — and the section only shown — when this browser is signed in. */
 async function renderAdmin() {
-  const [bins, storage] = await Promise.all([loadBins(), loadStorage()]);
-  document.getElementById('adminGrid').innerHTML = [binsWidget(bins), storageWidget(storage)].join('');
+  const [bins, storage, cleaning] = await Promise.all([loadBins(), loadStorage(), loadCleaning()]);
+  document.getElementById('adminGrid').innerHTML = [binsWidget(bins), cleaningWidget(cleaning), storageWidget(storage)].join('');
   document.getElementById('adminSection').hidden = false;
 }
 

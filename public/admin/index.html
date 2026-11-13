@@ -45,6 +45,11 @@
       <p>The shared list. Tick things off in the shop, add by voice, or send a recipe's ingredients here.</p>
       <span class="stat" id="shopStat"></span>
     </a>
+    <a class="card" href="/admin/cleaning/">
+      <h2>Friday clean</h2>
+      <p>The weekly cleaning checklist. Tick jobs off and switch who's doing what between Ben and Jodie.</p>
+      <span class="stat" id="cleanStat"></span>
+    </a>
     <a class="card" href="/admin/storage/">
       <h2>Room storage tracker</h2>
       <p>Temperature and humidity readings for the places food is kept, with trend charts and CSV export.</p>
@@ -104,6 +109,17 @@ getJson('/admin/api/shopping').then(d => {
   if (!Array.isArray(d)) return;
   const n = d.filter(i => !i.done).length;
   document.getElementById('shopStat').textContent = n ? plural(n, 'thing') + ' to buy' : 'Nothing on the list.';
+});
+getJson('/admin/api/cleaning').then(d => {
+  if (!d || !Array.isArray(d.tasks)) return;
+  // This week's Friday in UK time — the same rule as /admin/cleaning/.
+  const p = {};
+  for (const x of new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())) p[x.type] = x.value;
+  const f = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
+  f.setUTCDate(f.getUTCDate() - ((f.getUTCDay() + 2) % 7));
+  const done = d.tasks.filter(t => t.doneOn === f.toISOString().slice(0, 10)).length;
+  document.getElementById('cleanStat').textContent = !d.tasks.length ? 'No jobs on the list.'
+    : done === d.tasks.length ? 'All done this week.' : done + ' of ' + d.tasks.length + ' done this week';
 });
 getJson('/api/storage-rooms').then(d => {
   if (Array.isArray(d)) document.getElementById('roomStat').textContent = d.length ? plural(d.length, 'room') : 'No rooms yet.';

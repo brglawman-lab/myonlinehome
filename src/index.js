@@ -32,6 +32,7 @@ import { listShopping, saveShopping, addShopping, getVoiceKey, replaceVoiceKey, 
 import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, restoreGalleryPhoto } from "./gallery.js";
 import { getBarStock, saveBarStock } from "./barstock.js";
 import { getBins, findAddresses, saveAddress } from "./bins.js";
+import { listCleaning, saveCleaning } from "./cleaning.js";
 
 /* The old /private/ pages moved to /admin/. The site map is /admin/sitemap/ (signed in only). */
 const MOVED = {
@@ -188,6 +189,13 @@ async function route(request, env, ctx) {
       }
       if (path === "/admin/api/bins/address") {
         if (method === "POST") return saveAddress(request, env);
+        return json({ error: `${method} not allowed here` }, 405);
+      }
+
+      // ---- Friday cleaning checklist (signed in only) ----
+      if (path === "/admin/api/cleaning") {
+        if (method === "GET") return listCleaning(request, env);
+        if (method === "POST") return saveCleaning(request, env);
         return json({ error: `${method} not allowed here` }, 405);
       }
 

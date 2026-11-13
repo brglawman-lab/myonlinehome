@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Friday clean — My Online Home</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  :root { --ben:#2d4a3e; --jodie:#c4622d; }
+  .sub { margin-bottom:1.25rem; }
+
+  /* ---- summary ---- */
+  .summary { padding:1.1rem 1.25rem; }
+  .summary-top { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom:0.55rem; }
+  .summary-count { font-family:'Playfair Display',Georgia,serif; font-size:1.25rem; color:var(--forest); }
+  .summary-note { font-size:0.85rem; color:var(--mid-grey); text-align:right; }
+  .bar { height:8px; border-radius:999px; background:rgba(45,74,62,0.1); overflow:hidden; display:flex; }
+  .bar span { display:block; height:100%; transition:width .25s; }
+  .bar .b { background:var(--ben); }
+  .bar .j { background:var(--jodie); }
+  .bar .n { background:var(--sage); }
+  .people { display:flex; flex-wrap:wrap; gap:0.35rem 1.25rem; margin-top:0.7rem; font-size:0.85rem; color:var(--mid-grey); }
+  .people b { font-weight:500; }
+  .people .ben b { color:var(--ben); }
+  .people .jodie b { color:var(--jodie); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px; }
+
+  /* ---- whose jobs to show ---- */
+  .views { display:flex; gap:4px; background:var(--warm-white); border:1px solid var(--border); border-radius:999px;
+           padding:4px; margin:0 0 1rem; }
+  .views[hidden] { display:none; }
+  .views button { flex:1; font:inherit; font-size:0.9rem; font-weight:500; border:none; background:none; color:var(--forest);
+                  border-radius:999px; padding:0.5rem 0.4rem; cursor:pointer; white-space:nowrap; }
+  .views button small { font-weight:400; opacity:0.75; margin-left:4px; }
+  .views button[aria-pressed="true"] { background:var(--forest); color:var(--cream); }
+  .views button[data-view="jodie"][aria-pressed="true"] { background:var(--jodie); }
+
+  /* ---- the jobs ---- */
+  .jobs { list-style:none; background:var(--warm-white); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .job { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 0.9rem 0.7rem 0.75rem; border-top:1px solid var(--border);
+         border-left:4px solid transparent; }
+  .job:first-child { border-top:none; }
+  .job.ben { border-left-color:var(--ben); }
+  .job.jodie { border-left-color:var(--jodie); }
+  .tick { flex:1; min-width:0; display:flex; align-items:center; gap:0.75rem; cursor:pointer; padding:0.15rem 0; }
+  .tick input { position:absolute; opacity:0; width:1px; height:1px; }
+  .box { flex:none; width:26px; height:26px; border-radius:7px; border:2px solid rgba(45,74,62,0.35); background:#fff;
+         display:flex; align-items:center; justify-content:center; transition:background .15s, border-color .15s; }
+  .box svg { width:16px; height:16px; opacity:0; }
+  .tick input:checked + .box { background:var(--forest); border-color:var(--forest); }
+  .tick input:checked + .box svg { opacity:1; }
+  .tick input:focus-visible + .box { outline:2px solid var(--sage); outline-offset:2px; }
+  .job-label { font-size:1rem; line-height:1.35; overflow-wrap:anywhere; }
+  .job.done .job-label { color:var(--mid-grey); text-decoration:line-through; text-decoration-color:rgba(42,42,42,0.35); }
+
+  .who { flex:none; display:flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+  .who button { font:inherit; font-size:0.8rem; font-weight:500; border:none; background:#fff; color:var(--mid-grey);
+                padding:0.35rem 0.7rem; cursor:pointer; min-width:3.4rem; }
+  .who button + button { border-left:1px solid var(--border); }
+  .who button[data-owner="ben"][aria-pressed="true"] { background:var(--ben); color:var(--cream); }
+  .who button[data-owner="jodie"][aria-pressed="true"] { background:var(--jodie); color:#fff; }
+
+  .group-label { font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--sage); font-weight:500;
+                 margin:1.4rem 0 0.5rem; }
+  .empty { padding:1rem 1.1rem; color:var(--mid-grey); font-style:italic; font-size:0.92rem; }
+
+  /* ---- editing the list ---- */
+  .edit-row { display:flex; align-items:center; gap:0.4rem; padding:0.55rem 0.75rem; border-top:1px solid var(--border); }
+  .edit-row:first-child { border-top:none; }
+  .edit-row input { flex:1; min-width:0; font:inherit; font-size:0.95rem; border:1px solid rgba(45,74,62,0.25); border-radius:8px;
+                    padding:0.45rem 0.6rem; background:#fff; color:var(--charcoal); }
+  .edit-row input:focus { outline:2px solid var(--sage); outline-offset:1px; }
+  .icon-btn { flex:none; font:inherit; font-size:0.9rem; width:2.1rem; height:2.1rem; border-radius:8px; border:1px solid var(--border);
+              background:#fff; color:var(--forest); cursor:pointer; }
+  .icon-btn:disabled { opacity:0.35; cursor:default; }
+  .edit-row .btn.danger { padding:0.3rem 0.7rem; }
+  .add-row { display:flex; gap:0.5rem; margin-top:0.8rem; }
+  .add-row input { flex:1; min-width:0; font:inherit; font-size:0.95rem; border:1px solid rgba(45,74,62,0.25); border-radius:999px;
+                   padding:0.5rem 0.9rem; background:#fff; }
+
+  .actions { display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1.25rem; align-items:center; }
+  .actions .note { flex-basis:100%; font-size:0.82rem; margin-top:0.2rem; }
+
+  .sync { position:fixed; right:14px; bottom:14px; z-index:50; background:var(--warm-white); border:1px solid var(--border);
+          color:var(--forest); border-radius:999px; padding:0.4rem 0.9rem; font-size:0.82rem; box-shadow:0 2px 12px rgba(0,0,0,0.12); }
+  .sync.err { color:var(--danger); }
+
+  @media (max-width:420px) {
+    .who button { min-width:3rem; padding:0.35rem 0.55rem; }
+    .views button small { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a><a href="/admin/dashboard/">Dashboard</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Friday clean</h1>
+  <p class="sub" id="when">&nbsp;</p>
+
+  <div class="panel summary" id="summary"></div>
+
+  <div class="views" id="views">
+    <button type="button" data-view="all">Everyone</button>
+    <button type="button" data-view="ben">Ben</button>
+    <button type="button" data-view="jodie">Jodie</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="actions" id="actions"></div>
+</div>
+<div class="sync" id="sync" hidden></div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* ===========================================================================
+ * Friday cleaning checklist. The jobs live in D1 (src/cleaning.js) so a tick
+ * on one phone shows on the other. Each job has an owner (Ben, Jodie or
+ * nobody yet) that carries over week to week, and a `doneOn` date: the
+ * Friday it was ticked for. A job only counts as done while doneOn is this
+ * week's Friday, so the ticks clear themselves — nothing has to run.
+ *
+ * Changes are shown at once, kept in localStorage, and sent in the
+ * background; anything that fails to send is retried when the connection
+ * comes back. Every change carries the time it was made and the server keeps
+ * the newest, so ticking on two phones at once is fine. The page re-reads the
+ * list when it comes back into view and every 30 seconds while open.
+ * ======================================================================== */
+const CACHE_KEY = 'cleaning.tasks.v1';
+const PENDING_KEY = 'cleaning.pending.v1';
+const VIEW_KEY = 'cleaning.view.v1';
+const API = '/admin/api/cleaning';
+const NAMES = { ben: 'Ben', jodie: 'Jodie' };
+const TICK_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="#f5f0e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+
+function readJson(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; } }
+function writeJson(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+
+/* This week's cleaning day: the Friday on or before today, in UK time. */
+function currentFriday(now) {
+  const p = {};
+  for (const x of new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now || new Date())) p[x.type] = x.value;
+  const d = new Date(Date.UTC(+p.year, +p.month - 1, +p.day));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 2) % 7)); // Fri → 0 back, Sat → 1, … Thu → 6
+  return d.toISOString().slice(0, 10);
+}
+function longDate(iso) {
+  return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+}
+
+let tasks = readJson(CACHE_KEY, []);
+let pending = readJson(PENDING_KEY, {});      // id → the latest version of a row not yet saved
+let view = readJson(VIEW_KEY, 'all');
+let editing = false;
+let round = currentFriday();
+let syncFailed = false;
+
+const isDone = (t) => t.doneOn === round;
+const live = () => tasks.filter(t => !t.deleted).sort((a, b) => (a.sort - b.sort) || a.label.localeCompare(b.label));
+
+/* Server rows, with anything still waiting to be sent laid over the top. */
+function merge(serverTasks) {
+  const byId = new Map(serverTasks.map(t => [t.id, t]));
+  for (const id in pending) byId.set(id, pending[id]);
+  tasks = Array.from(byId.values());
+  writeJson(CACHE_KEY, tasks);
+}
+
+/* quiet: don't redraw — used for renaming, where a redraw would rebuild the
+ * inputs (and the Done button) under the pointer. */
+function change(id, patch, quiet) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  Object.assign(t, patch, { updatedAt: new Date().toISOString() });
+  pending[id] = Object.assign({}, t);
+  writeJson(PENDING_KEY, pending);
+  writeJson(CACHE_KEY, tasks);
+  if (!quiet) render();
+  flush();
+}
+
+let flushing = false, retryTimer = null;
+async function flush() {
+  if (flushing) return;
+  const rows = Object.values(pending);
+  if (!rows.length) { syncFailed = false; renderSync(); return; }
+  flushing = true;
+  renderSync();
+  try {
+    const data = await adminFetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(rows) });
+    for (const r of rows) if (pending[r.id] && pending[r.id].updatedAt === r.updatedAt) delete pending[r.id];
+    writeJson(PENDING_KEY, pending);
+    syncFailed = false;
+    if (!editing) { merge(data.tasks || []); render(); }
+  } catch (e) {
+    syncFailed = true;
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(flush, 20000);
+  } finally {
+    flushing = false;
+    renderSync();
+    if (!syncFailed && Object.keys(pending).length) flush(); // changed again while that was in flight
+  }
+}
+
+async function refresh() {
+  if (editing || flushing) return;
+  try {
+    const data = await adminFetch(API, { cache: 'no-store' });
+    merge(data.tasks || []);
+    round = currentFriday();
+    render();
+  } catch (e) { /* stay on the cached copy */ }
+  if (Object.keys(pending).length) flush();
+}
+
+/* ---------- drawing ---------- */
+function counts(list) {
+  const c = { all: [0, 0], ben: [0, 0], jodie: [0, 0], none: [0, 0] };
+  for (const t of list) {
+    const k = t.owner || 'none';
+    c[k][1]++; c.all[1]++;
+    if (isDone(t)) { c[k][0]++; c.all[0]++; }
+  }
+  return c;
+}
+
+function render() {
+  const list = live();
+  const c = counts(list);
+  document.getElementById('when').textContent = longDate(round) + ' · the ticks clear themselves each Friday';
+
+  // summary
+  const [done, total] = c.all;
+  const pct = (n) => total ? (n / total * 100) + '%' : '0';
+  const left = total - done;
+  let headline = total ? done + ' of ' + total + ' done' : 'No jobs on the list';
+  let note = '';
+  if (total && !left) note = 'All done. Enjoy the weekend.';
+  else if (total) note = left + ' to go';
+  const person = (k, cls, label) => c[k][1]
+    ? '<span class="' + cls + '"><span class="dot" style="background:var(--' + (k === 'none' ? 'sage' : k) + ')"></span><b>' + label + '</b> ' + c[k][0] + '/' + c[k][1] + '</span>' : '';
+  document.getElementById('summary').innerHTML =
+    '<div class="summary-top"><span class="summary-count">' + headline + '</span><span class="summary-note">' + note + '</span></div>'
+    + '<div class="bar" role="img" aria-label="' + done + ' of ' + total + ' done">'
+    + '<span class="b" style="width:' + pct(c.ben[0]) + '"></span><span class="j" style="width:' + pct(c.jodie[0]) + '"></span><span class="n" style="width:' + pct(c.none[0]) + '"></span></div>'
+    + '<div class="people">' + person('ben', 'ben', 'Ben') + person('jodie', 'jodie', 'Jodie') + person('none', '', 'Nobody yet') + '</div>';
+
+  // view switch
+  document.querySelectorAll('#views button').forEach(b => {
+    const v = b.dataset.view;
+    b.setAttribute('aria-pressed', String(v === view));
+    const n = c[v] || c.all;
+    b.innerHTML = (v === 'all' ? 'Everyone' : NAMES[v]) + (n[1] ? '<small>' + n[0] + '/' + n[1] + '</small>' : '');
+  });
+  document.getElementById('views').hidden = editing;
+
+  document.getElementById('list').innerHTML = editing ? editHtml(list) : listHtml(list);
+  renderActions(list);
+}
+
+function jobHtml(t) {
+  const done = isDone(t);
+  const btn = (o) => '<button type="button" data-owner="' + o + '" aria-pressed="' + (t.owner === o) + '" aria-label="' + NAMES[o] + ' is doing ' + esc(t.label) + '">' + NAMES[o] + '</button>';
+  return '<li class="job' + (done ? ' done' : '') + (t.owner ? ' ' + t.owner : '') + '" data-id="' + esc(t.id) + '">'
+    + '<label class="tick"><input type="checkbox"' + (done ? ' checked' : '') + '><span class="box">' + TICK_SVG + '</span>'
+    + '<span class="job-label">' + esc(t.label) + '</span></label>'
+    + '<div class="who" role="group" aria-label="Who is doing it">' + btn('ben') + btn('jodie') + '</div></li>';
+}
+
+function listHtml(list) {
+  if (!list.length) return '<div class="jobs"><p class="empty">No jobs yet. Use “Edit the list” to add some.</p></div>';
+  if (view === 'all') return '<ul class="jobs">' + list.map(jobHtml).join('') + '</ul>';
+  const mine = list.filter(t => t.owner === view);
+  const nobody = list.filter(t => !t.owner);
+  let html = mine.length ? '<ul class="jobs">' + mine.map(jobHtml).join('') + '</ul>'
+    : '<div class="jobs"><p class="empty">Nothing is down as ' + NAMES[view] + '’s yet. Tap ' + NAMES[view] + ' on a job to take it.</p></div>';
+  if (nobody.length) html += '<p class="group-label">Nobody yet</p><ul class="jobs">' + nobody.map(jobHtml).join('') + '</ul>';
+  return html;
+}
+
+function editHtml(list) {
+  const rows = list.map((t, i) =>
+    '<div class="edit-row" data-id="' + esc(t.id) + '">'
+    + '<input type="text" maxlength="120" value="' + esc(t.label) + '" aria-label="Job name">'
+    + '<button type="button" class="icon-btn" data-move="-1" aria-label="Move up"' + (i === 0 ? ' disabled' : '') + '>&uarr;</button>'
+    + '<button type="button" class="icon-btn" data-move="1" aria-label="Move down"' + (i === list.length - 1 ? ' disabled' : '') + '>&darr;</button>'
+    + '<button type="button" class="btn danger small" data-remove>Remove</button></div>').join('');
+  return '<div class="jobs">' + (rows || '<p class="empty">The list is empty.</p>') + '</div>'
+    + '<form class="add-row" id="addForm"><input type="text" id="addInput" maxlength="120" placeholder="Add a job…" aria-label="New job">'
+    + '<button class="btn" type="submit">Add</button></form>';
+}
+
+function renderActions(list) {
+  const anyDone = list.some(isDone);
+  document.getElementById('actions').innerHTML = editing
+    ? '<button type="button" class="btn" id="doneEditing">Done</button>'
+    : '<button type="button" class="btn secondary" id="startEditing">Edit the list</button>'
+      + (anyDone ? '<button type="button" class="btn danger" id="untickAll">Untick everything</button>' : '')
+      + '<p class="note">Tap Ben or Jodie on a job to say who’s doing it; tap it again to clear it. Who does what stays the same each week.</p>';
+}
+
+function renderSync() {
+  const el = document.getElementById('sync');
+  const n = Object.keys(pending).length;
+  if (!n) { el.hidden = true; return; }
+  el.hidden = false;
+  el.className = 'sync' + (syncFailed ? ' err' : '');
+  el.textContent = syncFailed ? (navigator.onLine === false ? 'Offline — will save when you’re back' : 'Not saved yet — retrying') : 'Saving…';
+}
+
+/* ---------- interaction ---------- */
+document.getElementById('views').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-view]');
+  if (!b) return;
+  view = b.dataset.view;
+  writeJson(VIEW_KEY, view);
+  render();
+});
+
+document.getElementById('list').addEventListener('change', (e) => {
+  const job = e.target.closest('.job');
+  if (job && e.target.type === 'checkbox') { change(job.dataset.id, { doneOn: e.target.checked ? round : null }); return; }
+  const row = e.target.closest('.edit-row');
+  if (row && e.target.tagName === 'INPUT') {
+    const label = e.target.value.trim();
+    if (label) change(row.dataset.id, { label }, true);
+    else { const t = tasks.find(x => x.id === row.dataset.id); if (t) e.target.value = t.label; }
+  }
+});
+
+document.getElementById('list').addEventListener('click', (e) => {
+  const ownerBtn = e.target.closest('.who button');
+  if (ownerBtn) {
+    const id = ownerBtn.closest('.job').dataset.id;
+    const t = tasks.find(x => x.id === id);
+    const o = ownerBtn.dataset.owner;
+    change(id, { owner: t && t.owner === o ? null : o });
+    return;
+  }
+  const row = e.target.closest('.edit-row');
+  if (!row) return;
+  const moveBtn = e.target.closest('[data-move]');
+  if (moveBtn) {
+    const list = live();
+    const i = list.findIndex(t => t.id === row.dataset.id);
+    const j = i + Number(moveBtn.dataset.move);
+    if (i < 0 || j < 0 || j >= list.length) return;
+    // Renumber the whole list so the order is unambiguous, then save what moved.
+    list.forEach((t, k) => { t._sort = (k + 1) * 10; });
+    [list[i]._sort, list[j]._sort] = [list[j]._sort, list[i]._sort];
+    for (const t of list) { const s = t._sort; delete t._sort; if (t.sort !== s) change(t.id, { sort: s }); }
+    return;
+  }
+  const rm = e.target.closest('[data-remove]');
+  if (rm) confirmClick(rm, 'Remove?', () => change(row.dataset.id, { deleted: true }));
+});
+
+document.getElementById('list').addEventListener('submit', (e) => {
+  if (e.target.id !== 'addForm') return;
+  e.preventDefault();
+  const input = document.getElementById('addInput');
+  const label = input.value.trim();
+  if (!label) return;
+  const list = live();
+  const id = 'job-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  tasks.push({ id, label, owner: null, doneOn: null, sort: (list.length ? Math.max(...list.map(t => t.sort)) : 0) + 10 });
+  change(id, {});
+  const again = document.getElementById('addInput');
+  if (again) again.focus();
+});
+
+document.getElementById('actions').addEventListener('click', (e) => {
+  if (e.target.id === 'startEditing') { editing = true; render(); return; }
+  if (e.target.id === 'doneEditing') {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); // saves a name still being typed
+    editing = false; render(); refresh(); return;
+  }
+  if (e.target.id === 'untickAll') {
+    confirmClick(e.target, 'Untick all?', () => { for (const t of live()) if (isDone(t)) change(t.id, { doneOn: null }); });
+  }
+});
+
+window.addEventListener('online', flush);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
+setInterval(() => {
+  if (document.visibilityState !== 'visible') return;
+  const r = currentFriday();
+  if (r !== round) { round = r; if (!editing) render(); }
+  refresh();
+}, 30000);
+
+if (!['all', 'ben', 'jodie'].includes(view)) view = 'all';
+render();
+renderSync();
+refresh();
+</script>
+</body>
+</html>
