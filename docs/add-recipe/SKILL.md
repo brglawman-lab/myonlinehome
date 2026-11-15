@@ -90,8 +90,8 @@ was found by counting rows against the header total.
 - **description** — describe the dish directly, never "This recipe features…".
 - **notes** — omit the field entirely rather than leaving it empty.
 - **photos** — optional, `[{"src":"/recipes/photos/<id>-1.jpg","caption":"Optional"}, …]`.
-  The **first** photo is the main one, used as the thumbnail when browsing
-  and in the cookbook. Commit the files to `public/recipes/photos/`, named
+  The **first** photo is the main one, shown at the top of the recipe when
+  it is opened (the list shows no photos) and in the cookbook. Commit the files to `public/recipes/photos/`, named
   `<recipe-id>-1.jpg`, `-2.jpg`…, resized to ~1600px on the long edge.
   Omit the field when there are no photos.
 - **noRecipe: true** — placeholder for a dish with no recipe yet. Include only

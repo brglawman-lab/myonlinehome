@@ -71,12 +71,6 @@
   .recipe-row:hover { background: var(--surface); }
   .recipe-row.expanded { background: var(--surface); }
   .recipe-head { display: grid; grid-template-columns: 100px 1fr auto auto; align-items: center; gap: 14px; padding: 12px 8px; cursor: pointer; min-height: 56px; }
-  .recipe-head.with-thumb { grid-template-columns: 100px 52px 1fr auto auto; }
-  .recipe-head.with-thumb + .recipe-expand { padding-left: 188px; }
-  .recipe-thumb { width: 52px; height: 52px; border-radius: var(--radius); background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--border-strong); flex-shrink: 0; }
-  .recipe-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .recipe-thumb.photo-count { position: relative; }
-  .recipe-thumb .thumb-count { position: absolute; right: 3px; bottom: 3px; background: rgba(20,16,12,0.65); color: #fff; font-size: 9.5px; font-weight: 500; line-height: 1; padding: 2px 4px; border-radius: 3px; }
   .recipe-head .tag-wrap { display: flex; align-items: center; }
   .card-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; width: fit-content; }
   .recipe-title-wrap { min-width: 0; }
@@ -210,9 +204,6 @@
     .header-controls { max-width: 100%; }
     .form-row, .form-row.three { grid-template-columns: 1fr; }
     .recipe-head { grid-template-columns: 1fr auto; gap: 8px; padding: 12px 4px; }
-    .recipe-head.with-thumb { grid-template-columns: 44px 1fr auto; gap: 10px; }
-    .recipe-head.with-thumb + .recipe-expand { padding-left: 4px; }
-    .recipe-thumb { width: 44px; height: 44px; }
     .recipe-head .tag-wrap { display: none; }
     .recipe-meta { display: none; }
     .recipe-desc { }
@@ -233,6 +224,7 @@
   .print-btn { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
   .print-btn:hover { background: var(--surface2); color: var(--text); }
   .modal-print-actions { gap: 8px; flex-wrap: wrap; }
+  .share-link-box { flex: 1 1 220px; min-width: 0; font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); }
   .shop-picker { margin-top: 0.75rem; padding: 1rem 1.1rem; background: var(--accent-light); border-radius: var(--radius-lg); }
   .shop-picker[hidden] { display: none !important; }
   .shop-picker .sp-head { font-size: 13px; color: var(--accent-text); margin-bottom: 0.6rem; }
@@ -343,7 +335,7 @@ transition:background .15s ease,color .15s ease}
     <div class="form-group"><label>Method</label><textarea id="f-steps" placeholder="One step per line…" style="min-height:120px;"></textarea></div>
     <div class="form-group">
       <label>Photos (optional)</label>
-      <textarea id="f-photos" placeholder="One photo URL per line, e.g. /recipes/photos/beef-short-rib-1.jpg&#10;The first line is the main photo, used as the thumbnail.&#10;Add a caption after a | if you like." style="min-height:60px;"></textarea>
+      <textarea id="f-photos" placeholder="One photo URL per line, e.g. /recipes/photos/beef-short-rib-1.jpg&#10;The first line is the main photo.&#10;Add a caption after a | if you like." style="min-height:60px;"></textarea>
       <div class="form-hint">First line is the main photo. Put a caption after a <code>|</code>, e.g. "/recipes/photos/x.jpg | Fresh out of the oven".</div>
     </div>
     <div class="form-group"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Tips, variations, make-ahead info…" style="min-height:60px;"></textarea></div>
@@ -588,7 +580,7 @@ function tagClass(s) { const map = { starters:'tag-starters', fish:'tag-fish', b
 function tagLabel(s) { return sectionLabel(s); }
 
 /* Photos. A recipe has `photos: [{src, caption}]`, the first being the main
- * photo used as its thumbnail. Older entries may only have `image` (one URL),
+ * photo, shown at the top of the full recipe. The list itself shows no photos. Older entries may only have `image` (one URL),
  * which still works. Photo files live in /recipes/photos/. */
 function recipePhotos(r) {
   if (!r) return [];
@@ -606,19 +598,12 @@ function parsePhotosText(text) {
     return caption ? { src, caption } : { src };
   }).filter(p => p.src);
 }
-const PLATE_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/></svg>';
-function thumbHtml(r) {
-  const photos = recipePhotos(r);
-  if (!photos.length) return '<div class="recipe-thumb">' + PLATE_SVG + '</div>';
-  return '<div class="recipe-thumb' + (photos.length > 1 ? ' photo-count' : '') + '"><img src="' + escapeHtml(photos[0].src) + '" alt="" loading="lazy" decoding="async">'
-    + (photos.length > 1 ? '<span class="thumb-count">' + photos.length + '</span>' : '') + '</div>';
-}
 function galleryHtml(r) {
   const photos = recipePhotos(r);
   if (!photos.length) return '';
   const main = photos[0];
   return '<div class="modal-gallery">'
-    + '<img class="modal-image" id="galleryMain" src="' + escapeHtml(main.src) + '" alt="' + escapeHtml(main.caption || r.title) + '">'
+    + '<img class="modal-image" id="galleryMain" src="' + escapeHtml(main.src) + '" alt="' + escapeHtml(main.caption || r.title) + '" onerror="var g=this.closest(\'.modal-gallery\');if(g)g.remove()">'
     + '<div class="modal-caption" id="galleryCaption"' + (main.caption ? '' : ' hidden') + '>' + escapeHtml(main.caption || '') + '</div>'
     + (photos.length > 1
         ? '<div class="modal-thumbs">' + photos.map((p, i) =>
@@ -969,9 +954,8 @@ function renderRow(r) {
   }
   const rowClasses = 'recipe-row' + (isExpanded ? ' expanded' : '') + (noRecipe ? ' no-recipe' : '');
   return '<div class="' + rowClasses + '" data-id="' + r.id + '">'
-    + '<div class="recipe-head with-thumb" onclick="toggleExpand(\'' + r.id + '\')">'
+    + '<div class="recipe-head" onclick="toggleExpand(\'' + r.id + '\')">'
     + '<div class="tag-wrap"><span class="card-tag ' + tagClass(r.section) + '">' + tagLabel(r.section) + '</span></div>'
-    + thumbHtml(r)
     + '<div class="recipe-title-wrap"><div class="recipe-title">' + title + '</div>'
     + (desc ? '<div class="recipe-desc">' + desc + '</div>' : '')
     + '</div>'
@@ -1018,6 +1002,7 @@ function openDetail(id) {
     const notesHtml = r.notes ? '<p class="section-label">Notes</p><div class="notes-box">' + escapeHtml(r.notes) + '</div>' : '';
     const storageHtml = storageSectionHtml(r);
     const printSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+    const shareSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
     const cartSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>';
     const titleForPrint = escapeHtml(r.title).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
     m.innerHTML = '<button class="modal-close" onclick="closeDetail()">&#x2715;</button>'
@@ -1032,10 +1017,11 @@ function openDetail(id) {
       + '</div>'
       + notesHtml
       + storageHtml
-      + '<div class="modal-print-actions"><button class="print-btn owner-only" type="button" onclick="openShopPicker()">' + cartSvg + ' Add to shopping list</button><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>'
+      + '<div class="modal-print-actions"><button class="print-btn" type="button" id="shareBtn" onclick="shareRecipe(\'' + r.id + '\')">' + shareSvg + ' Share link</button><button class="print-btn owner-only" type="button" onclick="openShopPicker()">' + cartSvg + ' Add to shopping list</button><button class="print-btn" onclick="(function(t){var p=document.title;document.title=t;window.print();setTimeout(function(){document.title=p;},500);})(this.dataset.title)" data-title="' + escapeHtml(r.title) + '">' + printSvg + ' Print recipe</button></div>'
       + '<div class="shop-picker owner-only" id="shopPicker" hidden></div>';
   }
   document.getElementById('detailOverlay').classList.add('open');
+  setRecipeHash(r.id, r.title);
 }
 
 /* Signed in: "Add to shopping list" in a recipe. Lists the ingredients at the
@@ -1112,6 +1098,48 @@ async function sendToShoppingList() {
 function closeDetail(e) {
   if (!e || e.target === document.getElementById('detailOverlay')) {
     document.getElementById('detailOverlay').classList.remove('open');
+    clearRecipeHash();
+  }
+}
+
+/* Shareable links. While a recipe is open the address bar reads
+ * /recipes/#recipe-<id>, so it can be copied straight from the browser too;
+ * opening that link goes to the recipe (openFromHash). replaceState, not
+ * pushState, so Back still leaves the page rather than stepping through
+ * every recipe looked at. */
+const BOOK_TITLE = document.title;
+function recipeLink(id) { return location.origin + '/recipes/#recipe-' + encodeURIComponent(id); }
+function setRecipeHash(id, title) {
+  history.replaceState(null, '', location.pathname + location.search + '#recipe-' + encodeURIComponent(id));
+  document.title = title + ' — Chef Claude';
+}
+function clearRecipeHash() {
+  if (/^#recipe-/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
+  document.title = BOOK_TITLE;
+}
+async function shareRecipe(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  const url = recipeLink(id);
+  const btn = document.getElementById('shareBtn');
+  if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+    try { await navigator.share({ title: r.title, text: r.title, url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  let copied = false;
+  try { await navigator.clipboard.writeText(url); copied = true; } catch (e) {}
+  if (!btn) return;
+  if (copied) {
+    const html = btn.innerHTML;
+    btn.textContent = 'Link copied';
+    setTimeout(() => { if (btn.isConnected) btn.innerHTML = html; }, 2000);
+  } else {
+    // No clipboard access: show the link, selected, to copy by hand.
+    const box = document.createElement('input');
+    box.type = 'text'; box.readOnly = true; box.value = url; box.className = 'share-link-box';
+    box.setAttribute('aria-label', 'Link to this recipe');
+    btn.replaceWith(box);
+    box.focus(); box.select();
   }
 }
 
@@ -1302,6 +1330,7 @@ function saveRecipe() {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (document.getElementById('detailOverlay').classList.contains('open')) clearRecipeHash();
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('addOverlay').classList.remove('open');
 });
@@ -1484,6 +1513,7 @@ function renderSoftDrinksSection(list) {
 }
 
 function openCocktailDetail(idx) {
+  clearRecipeHash();
   const d = drinks[idx];
   if (!d) return;
   const m = document.getElementById('detailModal');
@@ -1933,6 +1963,7 @@ async function openFromHash() {
   const m = hash.match(/^recipe-(.+)$/);
   if (m) {
     const hit = recipes.find(r => r.id === m[1]);
+    if (hit && scaleRecipeId === hit.id && document.getElementById('detailOverlay').classList.contains('open')) return;
     if (hit) { switchToPage(isDrinkSection(hit.section) ? 'drinks' : 'recipes'); openDetail(m[1]); }
     return;
   }
@@ -1963,6 +1994,7 @@ async function loadSeed() {
 render();
 setupScrollspy();
 openFromHash();
+window.addEventListener('hashchange', openFromHash);
 loadSeed()
   .then(openFromHash)
   .then(() => RecipeSync.init())
