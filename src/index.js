@@ -33,6 +33,7 @@ import { listGallery, galleryImage, uploadGalleryPhoto, removeGalleryPhoto, rest
 import { getBarStock, saveBarStock } from "./barstock.js";
 import { getBins, findAddresses, saveAddress } from "./bins.js";
 import { listCleaning, saveCleaning } from "./cleaning.js";
+import { shareRecipe } from "./recipe-share.js";
 
 /* The old /private/ pages moved to /admin/. The site map is /admin/sitemap/ (signed in only). */
 const MOVED = {
@@ -93,6 +94,13 @@ async function route(request, env, ctx) {
     // trusted an unverified header. /admin/api/ replaces it.
     if (path === "/private/api" || path.startsWith("/private/api/")) {
       return json({ error: "This address has been retired. Writes go through /admin/api/ after signing in." }, 410);
+    }
+
+    // ---- shareable recipe links: preview page for crawlers, redirect for people ----
+    if (path.startsWith("/recipes/r/")) {
+      let id = "";
+      try { id = decodeURIComponent(path.slice("/recipes/r/".length)); } catch { /* malformed: treated as unknown */ }
+      return shareRecipe(request, env, id);
     }
 
     if (!path.startsWith("/api/") && !path.startsWith("/admin/api/")) {

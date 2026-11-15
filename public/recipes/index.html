@@ -1102,13 +1102,15 @@ function closeDetail(e) {
   }
 }
 
-/* Shareable links. While a recipe is open the address bar reads
- * /recipes/#recipe-<id>, so it can be copied straight from the browser too;
+/* Shareable links. Share hands out /recipes/r/<id>. While a recipe is open
+ * the address bar reads /recipes/#recipe-<id>, which works too (no preview);
  * opening that link goes to the recipe (openFromHash). replaceState, not
  * pushState, so Back still leaves the page rather than stepping through
  * every recipe looked at. */
 const BOOK_TITLE = document.title;
-function recipeLink(id) { return location.origin + '/recipes/#recipe-' + encodeURIComponent(id); }
+// The link handed out by Share: /recipes/r/<id> gives link previews the recipe's
+// title and photo (src/recipe-share.js), then sends people to #recipe-<id>.
+function recipeLink(id) { return location.origin + '/recipes/r/' + encodeURIComponent(id); }
 function setRecipeHash(id, title) {
   history.replaceState(null, '', location.pathname + location.search + '#recipe-' + encodeURIComponent(id));
   document.title = title + ' — Chef Claude';
