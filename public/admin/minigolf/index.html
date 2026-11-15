@@ -76,6 +76,14 @@
   .x:disabled { opacity:0.3; cursor:default; }
   .x.armed { width:auto; padding:0 0.7rem; font-size:0.85rem; background:var(--danger); color:#fff; border-color:var(--danger); }
 
+  /* ---- start screen ---- */
+  .resume { border-left:5px solid var(--sage); }
+  .resume[hidden] { display:none; }
+  .resume p { margin-bottom:0.75rem; }
+  .resume b { color:var(--forest); font-weight:500; }
+  .start-btn { width:100%; font-size:1.05rem; padding:0.85rem 1.25rem; }
+  [hidden] { display:none !important; }
+
   .actions { display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1.5rem; }
   .history { list-style:none; font-size:0.9rem; }
   .history li { padding:0.45rem 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:1rem; }
@@ -92,6 +100,26 @@
   <h1>Mini golf</h1>
   <p class="sub">Fewest shots wins. Saved on this phone as you go.</p>
 
+  <section id="start" hidden>
+    <div class="panel resume" id="resume" hidden>
+      <p id="resumeText"></p>
+      <button type="button" class="btn secondary" id="resumeBtn">Carry on with that round</button>
+    </div>
+    <div class="panel">
+      <label class="f">How many holes?</label>
+      <div class="holes-row">
+        <button type="button" class="step" id="startHolesDown" aria-label="Fewer holes">−</button>
+        <output id="startHolesOut"></output>
+        <button type="button" class="step" id="startHolesUp" aria-label="More holes">+</button>
+      </div>
+      <label class="f">Who's playing?</label>
+      <div id="startNames"></div>
+      <button type="button" class="btn secondary small" id="startAdd">+ Add a player</button>
+    </div>
+    <button type="button" class="btn start-btn" id="startBtn">Start the round</button>
+  </section>
+
+  <section id="game" hidden>
   <div class="panel result" id="result" hidden></div>
 
   <div class="panel hole" id="hole"></div>
@@ -115,8 +143,9 @@
   </details>
 
   <div class="actions">
-    <button type="button" class="btn danger" id="newGame">New game</button>
+    <button type="button" class="btn secondary" id="newGame">New game</button>
   </div>
+  </section>
 
   <div id="pastWrap" hidden>
     <div class="card-head"><h2>Past games</h2></div>
@@ -181,8 +210,58 @@ function standings() {
   })).map(r => Object.assign(r, { common: common.length }));
 }
 
+/* Which screen is showing. The page always opens on the start screen, which
+ * asks for holes and players; a round in progress can be carried on from there. */
+let screen = 'start';
+let draft = null;   // the start screen's choices, applied only when the round starts
+
 function render() {
-  renderResult(); renderHole(); renderCard(); renderSetup(); renderPast(); save();
+  $('start').hidden = screen !== 'start';
+  $('game').hidden = screen !== 'game';
+  if (screen === 'start') renderStart();
+  else { renderResult(); renderHole(); renderCard(); renderSetup(); }
+  renderPast(); save();
+}
+
+function openStart() {
+  draft = { holes: S.holes, names: S.players.map(p => p.name) };
+  $('startNames').innerHTML = '';
+  screen = 'start';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderStart() {
+  $('startHolesOut').textContent = draft.holes;
+  $('startHolesDown').disabled = draft.holes <= 1;
+  $('startHolesUp').disabled = draft.holes >= MAX_HOLES;
+  $('startAdd').hidden = draft.names.length >= MAX_PLAYERS;
+  const inProgress = hasScores();
+  $('resume').hidden = !inProgress;
+  $('startBtn').textContent = inProgress ? 'Start a new round' : 'Start the round';
+  if (inProgress) {
+    const n = Array.from({ length: S.holes }, (_, h) => h).filter(holeDone).length;
+    $('resumeBtn').textContent = allDone() ? 'Back to that round' : 'Carry on with that round';
+    $('resumeText').innerHTML = (allDone() ? '<b>Last round</b> — finished' : '<b>Round in progress</b> — ' + n + ' of ' + S.holes + ' holes played') + '<br>' +
+      esc(S.players.map((p, i) => nameOf(p, i) + ' ' + total(p)).join(' · '));
+  }
+  const box = $('startNames');
+  if (box.contains(document.activeElement) && box.children.length === draft.names.length) return;
+  box.innerHTML = draft.names.map((name, i) =>
+    '<div class="row"><span class="dot" style="background:' + colour(i) + '"></span>' +
+    '<input class="f" data-sname="' + i + '" value="' + esc(name) + '" placeholder="Player ' + (i + 1) + '" maxlength="24" autocomplete="off" enterkeyhint="done" aria-label="Player ' + (i + 1) + ' name">' +
+    '<button type="button" class="x" data-sremove="' + i + '" aria-label="Remove player ' + (i + 1) + '"' + (draft.names.length <= 1 ? ' disabled' : '') + '>×</button></div>'
+  ).join('');
+}
+
+/* Keep a played round in Past games before it is replaced. */
+function archive() {
+  if (!hasScores()) return;
+  S.history.unshift({
+    date: S.startedOn || new Date().toISOString(), holes: S.holes, finished: allDone(),
+    results: S.players.map((p, i) => ({ name: nameOf(p, i), total: total(p) })),
+  });
+  S.history = S.history.slice(0, 10);
 }
 
 function renderResult() {
@@ -349,26 +428,45 @@ $('addPlayer').addEventListener('click', () => {
   inputs[inputs.length - 1].focus();
 });
 
-$('newGame').addEventListener('click', (e) => {
-  const reset = () => {
-    // Keep a finished (or part-played) round in Past games; keep names and hole count.
-    if (hasScores()) {
-      S.history.unshift({
-        date: S.startedOn || new Date().toISOString(), holes: S.holes, finished: allDone(),
-        results: S.players.map((p, i) => ({ name: nameOf(p, i), total: total(p) })),
-      });
-      S.history = S.history.slice(0, 10);
-    }
-    S.players.forEach(p => { p.scores = blankScores(); });
-    S.hole = 0; S.startedOn = null;
-    render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('New game — ' + S.holes + ' holes');
-  };
-  if (hasScores()) confirmClick(e.currentTarget, 'Start again?', reset); else reset();
+$('newGame').addEventListener('click', openStart);
+
+/* ---- start screen events ---- */
+$('startHolesDown').addEventListener('click', () => { draft.holes = Math.max(1, draft.holes - 1); render(); });
+$('startHolesUp').addEventListener('click', () => { draft.holes = Math.min(MAX_HOLES, draft.holes + 1); render(); });
+$('startNames').addEventListener('input', (e) => {
+  const i = e.target.dataset.sname;
+  if (i != null) draft.names[Number(i)] = e.target.value;
+});
+$('startNames').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.dataset.sname != null) { e.preventDefault(); e.target.blur(); }
+});
+$('startNames').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-sremove]');
+  if (!b || b.disabled) return;
+  draft.names.splice(Number(b.dataset.sremove), 1);
+  $('startNames').innerHTML = '';
+  render();
+});
+$('startAdd').addEventListener('click', () => {
+  if (draft.names.length >= MAX_PLAYERS) return;
+  draft.names.push('');
+  $('startNames').innerHTML = '';
+  render();
+  const inputs = $('startNames').querySelectorAll('input');
+  inputs[inputs.length - 1].focus();
+});
+$('resumeBtn').addEventListener('click', () => { screen = 'game'; render(); window.scrollTo(0, 0); });
+$('startBtn').addEventListener('click', () => {
+  archive();
+  S.holes = draft.holes;
+  S.players = draft.names.map((name, i) => ({ id: newId(), name: name.trim() || 'Player ' + (i + 1), scores: blankScores() }));
+  S.hole = 0; S.startedOn = null;
+  screen = 'game';
+  render();
+  window.scrollTo(0, 0);
 });
 
-render();
+openStart();
 </script>
 </body>
 </html>
