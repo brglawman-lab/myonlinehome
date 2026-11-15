@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mini golf — My Online Home</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+  .sub { margin-bottom:1.25rem; }
+  .dot { display:inline-block; flex:none; width:10px; height:10px; border-radius:50%; }
+
+  /* ---- result banner ---- */
+  .result { padding:1rem 1.25rem; border-left:5px solid var(--forest); }
+  .result[hidden] { display:none; }
+  .result strong { font-family:'Playfair Display',Georgia,serif; font-size:1.3rem; color:var(--forest); display:block; }
+  .result span { font-size:0.9rem; color:var(--mid-grey); }
+
+  /* ---- the hole being played ---- */
+  .hole { padding:1rem 1rem 0.6rem; }
+  .hole-head { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.6rem; }
+  .hole-title { text-align:center; flex:1; }
+  .hole-title b { font-family:'Playfair Display',Georgia,serif; font-size:1.7rem; color:var(--forest); display:block; line-height:1.1; }
+  .hole-title small { font-size:0.82rem; color:var(--mid-grey); }
+  .nav { font:inherit; width:44px; height:44px; border-radius:50%; border:1px solid var(--border); background:#fff;
+         color:var(--forest); font-size:1.4rem; line-height:1; cursor:pointer; flex:none; }
+  .nav:disabled { opacity:0.3; cursor:default; }
+  .players { list-style:none; }
+  .p { display:flex; align-items:center; gap:0.6rem; padding:0.7rem 0.1rem; border-top:1px solid var(--border); }
+  .p-name { flex:1; min-width:0; }
+  .p-name b { display:flex; align-items:center; gap:0.5rem; font-weight:500; font-size:1.05rem; overflow-wrap:anywhere; }
+  .p-name small { display:block; font-size:0.8rem; color:var(--mid-grey); margin-left:calc(10px + 0.5rem); }
+  .step { font:inherit; width:46px; height:46px; border-radius:12px; border:1px solid rgba(45,74,62,0.25); background:#fff;
+          color:var(--forest); font-size:1.5rem; font-weight:500; line-height:1; cursor:pointer; flex:none;
+          touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .step:active { background:rgba(45,74,62,0.08); }
+  .step:disabled { opacity:0.3; cursor:default; }
+  .strokes { width:2.2ch; text-align:center; font-family:'Playfair Display',Georgia,serif; font-size:2rem; color:var(--forest); flex:none; }
+  .strokes.empty { color:rgba(45,74,62,0.25); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:0.75rem 0 0.3rem; border-top:1px solid var(--border); }
+  .chip { font:inherit; font-size:0.85rem; min-width:34px; height:34px; border-radius:999px; border:1px solid var(--border);
+          background:#fff; color:var(--forest); cursor:pointer; padding:0 0.5rem; }
+  .chip.done { background:rgba(122,158,142,0.22); border-color:transparent; }
+  .chip.on { background:var(--forest); color:var(--cream); border-color:var(--forest); }
+
+  /* ---- scorecard ---- */
+  .card-head { display:flex; justify-content:space-between; align-items:baseline; margin:1.5rem 0 0.5rem; gap:1rem; }
+  .card-head h2 { font-family:'Playfair Display',Georgia,serif; font-size:1.25rem; color:var(--forest); }
+  .scroll { overflow-x:auto; background:var(--warm-white); border:1px solid var(--border); border-radius:14px; }
+  table { border-collapse:collapse; width:100%; font-size:0.92rem; }
+  th, td { padding:0.5rem 0.3rem; text-align:center; border-top:1px solid var(--border); white-space:nowrap; }
+  thead th { border-top:none; font-size:0.75rem; font-weight:500; color:var(--mid-grey); }
+  th.name { text-align:left; padding-left:0.75rem; font-weight:500; color:var(--charcoal); font-size:0.92rem;
+            max-width:7.5rem; overflow:hidden; text-overflow:ellipsis; position:sticky; left:0; background:var(--warm-white); }
+  thead th.name { color:var(--mid-grey); font-size:0.75rem; }
+  td.s { cursor:pointer; min-width:1.9rem; }
+  td.cur, th.cur { background:rgba(122,158,142,0.16); }
+  td.tot { font-weight:500; color:var(--forest); padding-right:0.75rem; }
+  tr.lead td.tot { color:var(--rust); }
+
+  /* ---- setup ---- */
+  details.setup { margin-top:1.5rem; }
+  details.setup summary { cursor:pointer; font-family:'Playfair Display',Georgia,serif; font-size:1.25rem; color:var(--forest);
+                          list-style:none; display:flex; justify-content:space-between; align-items:baseline; }
+  details.setup summary::-webkit-details-marker { display:none; }
+  details.setup summary span { font-family:'DM Sans',sans-serif; font-size:0.85rem; color:var(--mid-grey); }
+  .setup .panel { margin-top:0.6rem; }
+  .row { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.6rem; }
+  .row input.f { margin-bottom:0; }
+  .holes-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.1rem; }
+  .holes-row output { font-family:'Playfair Display',Georgia,serif; font-size:1.6rem; color:var(--forest); min-width:2ch; text-align:center; }
+  .x { font:inherit; width:40px; height:40px; flex:none; border-radius:10px; border:1px solid var(--border); background:#fff;
+       color:var(--danger); font-size:1.2rem; cursor:pointer; }
+  .x:disabled { opacity:0.3; cursor:default; }
+  .x.armed { width:auto; padding:0 0.7rem; font-size:0.85rem; background:var(--danger); color:#fff; border-color:var(--danger); }
+
+  .actions { display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1.5rem; }
+  .history { list-style:none; font-size:0.9rem; }
+  .history li { padding:0.45rem 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:1rem; }
+  .history li:first-child { border-top:none; }
+  .history span { color:var(--mid-grey); white-space:nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="crumbs"><a href="/admin/">&larr; Admin</a></span>
+    <button class="link-btn" onclick="signOut()">Sign out</button>
+  </div>
+  <h1>Mini golf</h1>
+  <p class="sub">Fewest shots wins. Saved on this phone as you go.</p>
+
+  <div class="panel result" id="result" hidden></div>
+
+  <div class="panel hole" id="hole"></div>
+
+  <div class="card-head"><h2>Scorecard</h2><span class="note" id="thru"></span></div>
+  <div class="scroll"><table id="card"></table></div>
+
+  <details class="setup" id="setup">
+    <summary>Players &amp; holes <span id="setupNote"></span></summary>
+    <div class="panel">
+      <label class="f">Holes</label>
+      <div class="holes-row">
+        <button type="button" class="step" id="holesDown" aria-label="Fewer holes">−</button>
+        <output id="holesOut"></output>
+        <button type="button" class="step" id="holesUp" aria-label="More holes">+</button>
+      </div>
+      <label class="f">Players</label>
+      <div id="names"></div>
+      <button type="button" class="btn secondary small" id="addPlayer">+ Add a player</button>
+    </div>
+  </details>
+
+  <div class="actions">
+    <button type="button" class="btn danger" id="newGame">New game</button>
+  </div>
+
+  <div id="pastWrap" hidden>
+    <div class="card-head"><h2>Past games</h2></div>
+    <div class="panel"><ul class="history" id="past"></ul></div>
+  </div>
+</div>
+
+<script src="/admin/admin.js"></script>
+<script>
+/* Mini golf scorecard. Everything lives in localStorage on this device —
+ * one phone keeps score, so there is nothing to sync. */
+const KEY = 'minigolf.v1';
+const MAX_HOLES = 18, MAX_PLAYERS = 6, MAX_STROKES = 20;
+const COLOURS = ['#2d4a3e', '#c4622d', '#3f6b8a', '#8b6f47', '#7a4a6b', '#6b7a2d'];
+
+const blankScores = () => Array(MAX_HOLES).fill(null);
+let uid = 0;
+const newId = () => 'p' + Date.now().toString(36) + (uid++);
+
+function defaults() {
+  return {
+    holes: 6, hole: 0, startedOn: null,
+    players: [
+      { id: newId(), name: 'Ben', scores: blankScores() },
+      { id: newId(), name: 'Constance', scores: blankScores() },
+    ],
+    history: [],
+  };
+}
+
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
+if (!S || !Array.isArray(S.players) || !S.players.length) S = defaults();
+// Tidy anything malformed from an older copy of the page.
+S.holes = Math.min(MAX_HOLES, Math.max(1, S.holes | 0 || 6));
+S.hole = Math.min(S.holes - 1, Math.max(0, S.hole | 0));
+S.history = Array.isArray(S.history) ? S.history : [];
+S.players.forEach((p, i) => {
+  p.id = p.id || newId();
+  p.name = typeof p.name === 'string' ? p.name : 'Player ' + (i + 1);
+  const sc = Array.isArray(p.scores) ? p.scores : [];
+  p.scores = blankScores().map((_, h) => (Number.isInteger(sc[h]) && sc[h] > 0 ? sc[h] : null));
+});
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const $ = (id) => document.getElementById(id);
+const nameOf = (p, i) => (p.name || '').trim() || 'Player ' + (i + 1);
+const colour = (i) => COLOURS[i % COLOURS.length];
+const played = (p) => p.scores.slice(0, S.holes).filter(v => v != null).length;
+const total = (p) => p.scores.slice(0, S.holes).reduce((a, v) => a + (v || 0), 0);
+const holeDone = (h) => S.players.every(p => p.scores[h] != null);
+const allDone = () => S.players.length > 0 && Array.from({ length: S.holes }, (_, h) => h).every(holeDone);
+const hasScores = () => S.players.some(p => p.scores.slice(0, S.holes).some(v => v != null));
+
+/* Who's ahead: lowest total, but only compared over holes everyone has played. */
+function standings() {
+  const common = Array.from({ length: S.holes }, (_, h) => h).filter(holeDone);
+  return S.players.map((p, i) => ({
+    i, name: nameOf(p, i), total: total(p),
+    level: common.reduce((a, h) => a + p.scores[h], 0),
+  })).map(r => Object.assign(r, { common: common.length }));
+}
+
+function render() {
+  renderResult(); renderHole(); renderCard(); renderSetup(); renderPast(); save();
+}
+
+function renderResult() {
+  const el = $('result');
+  if (!allDone()) { el.hidden = true; return; }
+  const rows = standings().sort((a, b) => a.total - b.total);
+  const best = rows[0].total;
+  const winners = rows.filter(r => r.total === best);
+  let headline, detail;
+  if (rows.length === 1) {
+    headline = rows[0].name + ' went round in ' + best;
+    detail = S.holes + ' holes';
+  } else if (winners.length === rows.length) {
+    headline = 'All square on ' + best;
+    detail = 'A tie over ' + S.holes + ' holes';
+  } else if (winners.length > 1) {
+    headline = winners.map(w => w.name).join(' & ') + ' tie for the win';
+    detail = best + ' shots each';
+  } else {
+    const margin = rows[1].total - best;
+    headline = winners[0].name + ' wins by ' + margin;
+    detail = rows.map(r => r.name + ' ' + r.total).join(' · ');
+  }
+  el.innerHTML = '<strong>' + esc(headline) + '</strong><span>' + esc(detail) + '</span>';
+  el.style.borderLeftColor = winners.length === 1 && rows.length > 1 ? colour(winners[0].i) : 'var(--forest)';
+  el.hidden = false;
+}
+
+function renderHole() {
+  const h = S.hole;
+  const leaderNote = (() => {
+    const st = standings();
+    if (st.length < 2 || !st[0].common) return '';
+    const best = Math.min(...st.map(r => r.level));
+    const lead = st.filter(r => r.level === best);
+    if (lead.length === st.length) return 'All square after ' + st[0].common;
+    if (lead.length > 1) return lead.map(r => r.name).join(' & ') + ' lead';
+    const next = Math.min(...st.filter(r => r.level !== best).map(r => r.level));
+    return lead[0].name + ' leads by ' + (next - best);
+  })();
+
+  let html = '<div class="hole-head">' +
+    '<button type="button" class="nav" data-go="-1" aria-label="Previous hole"' + (h === 0 ? ' disabled' : '') + '>‹</button>' +
+    '<div class="hole-title"><b>Hole ' + (h + 1) + '</b><small>of ' + S.holes + (leaderNote ? ' · ' + esc(leaderNote) : '') + '</small></div>' +
+    '<button type="button" class="nav" data-go="1" aria-label="Next hole"' + (h === S.holes - 1 ? ' disabled' : '') + '>›</button>' +
+    '</div><ul class="players">';
+  S.players.forEach((p, i) => {
+    const v = p.scores[h];
+    html += '<li class="p">' +
+      '<div class="p-name"><b><span class="dot" style="background:' + colour(i) + '"></span>' + esc(nameOf(p, i)) + '</b>' +
+      '<small>' + total(p) + ' after ' + played(p) + '</small></div>' +
+      '<button type="button" class="step" data-p="' + i + '" data-d="-1" aria-label="One fewer for ' + esc(nameOf(p, i)) + '"' + (v == null ? ' disabled' : '') + '>−</button>' +
+      '<span class="strokes' + (v == null ? ' empty' : '') + '" aria-live="polite">' + (v == null ? '–' : v) + '</span>' +
+      '<button type="button" class="step" data-p="' + i + '" data-d="1" aria-label="One more for ' + esc(nameOf(p, i)) + '"' + (v != null && v >= MAX_STROKES ? ' disabled' : '') + '>+</button>' +
+      '</li>';
+  });
+  html += '</ul><div class="chips">';
+  for (let k = 0; k < S.holes; k++) {
+    html += '<button type="button" class="chip' + (k === h ? ' on' : holeDone(k) ? ' done' : '') + '" data-hole="' + k + '">' + (k + 1) + '</button>';
+  }
+  $('hole').innerHTML = html + '</div>';
+}
+
+function renderCard() {
+  const st = standings();
+  const done = allDone();
+  // Highlight the leader(s) on holes everyone has played (or final totals).
+  let leaders = [];
+  if (st.length > 1 && st[0].common) {
+    const key = done ? 'total' : 'level';
+    const best = Math.min(...st.map(r => r[key]));
+    leaders = st.filter(r => r[key] === best).map(r => r.i);
+    if (leaders.length === st.length) leaders = [];
+  }
+  let html = '<thead><tr><th class="name">Hole</th>';
+  for (let k = 0; k < S.holes; k++) html += '<th' + (k === S.hole ? ' class="cur"' : '') + '>' + (k + 1) + '</th>';
+  html += '<th>Total</th></tr></thead><tbody>';
+  S.players.forEach((p, i) => {
+    html += '<tr' + (leaders.includes(i) ? ' class="lead"' : '') + '><th class="name"><span class="dot" style="background:' + colour(i) + ';margin-right:6px"></span>' + esc(nameOf(p, i)) + '</th>';
+    for (let k = 0; k < S.holes; k++) {
+      const v = p.scores[k];
+      html += '<td class="s' + (k === S.hole ? ' cur' : '') + '" data-hole="' + k + '">' + (v == null ? '' : v) + '</td>';
+    }
+    html += '<td class="tot">' + total(p) + '</td></tr>';
+  });
+  $('card').innerHTML = html + '</tbody>';
+  const n = Array.from({ length: S.holes }, (_, h) => h).filter(holeDone).length;
+  $('thru').textContent = done ? 'Finished' : n ? 'Thru ' + n + ' of ' + S.holes : '';
+}
+
+function renderSetup() {
+  $('holesOut').textContent = S.holes;
+  $('holesDown').disabled = S.holes <= 1;
+  $('holesUp').disabled = S.holes >= MAX_HOLES;
+  $('addPlayer').hidden = S.players.length >= MAX_PLAYERS;
+  $('setupNote').textContent = S.holes + ' holes · ' + S.players.length + (S.players.length === 1 ? ' player' : ' players');
+  // Don't redraw the name inputs while one is being typed in — it would lose focus.
+  const box = $('names');
+  if (box.contains(document.activeElement) && box.children.length === S.players.length) return;
+  box.innerHTML = S.players.map((p, i) =>
+    '<div class="row"><span class="dot" style="background:' + colour(i) + '"></span>' +
+    '<input class="f" data-name="' + i + '" value="' + esc(p.name) + '" placeholder="Player ' + (i + 1) + '" maxlength="24" autocomplete="off" aria-label="Player ' + (i + 1) + ' name">' +
+    '<button type="button" class="x" data-remove="' + i + '" aria-label="Remove ' + esc(nameOf(p, i)) + '"' + (S.players.length <= 1 ? ' disabled' : '') + '>×</button></div>'
+  ).join('');
+}
+
+function renderPast() {
+  $('pastWrap').hidden = !S.history.length;
+  $('past').innerHTML = S.history.map(g => {
+    const rows = g.results.slice().sort((a, b) => a.total - b.total);
+    return '<li><div>' + rows.map(r => esc(r.name) + ' ' + r.total).join(' · ') + '</div><span>' +
+      esc(new Date(g.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })) + ' · ' + g.holes + ' holes</span></li>';
+  }).join('');
+}
+
+/* ---- events ---- */
+$('hole').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b || b.disabled) return;
+  if (b.dataset.go) { S.hole = Math.min(S.holes - 1, Math.max(0, S.hole + Number(b.dataset.go))); return render(); }
+  if (b.dataset.hole != null) { S.hole = Number(b.dataset.hole); return render(); }
+  if (b.dataset.p != null) {
+    const p = S.players[Number(b.dataset.p)];
+    const v = p.scores[S.hole];
+    const d = Number(b.dataset.d);
+    if (!S.startedOn) S.startedOn = new Date().toISOString();
+    if (d > 0) p.scores[S.hole] = v == null ? 1 : Math.min(MAX_STROKES, v + 1);
+    else p.scores[S.hole] = v == null || v <= 1 ? null : v - 1;   // below 1 clears the hole
+    render();
+  }
+});
+
+$('card').addEventListener('click', (e) => {
+  const td = e.target.closest('[data-hole]');
+  if (!td) return;
+  S.hole = Number(td.dataset.hole);
+  render();
+  $('hole').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+$('holesDown').addEventListener('click', () => { S.holes = Math.max(1, S.holes - 1); S.hole = Math.min(S.hole, S.holes - 1); render(); });
+$('holesUp').addEventListener('click', () => { S.holes = Math.min(MAX_HOLES, S.holes + 1); render(); });
+
+$('names').addEventListener('input', (e) => {
+  const i = e.target.dataset.name;
+  if (i == null) return;
+  S.players[Number(i)].name = e.target.value;
+  renderResult(); renderHole(); renderCard(); save();
+});
+$('names').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-remove]');
+  if (!b || b.disabled) return;
+  const i = Number(b.dataset.remove);
+  const p = S.players[i];
+  const go = () => { S.players.splice(i, 1); $('names').innerHTML = ''; render(); };
+  if (played(p)) confirmClick(b, 'Sure?', go); else go();
+});
+$('addPlayer').addEventListener('click', () => {
+  if (S.players.length >= MAX_PLAYERS) return;
+  S.players.push({ id: newId(), name: '', scores: blankScores() });
+  $('names').innerHTML = '';
+  render();
+  const inputs = $('names').querySelectorAll('input');
+  inputs[inputs.length - 1].focus();
+});
+
+$('newGame').addEventListener('click', (e) => {
+  const reset = () => {
+    // Keep a finished (or part-played) round in Past games; keep names and hole count.
+    if (hasScores()) {
+      S.history.unshift({
+        date: S.startedOn || new Date().toISOString(), holes: S.holes, finished: allDone(),
+        results: S.players.map((p, i) => ({ name: nameOf(p, i), total: total(p) })),
+      });
+      S.history = S.history.slice(0, 10);
+    }
+    S.players.forEach(p => { p.scores = blankScores(); });
+    S.hole = 0; S.startedOn = null;
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('New game — ' + S.holes + ' holes');
+  };
+  if (hasScores()) confirmClick(e.currentTarget, 'Start again?', reset); else reset();
+});
+
+render();
+</script>
+</body>
+</html>
