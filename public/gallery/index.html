@@ -416,15 +416,37 @@ function renderLightbox() {
     + '</div>';
 }
 
-function openLightbox(idx) {
+/* Opening a photo adds a history entry, so a phone's back swipe (or the
+ * browser's Back) closes the photo and leaves you where you were in the grid,
+ * rather than leaving the gallery. Next/previous replace that entry, so one
+ * back always returns to the grid however many photos you stepped through. */
+let gridScrollY = 0;
+function lightboxOpen() { return document.getElementById('lightbox').classList.contains('open'); }
+function openLightbox(idx, fromHistory) {
+  const p = GALLERY[idx];
+  if (!p) return;
   lightboxIndex = idx;
   renderLightbox();
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const lb = document.getElementById('lightbox');
+  if (!lightboxOpen()) {
+    gridScrollY = window.scrollY;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  lb.scrollTop = 0;
+  if (fromHistory) return;
+  if (history.state && history.state.photo) history.replaceState({ photo: p.id }, '');
+  else history.pushState({ photo: p.id }, '');
 }
-function closeLightbox() {
+function hideLightbox() {
+  if (!lightboxOpen()) return;
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
+  window.scrollTo(0, gridScrollY);
+}
+function closeLightbox() {
+  if (history.state && history.state.photo) history.back();   // popstate hides it
+  else hideLightbox();
 }
 function stepLightbox(delta) {
   const list = filteredPhotos();
@@ -433,13 +455,21 @@ function stepLightbox(delta) {
   const nextPos = (posInFiltered + delta + list.length) % list.length;
   lightboxIndex = GALLERY.indexOf(list[nextPos]);
   renderLightbox();
+  document.getElementById('lightbox').scrollTop = 0;
+  if (history.state && history.state.photo) history.replaceState({ photo: GALLERY[lightboxIndex].id }, '');
 }
+window.addEventListener('popstate', e => {
+  const id = e.state && e.state.photo;
+  const idx = id ? GALLERY.findIndex(p => p.id === id) : -1;
+  if (idx >= 0) openLightbox(idx, true);
+  else hideLightbox();
+});
 
 document.getElementById('lightbox').addEventListener('click', e => {
   if (e.target.id === 'lightbox') closeLightbox();
 });
 document.addEventListener('keydown', e => {
-  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (!lightboxOpen()) return;
   if (e.key === 'Escape') closeLightbox();
   if (e.key === 'ArrowLeft') stepLightbox(-1);
   if (e.key === 'ArrowRight') stepLightbox(1);
@@ -522,6 +552,12 @@ try { applyOverlay(JSON.parse(localStorage.getItem(GALLERY_CACHE) || 'null')); }
 initHero();
 renderFilterBar();
 renderGrid();
+
+// Reloaded while a photo was open: show it again, so Back still closes it.
+if (history.state && history.state.photo) {
+  const i = GALLERY.findIndex(p => p.id === history.state.photo);
+  if (i >= 0) openLightbox(i, true);
+}
 
 fetch('/api/gallery', { cache: 'no-store' })
   .then(r => r.ok ? r.json() : null)
