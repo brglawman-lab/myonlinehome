@@ -978,7 +978,7 @@ function toggleExpand(id) {
   if (row) row.classList.toggle('expanded'); else render();
 }
 
-function openDetail(id) {
+function openDetail(id, fromLink) {
   const r = recipes.find(x => x.id === id);
   if (!r) return;
   const m = document.getElementById('detailModal');
@@ -1021,7 +1021,7 @@ function openDetail(id) {
       + '<div class="shop-picker owner-only" id="shopPicker" hidden></div>';
   }
   document.getElementById('detailOverlay').classList.add('open');
-  setRecipeHash(r.id, r.title);
+  setRecipeHash(r.id, r.title, fromLink);
 }
 
 /* Signed in: "Add to shopping list" in a recipe. Lists the ingredients at the
@@ -1095,24 +1095,51 @@ async function sendToShoppingList() {
   }
 }
 
-function closeDetail(e) {
-  if (!e || e.target === document.getElementById('detailOverlay')) {
-    document.getElementById('detailOverlay').classList.remove('open');
-    clearRecipeHash();
-  }
+/* Back closes an open recipe or cocktail. Opening one from the page adds a
+ * history entry (state.modal), so a phone's back swipe or the browser's Back
+ * closes it and leaves you where you were, instead of leaving the book. The
+ * ×, Escape and tapping outside go back through that entry too, so nothing
+ * is left behind for a later Back to trip over. A recipe reached from a
+ * shared link adds no entry: Back from there leaves, as it should. */
+function detailIsOpen() { return document.getElementById('detailOverlay').classList.contains('open'); }
+function hideDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.title = BOOK_TITLE;
 }
+function closeDetail(e) {
+  if (e && e.target !== document.getElementById('detailOverlay')) return;
+  if (!detailIsOpen()) return;
+  if (history.state && history.state.modal) { history.back(); return; }   // popstate hides it
+  hideDetail();
+  clearRecipeHash();
+}
+function setModalEntry(state, url) {
+  if (history.state && history.state.modal) history.replaceState(state, '', url);
+  else history.pushState(state, '', url);
+}
+window.addEventListener('popstate', (e) => {
+  const st = e.state;
+  if (st && st.modal === 'recipe') {
+    // Forward onto a recipe: hashchange → openFromHash opens it.
+    return;
+  }
+  if (st && st.modal === 'cocktail') { openCocktailDetail(st.idx, true); return; }
+  if (detailIsOpen()) hideDetail();
+});
 
 /* Shareable links. Share hands out /recipes/r/<id>. While a recipe is open
  * the address bar reads /recipes/#recipe-<id>, which works too (no preview);
- * opening that link goes to the recipe (openFromHash). replaceState, not
- * pushState, so Back still leaves the page rather than stepping through
- * every recipe looked at. */
+ * opening that link goes to the recipe (openFromHash). Stepping straight
+ * from one open recipe to another replaces the entry rather than adding
+ * one, so a single Back always returns to the list. */
 const BOOK_TITLE = document.title;
 // The link handed out by Share: /recipes/r/<id> gives link previews the recipe's
 // title and photo (src/recipe-share.js), then sends people to #recipe-<id>.
 function recipeLink(id) { return location.origin + '/recipes/r/' + encodeURIComponent(id); }
-function setRecipeHash(id, title) {
-  history.replaceState(null, '', location.pathname + location.search + '#recipe-' + encodeURIComponent(id));
+function setRecipeHash(id, title, fromLink) {
+  const url = location.pathname + location.search + '#recipe-' + encodeURIComponent(id);
+  if (fromLink) history.replaceState(history.state, '', url);
+  else setModalEntry({ modal: 'recipe', id: id }, url);
   document.title = title + ' — Chef Claude';
 }
 function clearRecipeHash() {
@@ -1332,8 +1359,7 @@ function saveRecipe() {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (document.getElementById('detailOverlay').classList.contains('open')) clearRecipeHash();
-  document.getElementById('detailOverlay').classList.remove('open');
+  closeDetail();
   document.getElementById('addOverlay').classList.remove('open');
 });
 
@@ -1514,10 +1540,12 @@ function renderSoftDrinksSection(list) {
     + '</div>';
 }
 
-function openCocktailDetail(idx) {
-  clearRecipeHash();
+function openCocktailDetail(idx, fromHistory) {
   const d = drinks[idx];
   if (!d) return;
+  if (!fromHistory) setModalEntry({ modal: 'cocktail', idx: idx }, location.pathname + location.search);
+  else clearRecipeHash();
+  document.title = d.name + ' — Chef Claude';
   const m = document.getElementById('detailModal');
   const tagCls = spiritTagClass(d.spirits);
   const ingHtml = d.ingredients.map(parseCocktailIngredient).join('');
@@ -1966,7 +1994,10 @@ async function openFromHash() {
   if (m) {
     const hit = recipes.find(r => r.id === m[1]);
     if (hit && scaleRecipeId === hit.id && document.getElementById('detailOverlay').classList.contains('open')) return;
-    if (hit) { switchToPage(isDrinkSection(hit.section) ? 'drinks' : 'recipes'); openDetail(m[1]); }
+    // Opened from the address (a shared link, or Forward onto a recipe): the
+    // history entry is already there, so add none — Back from a shared link
+    // leaves the page; Back after Forward closes the recipe.
+    if (hit) { switchToPage(isDrinkSection(hit.section) ? 'drinks' : 'recipes'); openDetail(m[1], true); }
     return;
   }
   if (['seasonal', 'foraging', 'drinks'].includes(hash)) switchToPage(hash);
